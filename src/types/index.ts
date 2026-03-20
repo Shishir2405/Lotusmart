@@ -276,6 +276,7 @@ export interface ITokenPayload {
   userId: string;
   email: string;
   role: UserRole;
+  name?: string;
 }
 
 // ──────────────────────────────────────────────

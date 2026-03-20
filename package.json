@@ -9,13 +9,25 @@
     "lint": "next lint",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
+    "type-check": "tsc --noEmit",
     "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.11.1",
+    "@aws-sdk/client-s3": "^3.1013.0",
+    "@aws-sdk/lib-storage": "^3.1013.0",
+    "@aws-sdk/s3-request-presigner": "^3.1013.0",
     "axios": "^1.13.6",
     "bcryptjs": "^3.0.3",
-    "cloudinary": "^2.9.0",
     "cookie": "^1.1.1",
     "framer-motion": "^12.38.0",
     "jose": "^6.2.2",
@@ -35,7 +47,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "4.0.15",
+    "@tailwindcss/postcss": "4.2.2",
     "@types/bcryptjs": "^3.0.0",
     "@types/cookie": "^1.0.0",
     "@types/jsonwebtoken": "^9.0.10",
@@ -53,7 +65,7 @@
     "lint-staged": "^16.4.0",
     "prettier": "3.5.3",
     "prettier-plugin-tailwindcss": "^0.7.2",
-    "tailwindcss": "4.0.15",
+    "tailwindcss": "4.2.2",
     "typescript": "5.7.3"
   }
 }

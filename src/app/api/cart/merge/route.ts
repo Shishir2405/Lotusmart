@@ -1,0 +1,111 @@
+/**
+ * POST /api/cart/merge
+ *
+ * Called immediately after login/register.
+ * Merges guest localStorage cart items into the authenticated user's DB cart.
+ * Returns the merged cart so the client can update its Zustand store.
+ */
+
+import { NextRequest } from "next/server";
+import connectDB from "@/lib/db";
+import { requireAuth } from "@/lib/auth";
+import { ApiError } from "@/lib/api-error";
+import { successResponse, errorResponse } from "@/lib/api-response";
+import Cart from "@/modules/cart/cart.model";
+import Product from "@/modules/products/product.model";
+import type { CartItem } from "@/store/cart.store";
+
+export async function POST(request: NextRequest) {
+  try {
+    await connectDB();
+    const authUser = await requireAuth(request);
+
+    const body = await request.json();
+    const localItems: CartItem[] = body.localItems ?? [];
+
+    // Get or create server cart
+    let cart = await Cart.findOne({ user: authUser.userId });
+    if (!cart) {
+      cart = await Cart.create({ user: authUser.userId, items: [], discount: 0 });
+    }
+
+    // Merge each local item into server cart
+    for (const local of localItems) {
+      if (!local.productId || local.quantity < 1) continue;
+
+      // Verify product still exists and has stock
+      const product = await Product.findById(local.productId)
+        .select("price stock isActive")
+        .lean();
+      if (!product || !product.isActive || product.stock < 1) continue;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const existingIdx = (cart.items as any[]).findIndex(
+        (i: { product: { toString: () => string }; variant?: { name: string; value: string } }) =>
+          i.product.toString() === local.productId &&
+          JSON.stringify(i.variant) === JSON.stringify(local.variant),
+      );
+
+      if (existingIdx >= 0) {
+        // Take the higher quantity, capped at stock
+        cart.items[existingIdx].quantity = Math.min(
+          Math.max(cart.items[existingIdx].quantity, local.quantity),
+          product.stock,
+        );
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (cart.items as any[]).push({
+          product: local.productId,
+          quantity: Math.min(local.quantity, product.stock),
+          variant: local.variant ?? undefined,
+          price: product.price,
+        });
+      }
+    }
+
+    await cart.save();
+
+    // Return populated cart for client to sync Zustand store
+    const populated = await Cart.findById(cart._id).populate(
+      "items.product",
+      "name slug images price compareAtPrice stock unit isActive",
+    );
+
+    // Map to CartItem shape the store understands
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rawItems: any[] = populated?.items ?? [];
+    const items: CartItem[] = rawItems
+      .filter((i: { product: { isActive: boolean; stock: number } }) => i.product?.isActive && i.product?.stock > 0)
+      .map((i: {
+        product: {
+          _id: { toString: () => string };
+          name: string;
+          slug: string;
+          images: string[];
+          price: number;
+          compareAtPrice?: number;
+          stock: number;
+          unit: string;
+        };
+        quantity: number;
+        variant?: { name: string; value: string };
+        price: number;
+      }) => ({
+        productId: i.product._id.toString(),
+        name: i.product.name,
+        slug: i.product.slug,
+        image: i.product.images?.[0] ?? "",
+        price: i.price,
+        compareAtPrice: i.product.compareAtPrice,
+        quantity: i.quantity,
+        variant: i.variant,
+        stock: i.product.stock,
+        unit: i.product.unit,
+      }));
+
+    return successResponse({ items }, "Cart merged successfully");
+  } catch (err) {
+    const e = ApiError.from(err);
+    return errorResponse(e.message, e.statusCode);
+  }
+}

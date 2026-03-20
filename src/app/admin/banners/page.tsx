@@ -1,0 +1,233 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { RiAddLine, RiDeleteBinLine, RiUploadLine, RiDraggable } from "react-icons/ri";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Badge } from "@/components/ui/Badge";
+import axios from "axios";
+import toast from "react-hot-toast";
+
+interface Banner {
+  _id: string;
+  title: string;
+  subtitle?: string;
+  image: string;
+  link?: string;
+  isActive: boolean;
+  sortOrder: number;
+  position: "hero" | "sidebar" | "category";
+}
+
+const EMPTY_FORM = { title: "", subtitle: "", link: "", position: "hero" as const, sortOrder: 0, isActive: true };
+
+export default function AdminBannersPage() {
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [imageUrl, setImageUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const fetchBanners = () => {
+    setLoading(true);
+    axios
+      .get<{ data: Banner[] }>("/api/admin/banners")
+      .then((r) => setBanners(r.data.data))
+      .catch(() => toast.error("Failed to load banners"))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { fetchBanners(); }, []);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("target", "banner");
+      const res = await axios.post<{ data: { url: string } }>("/api/upload", fd);
+      setImageUrl(res.data.data.url);
+      toast.success("Image uploaded");
+    } catch {
+      toast.error("Upload failed");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!imageUrl) { toast.error("Please upload a banner image"); return; }
+    setSaving(true);
+    try {
+      await axios.post("/api/admin/banners", { ...form, image: imageUrl });
+      toast.success("Banner created");
+      setShowForm(false);
+      setForm(EMPTY_FORM);
+      setImageUrl("");
+      fetchBanners();
+    } catch {
+      toast.error("Failed to create banner");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const toggleActive = async (id: string, current: boolean) => {
+    try {
+      await axios.patch(`/api/admin/banners/${id}`, { isActive: !current });
+      setBanners((prev) => prev.map((b) => b._id === id ? { ...b, isActive: !current } : b));
+    } catch { toast.error("Failed to update"); }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Delete this banner?")) return;
+    setDeletingId(id);
+    try {
+      await axios.delete(`/api/admin/banners/${id}`);
+      setBanners((prev) => prev.filter((b) => b._id !== id));
+      toast.success("Banner deleted");
+    } catch { toast.error("Failed to delete"); } finally { setDeletingId(null); }
+  };
+
+  return (
+    <div className="p-8">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-neutral-900">Banners</h1>
+          <p className="text-sm text-neutral-400 mt-0.5">Manage hero and promotional banners</p>
+        </div>
+        {!showForm && (
+          <Button leftIcon={<RiAddLine />} onClick={() => setShowForm(true)}>Add Banner</Button>
+        )}
+      </div>
+
+      {/* Create form */}
+      <AnimatePresence>
+        {showForm && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="bg-white rounded-2xl p-6 border border-neutral-100 mb-6"
+          >
+            <h2 className="font-semibold text-neutral-800 mb-5">New Banner</h2>
+            <form onSubmit={handleCreate} className="space-y-4">
+              {/* Image upload */}
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">Banner Image *</label>
+                {imageUrl ? (
+                  <div className="relative w-full h-40 rounded-xl overflow-hidden border border-neutral-200 mb-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={imageUrl} alt="Banner preview" className="w-full h-full object-cover" />
+                    <button type="button" onClick={() => setImageUrl("")} className="absolute top-2 right-2 bg-red-500 text-white rounded-lg p-1.5 text-xs">Remove</button>
+                  </div>
+                ) : (
+                  <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-neutral-200 rounded-xl cursor-pointer hover:border-[#E84672] transition-colors ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
+                    <RiUploadLine size={24} className="text-neutral-400 mb-2" />
+                    <span className="text-sm text-neutral-400">{uploading ? "Uploading..." : "Click to upload banner image"}</span>
+                    <span className="text-xs text-neutral-300 mt-0.5">Recommended: 1920×600px</span>
+                    <input type="file" accept="image/*" className="sr-only" onChange={handleUpload} />
+                  </label>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Input label="Title *" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required />
+                <Input label="Subtitle" value={form.subtitle} onChange={(e) => setForm((f) => ({ ...f, subtitle: e.target.value }))} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Input label="Link URL" value={form.link} onChange={(e) => setForm((f) => ({ ...f, link: e.target.value }))} placeholder="/products or https://..." />
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">Position</label>
+                  <select value={form.position} onChange={(e) => setForm((f) => ({ ...f, position: e.target.value as typeof form.position }))} className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#E84672] bg-white">
+                    <option value="hero">Hero</option>
+                    <option value="sidebar">Sidebar</option>
+                    <option value="category">Category</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Input label="Sort Order" type="number" value={String(form.sortOrder)} onChange={(e) => setForm((f) => ({ ...f, sortOrder: Number(e.target.value) }))} />
+                <div className="flex items-end pb-2.5">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked={form.isActive} onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))} className="rounded accent-[#E84672]" />
+                    <span className="text-sm text-neutral-700">Active</span>
+                  </label>
+                </div>
+              </div>
+              <div className="flex gap-3 pt-1">
+                <Button type="submit" isLoading={saving}>Create Banner</Button>
+                <Button type="button" variant="outline" onClick={() => { setShowForm(false); setImageUrl(""); }}>Cancel</Button>
+              </div>
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Banner list */}
+      {loading ? (
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => <div key={i} className="bg-white rounded-2xl h-28 border border-neutral-100 animate-pulse" />)}
+        </div>
+      ) : banners.length === 0 ? (
+        <div className="text-center py-20 bg-white rounded-2xl border border-neutral-100">
+          <div className="text-4xl mb-3">🖼️</div>
+          <p className="text-neutral-500">No banners yet. Add one to get started.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <AnimatePresence>
+            {banners.map((banner) => (
+              <motion.div
+                key={banner._id}
+                layout
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="bg-white rounded-2xl border border-neutral-100 overflow-hidden flex items-center"
+              >
+                <div className="p-3 text-neutral-300 cursor-grab">
+                  <RiDraggable size={18} />
+                </div>
+                <div className="w-28 h-16 shrink-0 bg-[#F7F6F0] overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={banner.image} alt={banner.title} className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1 px-4 py-3 min-w-0">
+                  <p className="text-sm font-semibold text-neutral-800 truncate">{banner.title}</p>
+                  {banner.subtitle && <p className="text-xs text-neutral-400 truncate mt-0.5">{banner.subtitle}</p>}
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span className="text-xs text-neutral-400 capitalize bg-[#F7F6F0] px-2 py-0.5 rounded-full">{banner.position}</span>
+                    {banner.link && <span className="text-xs text-neutral-400 truncate max-w-xs">→ {banner.link}</span>}
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 px-4">
+                  <button onClick={() => toggleActive(banner._id, banner.isActive)}>
+                    <Badge variant={banner.isActive ? "success" : "neutral"} dot>
+                      {banner.isActive ? "Active" : "Inactive"}
+                    </Badge>
+                  </button>
+                  <button
+                    onClick={() => handleDelete(banner._id)}
+                    disabled={deletingId === banner._id}
+                    className="p-1.5 rounded-lg hover:bg-red-50 text-neutral-400 hover:text-red-500 transition-colors disabled:opacity-40"
+                  >
+                    <RiDeleteBinLine size={15} />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
+    </div>
+  );
+}

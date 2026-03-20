@@ -1,4 +1,5 @@
 // GET /api/auth/me — Return the currently authenticated user's profile
+// PATCH /api/auth/me — Update profile (name, phone, avatar)
 
 import { NextRequest } from "next/server";
 
@@ -6,7 +7,7 @@ import { ApiError } from "@/lib/api-error";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import { requireAuth } from "@/lib/auth";
 import connectDB from "@/lib/db";
-import { getProfile } from "@/modules/auth/auth.service";
+import { getProfile, updateProfile } from "@/modules/auth/auth.service";
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,6 +17,26 @@ export async function GET(request: NextRequest) {
     const user = await getProfile(authUser.userId);
 
     return successResponse({ user }, "Profile retrieved successfully");
+  } catch (error) {
+    const apiError = ApiError.from(error);
+    return errorResponse(apiError.message, apiError.statusCode, apiError.errors);
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    await connectDB();
+
+    const authUser = await requireAuth(request);
+    const body = await request.json();
+
+    const user = await updateProfile(authUser.userId, {
+      name: body.name,
+      phone: body.phone,
+      avatar: body.avatar,
+    });
+
+    return successResponse(user, "Profile updated successfully");
   } catch (error) {
     const apiError = ApiError.from(error);
     return errorResponse(apiError.message, apiError.statusCode, apiError.errors);
