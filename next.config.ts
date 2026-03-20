@@ -20,6 +20,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "profiles.lotusmart.com",
       },
+      // Homepage/category placeholder images
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
       // OAuth avatars
       {
         protocol: "https",

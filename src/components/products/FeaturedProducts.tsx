@@ -18,28 +18,63 @@ async function getFeaturedProducts() {
 
 export async function FeaturedProducts() {
   const products = await getFeaturedProducts();
-
   if (!products.length) return null;
 
   return (
-    <section className="container-wide py-12">
-      <div className="flex items-end justify-between mb-8">
-        <div>
-          <h2 className="text-3xl font-bold text-neutral-900 mb-1">Featured Products</h2>
-          <p className="text-neutral-500">Handpicked favourites this season</p>
-        </div>
-        <a
-          href="/products?featured=true"
-          className="text-sm font-semibold text-[#E84672] hover:underline underline-offset-2 hidden sm:block"
+    <section style={{ paddingTop: "4rem", paddingBottom: "4rem" }}>
+      <div className="container-wide">
+        {/* Header */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            marginBottom: "2.5rem",
+            flexWrap: "wrap",
+            gap: "1rem",
+          }}
         >
-          View all →
-        </a>
-      </div>
+          <div>
+            <h2
+              style={{
+                fontSize: "clamp(1.75rem, 3vw, 2.25rem)",
+                fontWeight: 700,
+                color: "#1c1917",
+                marginBottom: "0.375rem",
+              }}
+            >
+              Featured Products
+            </h2>
+            <p style={{ color: "#78716c", fontSize: "1rem", margin: 0 }}>
+              Handpicked favourites this season
+            </p>
+          </div>
+          <a
+            href="/products?featured=true"
+            style={{
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              color: "#E84672",
+              textDecoration: "none",
+            }}
+          >
+            View all →
+          </a>
+        </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {products.map((p: Parameters<typeof ProductCard>[0]["product"]) => (
-          <ProductCard key={p._id as string} product={p} />
-        ))}
+        {/* Grid */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gap: "1rem",
+          }}
+          className="product-grid"
+        >
+          {products.map((p: Parameters<typeof ProductCard>[0]["product"]) => (
+            <ProductCard key={p._id as string} product={p} />
+          ))}
+        </div>
       </div>
     </section>
   );

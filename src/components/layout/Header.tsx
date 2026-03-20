@@ -54,14 +54,12 @@ export function Header() {
   const userMenuRef = useRef<HTMLDivElement>(null);
   const debouncedSearch = useDebounce(searchQuery, 350);
 
-  // Scroll effect
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
-  // Search
   useEffect(() => {
     if (!debouncedSearch || debouncedSearch.length < 2) {
       setSearchResults([]);
@@ -77,7 +75,6 @@ export function Header() {
       .finally(() => setSearchLoading(false));
   }, [debouncedSearch]);
 
-  // Close dropdowns on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
@@ -93,7 +90,6 @@ export function Header() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => setMobileOpen(false), [pathname]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -110,64 +106,141 @@ export function Header() {
 
   return (
     <header
-      className={cn(
-        "sticky top-0 z-40 w-full transition-all duration-300",
-        scrolled
-          ? "bg-[#FFFDF7]/95 shadow-[0_1px_20px_rgba(0,0,0,0.06)] backdrop-blur-md"
-          : "bg-[#FFFDF7]",
-      )}
+      style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 40,
+        width: "100%",
+        backgroundColor: scrolled ? "rgba(255,253,247,0.95)" : "#FFFDF7",
+        boxShadow: scrolled ? "0 1px 20px rgba(0,0,0,0.06)" : "none",
+        backdropFilter: scrolled ? "blur(12px)" : "none",
+        transition: "all 0.3s ease",
+      }}
     >
-      {/* Top bar */}
-      <div className="hidden bg-[#4D4529] px-4 py-2 text-center text-xs font-medium text-[#FFF9E8] sm:block">
+      {/* Top announcement bar */}
+      <div
+        style={{
+          backgroundColor: "#4D4529",
+          padding: "0.5rem 1rem",
+          textAlign: "center",
+          fontSize: "0.75rem",
+          fontWeight: 500,
+          color: "#FFF9E8",
+        }}
+        className="header-topbar"
+      >
         🌸 Free shipping on orders above ₹500 &nbsp;|&nbsp; Fresh stock added weekly
       </div>
 
-      {/* Main header */}
+      {/* Main header row */}
       <div className="container-wide">
-        <div className="flex h-16 items-center justify-between gap-4">
+        <div
+          style={{
+            display: "flex",
+            height: "4rem",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "1rem",
+          }}
+        >
           {/* Logo */}
-          <Link href="/" className="flex shrink-0 items-center gap-2">
-            <span className="text-2xl font-bold tracking-tight text-[#4D4529]">
-              Lotus<span className="text-[#E84672]">Mart</span>
+          <Link
+            href="/"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              flexShrink: 0,
+              textDecoration: "none",
+            }}
+          >
+            <span
+              style={{
+                fontSize: "1.5rem",
+                fontWeight: 700,
+                letterSpacing: "-0.02em",
+                color: "#4D4529",
+              }}
+            >
+              Lotus<span style={{ color: "#E84672" }}>Mart</span>
             </span>
           </Link>
 
-          {/* Nav links — desktop */}
-          <nav className="hidden items-center gap-6 lg:flex">
+          {/* Desktop nav */}
+          <nav
+            className="header-nav"
+            style={{ display: "none", alignItems: "center", gap: "1.5rem" }}
+          >
             {topCategories.map((cat) => (
               <Link
                 key={cat.slug}
                 href={`/categories/${cat.slug}`}
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-[#E84672]",
-                  pathname?.includes(cat.slug) ? "text-[#E84672]" : "text-neutral-600",
-                )}
+                style={{
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  color: pathname?.includes(cat.slug) ? "#E84672" : "#57534e",
+                  textDecoration: "none",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#E84672")}
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.color = pathname?.includes(cat.slug)
+                    ? "#E84672"
+                    : "#57534e")
+                }
               >
                 {cat.name}
               </Link>
             ))}
             <Link
               href="/products"
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-[#E84672]",
-                pathname === "/products" ? "text-[#E84672]" : "text-neutral-600",
-              )}
+              style={{
+                fontSize: "0.875rem",
+                fontWeight: 500,
+                color: pathname === "/products" ? "#E84672" : "#57534e",
+                textDecoration: "none",
+                transition: "color 0.2s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#E84672")}
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = pathname === "/products" ? "#E84672" : "#57534e")
+              }
             >
               All Products
             </Link>
           </nav>
 
           {/* Right icons */}
-          <div className="flex items-center gap-1">
+          <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
             {/* Search */}
-            <div ref={searchRef} className="relative">
+            <div ref={searchRef} style={{ position: "relative" }}>
               <button
                 onClick={() => setSearchOpen((v) => !v)}
-                className="rounded-xl p-2 text-neutral-600 transition-all hover:bg-[#FFF1F3] hover:text-[#E84672]"
                 aria-label="Search"
+                style={{
+                  borderRadius: "0.75rem",
+                  padding: "0.5rem",
+                  color: "#57534e",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "background 0.2s, color 0.2s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#FFF1F3";
+                  e.currentTarget.style.color = "#E84672";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.color = "#57534e";
+                }}
               >
                 <RiSearchLine size={20} />
               </button>
+
               <AnimatePresence>
                 {searchOpen && (
                   <motion.div
@@ -175,58 +248,145 @@ export function Header() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.98 }}
                     transition={{ duration: 0.18 }}
-                    className="absolute top-12 right-0 w-80 overflow-hidden rounded-2xl border border-[#EBE8D8] bg-[#FFFDF7] shadow-xl"
+                    style={{
+                      position: "absolute",
+                      top: "3rem",
+                      right: 0,
+                      width: "20rem",
+                      overflow: "hidden",
+                      borderRadius: "1rem",
+                      border: "1px solid #EBE8D8",
+                      backgroundColor: "#FFFDF7",
+                      boxShadow: "0 20px 60px rgba(0,0,0,0.12)",
+                      zIndex: 50,
+                    }}
                   >
-                    <form onSubmit={handleSearchSubmit} className="p-3">
-                      <div className="flex items-center gap-2 rounded-xl bg-[#F7F6F0] px-3 py-2">
-                        <RiSearchLine className="shrink-0 text-neutral-400" size={16} />
+                    <form onSubmit={handleSearchSubmit} style={{ padding: "0.75rem" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.5rem",
+                          borderRadius: "0.75rem",
+                          backgroundColor: "#F7F6F0",
+                          padding: "0.5rem 0.75rem",
+                        }}
+                      >
+                        <RiSearchLine size={15} style={{ color: "#a8a29e", flexShrink: 0 }} />
                         <input
                           autoFocus
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           placeholder="Search products..."
-                          className="w-full bg-transparent text-sm text-neutral-800 outline-none placeholder:text-neutral-400"
+                          style={{
+                            flex: 1,
+                            background: "transparent",
+                            fontSize: "0.875rem",
+                            color: "#292524",
+                            outline: "none",
+                            border: "none",
+                            minWidth: 0,
+                          }}
                         />
                         {searchQuery && (
-                          <button type="button" onClick={() => setSearchQuery("")}>
-                            <RiCloseLine className="text-neutral-400" size={16} />
+                          <button
+                            type="button"
+                            onClick={() => setSearchQuery("")}
+                            style={{
+                              background: "none",
+                              border: "none",
+                              cursor: "pointer",
+                              padding: 0,
+                              color: "#a8a29e",
+                              display: "flex",
+                            }}
+                          >
+                            <RiCloseLine size={15} />
                           </button>
                         )}
                       </div>
                     </form>
 
                     {searchLoading && (
-                      <div className="px-4 py-6 text-center text-sm text-neutral-400">
+                      <div
+                        style={{
+                          padding: "1.5rem 1rem",
+                          textAlign: "center",
+                          fontSize: "0.875rem",
+                          color: "#a8a29e",
+                        }}
+                      >
                         Searching...
                       </div>
                     )}
 
                     {!searchLoading && searchResults.length > 0 && (
-                      <ul className="pb-2">
+                      <ul style={{ listStyle: "none", padding: "0 0 0.5rem", margin: 0 }}>
                         {searchResults.map((r) => (
                           <li key={r._id}>
                             <Link
                               href={`/products/${r.slug}`}
-                              className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-[#F7F6F0]"
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.75rem",
+                                padding: "0.625rem 1rem",
+                                textDecoration: "none",
+                                transition: "background 0.15s",
+                              }}
                               onClick={() => {
                                 setSearchOpen(false);
                                 setSearchQuery("");
                               }}
+                              onMouseEnter={(e) =>
+                                (e.currentTarget.style.backgroundColor = "#F7F6F0")
+                              }
+                              onMouseLeave={(e) =>
+                                (e.currentTarget.style.backgroundColor = "transparent")
+                              }
                             >
-                              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-[#EBE8D8]">
+                              <div
+                                style={{
+                                  width: "2.5rem",
+                                  height: "2.5rem",
+                                  flexShrink: 0,
+                                  overflow: "hidden",
+                                  borderRadius: "0.5rem",
+                                  backgroundColor: "#EBE8D8",
+                                }}
+                              >
                                 {r.images?.[0] && (
                                   <img
                                     src={r.images[0]}
                                     alt={r.name}
-                                    className="h-full w-full object-cover"
+                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
                                   />
                                 )}
                               </div>
-                              <div className="min-w-0 flex-1">
-                                <p className="truncate text-sm font-medium text-neutral-800">
+                              <div style={{ minWidth: 0, flex: 1 }}>
+                                <p
+                                  style={{
+                                    fontSize: "0.875rem",
+                                    fontWeight: 500,
+                                    color: "#292524",
+                                    margin: 0,
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
                                   {r.name}
                                 </p>
-                                <p className="text-xs font-semibold text-[#E84672]">₹{r.price}</p>
+                                <p
+                                  style={{
+                                    fontSize: "0.75rem",
+                                    fontWeight: 600,
+                                    color: "#E84672",
+                                    margin: 0,
+                                  }}
+                                >
+                                  ₹{r.price}
+                                </p>
                               </div>
                             </Link>
                           </li>
@@ -235,7 +395,14 @@ export function Header() {
                     )}
 
                     {!searchLoading && searchQuery.length >= 2 && searchResults.length === 0 && (
-                      <div className="px-4 py-6 text-center text-sm text-neutral-400">
+                      <div
+                        style={{
+                          padding: "1.5rem 1rem",
+                          textAlign: "center",
+                          fontSize: "0.875rem",
+                          color: "#a8a29e",
+                        }}
+                      >
                         No results for &quot;{searchQuery}&quot;
                       </div>
                     )}
@@ -247,12 +414,45 @@ export function Header() {
             {/* Wishlist */}
             <Link
               href="/wishlist"
-              className="relative rounded-xl p-2 text-neutral-600 transition-all hover:bg-[#FFF1F3] hover:text-[#E84672]"
               aria-label="Wishlist"
+              style={{
+                position: "relative",
+                borderRadius: "0.75rem",
+                padding: "0.5rem",
+                color: "#57534e",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "background 0.2s, color 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#FFF1F3";
+                e.currentTarget.style.color = "#E84672";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.color = "#57534e";
+              }}
             >
               <RiHeartLine size={20} />
               {wishlistCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#E84672] text-[10px] font-bold text-white">
+                <span
+                  style={{
+                    position: "absolute",
+                    top: "-2px",
+                    right: "-2px",
+                    width: "1rem",
+                    height: "1rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "9999px",
+                    backgroundColor: "#E84672",
+                    fontSize: "0.625rem",
+                    fontWeight: 700,
+                    color: "#ffffff",
+                  }}
+                >
                   {wishlistCount > 9 ? "9+" : wishlistCount}
                 </span>
               )}
@@ -261,12 +461,45 @@ export function Header() {
             {/* Cart */}
             <Link
               href="/cart"
-              className="relative rounded-xl p-2 text-neutral-600 transition-all hover:bg-[#FFF1F3] hover:text-[#E84672]"
               aria-label="Cart"
+              style={{
+                position: "relative",
+                borderRadius: "0.75rem",
+                padding: "0.5rem",
+                color: "#57534e",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "background 0.2s, color 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#FFF1F3";
+                e.currentTarget.style.color = "#E84672";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.color = "#57534e";
+              }}
             >
               <RiShoppingCartLine size={20} />
               {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#E84672] text-[10px] font-bold text-white">
+                <span
+                  style={{
+                    position: "absolute",
+                    top: "-2px",
+                    right: "-2px",
+                    width: "1rem",
+                    height: "1rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "9999px",
+                    backgroundColor: "#E84672",
+                    fontSize: "0.625rem",
+                    fontWeight: 700,
+                    color: "#ffffff",
+                  }}
+                >
                   {cartCount > 9 ? "9+" : cartCount}
                 </span>
               )}
@@ -274,20 +507,47 @@ export function Header() {
 
             {/* User menu */}
             {user ? (
-              <div ref={userMenuRef} className="relative">
+              <div ref={userMenuRef} style={{ position: "relative" }}>
                 <button
                   onClick={() => setUserMenuOpen((v) => !v)}
-                  className="flex items-center gap-1.5 rounded-xl py-1 pr-2 pl-1 transition-colors hover:bg-[#F7F6F0]"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.375rem",
+                    borderRadius: "0.75rem",
+                    padding: "0.25rem 0.5rem 0.25rem 0.25rem",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "background 0.2s",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F7F6F0")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#E84672] to-[#C9305A] text-sm font-semibold text-white">
+                  <div
+                    style={{
+                      width: "2rem",
+                      height: "2rem",
+                      borderRadius: "9999px",
+                      background: "linear-gradient(135deg, #E84672, #C9305A)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "0.875rem",
+                      fontWeight: 600,
+                      color: "#ffffff",
+                      flexShrink: 0,
+                    }}
+                  >
                     {user.name?.charAt(0).toUpperCase()}
                   </div>
                   <RiArrowDownSLine
                     size={16}
-                    className={cn(
-                      "text-neutral-400 transition-transform duration-200",
-                      userMenuOpen && "rotate-180",
-                    )}
+                    style={{
+                      color: "#a8a29e",
+                      transition: "transform 0.2s",
+                      transform: userMenuOpen ? "rotate(180deg)" : "rotate(0deg)",
+                    }}
                   />
                 </button>
 
@@ -298,53 +558,119 @@ export function Header() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -8, scale: 0.97 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute top-12 right-0 w-52 overflow-hidden rounded-2xl border border-[#EBE8D8] bg-[#FFFDF7] py-2 shadow-xl"
+                      style={{
+                        position: "absolute",
+                        top: "3rem",
+                        right: 0,
+                        width: "13rem",
+                        overflow: "hidden",
+                        borderRadius: "1rem",
+                        border: "1px solid #EBE8D8",
+                        backgroundColor: "#FFFDF7",
+                        paddingTop: "0.5rem",
+                        paddingBottom: "0.5rem",
+                        boxShadow: "0 20px 60px rgba(0,0,0,0.12)",
+                        zIndex: 50,
+                      }}
                     >
-                      <div className="mb-1 border-b border-[#EBE8D8] px-4 py-2">
-                        <p className="truncate text-sm font-semibold text-neutral-800">
+                      <div
+                        style={{
+                          padding: "0.5rem 1rem 0.75rem",
+                          borderBottom: "1px solid #EBE8D8",
+                          marginBottom: "0.25rem",
+                        }}
+                      >
+                        <p
+                          style={{
+                            fontSize: "0.875rem",
+                            fontWeight: 600,
+                            color: "#292524",
+                            margin: 0,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           {user.name}
                         </p>
-                        <p className="truncate text-xs text-neutral-400">{user.email}</p>
+                        <p
+                          style={{
+                            fontSize: "0.75rem",
+                            color: "#a8a29e",
+                            margin: 0,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {user.email}
+                        </p>
                       </div>
+
                       {user.role === "admin" && (
-                        <Link
+                        <MenuLink
                           href="/admin/dashboard"
-                          className="menu-item"
+                          icon={<RiShieldUserLine size={15} />}
                           onClick={() => setUserMenuOpen(false)}
                         >
-                          <RiShieldUserLine size={16} /> Admin Panel
-                        </Link>
+                          Admin Panel
+                        </MenuLink>
                       )}
-                      <Link
+                      <MenuLink
                         href="/account"
-                        className="menu-item"
+                        icon={<RiUserLine size={15} />}
                         onClick={() => setUserMenuOpen(false)}
                       >
-                        <RiUserLine size={16} /> My Account
-                      </Link>
-                      <Link
+                        My Account
+                      </MenuLink>
+                      <MenuLink
                         href="/orders"
-                        className="menu-item"
+                        icon={<RiDashboardLine size={15} />}
                         onClick={() => setUserMenuOpen(false)}
                       >
-                        <RiDashboardLine size={16} /> My Orders
-                      </Link>
-                      <Link
+                        My Orders
+                      </MenuLink>
+                      <MenuLink
                         href="/account/addresses"
-                        className="menu-item"
+                        icon={<RiMapPinLine size={15} />}
                         onClick={() => setUserMenuOpen(false)}
                       >
-                        <RiMapPinLine size={16} /> Addresses
-                      </Link>
-                      <div className="mt-1 border-t border-[#EBE8D8] pt-1">
+                        Addresses
+                      </MenuLink>
+
+                      <div
+                        style={{
+                          marginTop: "0.25rem",
+                          borderTop: "1px solid #EBE8D8",
+                          paddingTop: "0.25rem",
+                        }}
+                      >
                         <button
                           onClick={() => {
                             setUserMenuOpen(false);
                             logout();
                           }}
-                          className="menu-item w-full text-red-500 hover:bg-red-50"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.5rem",
+                            width: "100%",
+                            padding: "0.5rem 1rem",
+                            fontSize: "0.8125rem",
+                            fontWeight: 500,
+                            color: "#ef4444",
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            textAlign: "left",
+                            transition: "background 0.15s",
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#FEF2F2")}
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.backgroundColor = "transparent")
+                          }
                         >
-                          <RiLogoutBoxLine size={16} /> Log out
+                          <RiLogoutBoxLine size={15} /> Log out
                         </button>
                       </div>
                     </motion.div>
@@ -354,16 +680,46 @@ export function Header() {
             ) : (
               <Link
                 href="/login"
-                className="hidden items-center gap-1.5 rounded-xl bg-[#E84672] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#C9305A] sm:flex"
+                className="header-login-btn"
+                style={{
+                  display: "none",
+                  alignItems: "center",
+                  gap: "0.375rem",
+                  borderRadius: "0.75rem",
+                  backgroundColor: "#E84672",
+                  padding: "0.5rem 1rem",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  color: "#ffffff",
+                  textDecoration: "none",
+                  transition: "background-color 0.2s",
+                  flexShrink: 0,
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#C9305A")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#E84672")}
               >
                 <RiUserLine size={16} /> Login
               </Link>
             )}
 
-            {/* Mobile menu button */}
+            {/* Mobile hamburger */}
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className="rounded-xl p-2 text-neutral-600 transition-colors hover:bg-[#F7F6F0] lg:hidden"
+              className="header-hamburger"
+              style={{
+                borderRadius: "0.75rem",
+                padding: "0.5rem",
+                color: "#57534e",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "background 0.2s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F7F6F0")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
             >
               {mobileOpen ? <RiCloseLine size={22} /> : <RiMenuLine size={22} />}
             </button>
@@ -378,35 +734,115 @@ export function Header() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden border-t border-[#EBE8D8] bg-[#FFFDF7] lg:hidden"
+            style={{
+              overflow: "hidden",
+              borderTop: "1px solid #EBE8D8",
+              backgroundColor: "#FFFDF7",
+            }}
+            className="header-mobile-menu"
           >
-            <nav className="container-wide flex flex-col gap-1 py-4">
+            <nav
+              className="container-wide"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.25rem",
+                paddingTop: "1rem",
+                paddingBottom: "1rem",
+              }}
+            >
               {topCategories.map((cat) => (
                 <Link
                   key={cat.slug}
                   href={`/categories/${cat.slug}`}
-                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-[#F7F6F0] hover:text-[#E84672]"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    borderRadius: "0.75rem",
+                    padding: "0.625rem 0.75rem",
+                    fontSize: "0.875rem",
+                    fontWeight: 500,
+                    color: "#44403c",
+                    textDecoration: "none",
+                    transition: "background 0.15s, color 0.15s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#F7F6F0";
+                    e.currentTarget.style.color = "#E84672";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.color = "#44403c";
+                  }}
                 >
                   {cat.name}
                 </Link>
               ))}
               <Link
                 href="/products"
-                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-[#F7F6F0] hover:text-[#E84672]"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  borderRadius: "0.75rem",
+                  padding: "0.625rem 0.75rem",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  color: "#44403c",
+                  textDecoration: "none",
+                  transition: "background 0.15s, color 0.15s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#F7F6F0";
+                  e.currentTarget.style.color = "#E84672";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.color = "#44403c";
+                }}
               >
                 All Products
               </Link>
+
               {!user && (
-                <div className="flex gap-2 border-t border-[#EBE8D8] pt-3">
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "0.5rem",
+                    borderTop: "1px solid #EBE8D8",
+                    paddingTop: "0.75rem",
+                    marginTop: "0.25rem",
+                  }}
+                >
                   <Link
                     href="/login"
-                    className="flex-1 rounded-xl bg-[#E84672] py-2.5 text-center text-sm font-medium text-white"
+                    style={{
+                      flex: 1,
+                      borderRadius: "0.75rem",
+                      backgroundColor: "#E84672",
+                      padding: "0.625rem",
+                      textAlign: "center",
+                      fontSize: "0.875rem",
+                      fontWeight: 500,
+                      color: "#ffffff",
+                      textDecoration: "none",
+                    }}
                   >
                     Login
                   </Link>
                   <Link
                     href="/register"
-                    className="flex-1 rounded-xl border-2 border-[#E84672] py-2.5 text-center text-sm font-medium text-[#E84672]"
+                    style={{
+                      flex: 1,
+                      borderRadius: "0.75rem",
+                      border: "2px solid #E84672",
+                      padding: "0.625rem",
+                      textAlign: "center",
+                      fontSize: "0.875rem",
+                      fontWeight: 500,
+                      color: "#E84672",
+                      textDecoration: "none",
+                    }}
                   >
                     Register
                   </Link>
@@ -416,27 +852,48 @@ export function Header() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <style jsx>{`
-        .menu-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 8px 16px;
-          font-size: 13px;
-          font-weight: 500;
-          color: #44403c;
-          transition:
-            background 0.15s,
-            color 0.15s;
-          cursor: pointer;
-          text-decoration: none;
-        }
-        .menu-item:hover {
-          background: #f7f6f0;
-          color: #1c1917;
-        }
-      `}</style>
     </header>
+  );
+}
+
+// Small helper component for dropdown menu items
+function MenuLink({
+  href,
+  icon,
+  children,
+  onClick,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  onClick?: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "0.5rem",
+        padding: "0.5rem 1rem",
+        fontSize: "0.8125rem",
+        fontWeight: 500,
+        color: "#44403c",
+        textDecoration: "none",
+        transition: "background 0.15s, color 0.15s",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = "#F7F6F0";
+        e.currentTarget.style.color = "#1c1917";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = "transparent";
+        e.currentTarget.style.color = "#44403c";
+      }}
+    >
+      {icon}
+      {children}
+    </Link>
   );
 }

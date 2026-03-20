@@ -15,52 +15,84 @@ const features = [
     icon: RiLeafLine,
     title: "100% Natural",
     desc: "No artificial colours, flavours or preservatives. Just pure, honest ingredients.",
-    color: "text-green-600 bg-green-50",
+    iconColor: "#16A34A",
+    iconBg: "#F0FDF4",
   },
   {
     icon: RiShieldCheckLine,
     title: "FSSAI Certified",
     desc: "All products meet India's highest food safety standards. Tested before every batch.",
-    color: "text-blue-600 bg-blue-50",
+    iconColor: "#2563EB",
+    iconBg: "#EFF6FF",
   },
   {
     icon: RiTruckLine,
     title: "Fast Delivery",
     desc: "Delivered in 2–5 business days. Free shipping on orders above ₹500.",
-    color: "text-amber-600 bg-amber-50",
+    iconColor: "#D97706",
+    iconBg: "#FFFBEB",
   },
   {
     icon: RiAwardLine,
     title: "Premium Grade",
     desc: "We source only the top-grade produce — extra bold, AA, and supreme quality selections.",
-    color: "text-purple-600 bg-purple-50",
+    iconColor: "#7C3AED",
+    iconBg: "#F5F3FF",
   },
   {
     icon: RiCustomerService2Line,
     title: "Expert Support",
     desc: "Our team is available Mon–Sat, 9AM–7PM to assist you with any query.",
-    color: "text-[#E84672] bg-[#FFF1F3]",
+    iconColor: "#E84672",
+    iconBg: "#FFF1F3",
   },
   {
     icon: RiHeartLine,
     title: "Easy Returns",
     desc: "Not satisfied? Return within 7 days for a full refund — no questions asked.",
-    color: "text-[#7A6E42] bg-[#F7F6F0]",
+    iconColor: "#7A6E42",
+    iconBg: "#F7F6F0",
   },
 ];
 
 export function WhyChooseUs() {
   return (
-    <section className="bg-[#F7F6F0] py-20">
+    <section style={{ backgroundColor: "#F7F6F0", paddingTop: "5rem", paddingBottom: "5rem" }}>
       <div className="container-wide">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-neutral-900 mb-2">Why Choose LotusMart</h2>
-          <p className="text-neutral-500 max-w-md mx-auto">
-            We're not just a store — we're your partner for a healthier, more flavourful kitchen.
+        {/* Header */}
+        <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
+          <h2
+            style={{
+              fontSize: "clamp(1.75rem, 3vw, 2.25rem)",
+              fontWeight: 700,
+              color: "#1c1917",
+              marginBottom: "0.75rem",
+            }}
+          >
+            Why Choose LotusMart
+          </h2>
+          <p
+            style={{
+              color: "#78716c",
+              fontSize: "1rem",
+              maxWidth: "28rem",
+              margin: "0 auto",
+              lineHeight: 1.7,
+            }}
+          >
+            We&apos;re not just a store — we&apos;re your partner for a healthier, more flavourful
+            kitchen.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Cards grid — CSS grid with inline styles so it ALWAYS renders */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: "1.25rem",
+          }}
+        >
           {features.map((f, i) => (
             <motion.div
               key={f.title}
@@ -68,13 +100,44 @@ export function WhyChooseUs() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.08, duration: 0.45 }}
-              className="bg-white rounded-2xl p-6 hover:shadow-md transition-shadow duration-300"
+              style={{
+                backgroundColor: "#ffffff",
+                borderRadius: "1rem",
+                padding: "1.75rem",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
+                cursor: "default",
+              }}
+              whileHover={{ boxShadow: "0 8px 24px rgba(0,0,0,0.10)", y: -2 }}
             >
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 ${f.color}`}>
-                <f.icon size={24} />
+              {/* Icon badge */}
+              <div
+                style={{
+                  width: "3rem",
+                  height: "3rem",
+                  borderRadius: "0.75rem",
+                  backgroundColor: f.iconBg,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: "1.25rem",
+                }}
+              >
+                <f.icon size={22} style={{ color: f.iconColor }} />
               </div>
-              <h3 className="text-base font-semibold text-neutral-900 mb-2">{f.title}</h3>
-              <p className="text-sm text-neutral-500 leading-relaxed">{f.desc}</p>
+
+              <h3
+                style={{
+                  fontSize: "1rem",
+                  fontWeight: 600,
+                  color: "#1c1917",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                {f.title}
+              </h3>
+              <p style={{ fontSize: "0.875rem", color: "#78716c", lineHeight: 1.65, margin: 0 }}>
+                {f.desc}
+              </p>
             </motion.div>
           ))}
         </div>

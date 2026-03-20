@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   RiInstagramLine,
@@ -25,7 +27,7 @@ const footerLinks = {
     { label: "Bulk Orders", href: "/bulk-orders" },
     { label: "Blog", href: "/blog" },
   ],
-  "Support": [
+  Support: [
     { label: "FAQs", href: "/faqs" },
     { label: "Returns & Refunds", href: "/returns" },
     { label: "Shipping Policy", href: "/shipping-policy" },
@@ -43,47 +45,131 @@ const socials = [
 
 export function Footer() {
   return (
-    <footer className="bg-[#2A2518] text-[#D4CFB3]">
+    <footer style={{ backgroundColor: "#2A2518", color: "#D4CFB3" }}>
       {/* Main footer content */}
-      <div className="container-wide py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
+      <div className="container-wide" style={{ paddingTop: "4rem", paddingBottom: "4rem" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+            gap: "2.5rem",
+          }}
+          className="footer-grid"
+        >
           {/* Brand column */}
-          <div className="lg:col-span-2">
-            <Link href="/" className="inline-block mb-4">
-              <span className="text-3xl font-bold text-[#FFF9E8]">
-                Lotus<span className="text-[#E84672]">Mart</span>
+          <div className="footer-brand" style={{ gridColumn: "span 1" }}>
+            <Link
+              href="/"
+              style={{ display: "inline-block", marginBottom: "1rem", textDecoration: "none" }}
+            >
+              <span style={{ fontSize: "1.75rem", fontWeight: 700, color: "#FFF9E8" }}>
+                Lotus<span style={{ color: "#E84672" }}>Mart</span>
               </span>
             </Link>
-            <p className="text-sm leading-relaxed text-[#B8AE86] mb-6 max-w-xs">
-              Premium quality spices, dry fruits, and thoughtful gift boxes — sourced from the finest farms and delivered to your doorstep.
+
+            <p
+              style={{
+                fontSize: "0.875rem",
+                lineHeight: 1.7,
+                color: "#B8AE86",
+                marginBottom: "1.5rem",
+                maxWidth: "18rem",
+              }}
+            >
+              Premium quality spices, dry fruits, and thoughtful gift boxes — sourced from the
+              finest farms and delivered to your doorstep.
             </p>
 
-            {/* Contact */}
-            <div className="space-y-2.5">
-              <a href="mailto:hello@lotusmart.com" className="flex items-center gap-2.5 text-sm hover:text-[#E84672] transition-colors">
-                <RiMailLine size={16} className="text-[#E84672] shrink-0" />
+            {/* Contact info */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.625rem" }}>
+              <a
+                href="mailto:hello@lotusmart.com"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.625rem",
+                  fontSize: "0.875rem",
+                  color: "#D4CFB3",
+                  textDecoration: "none",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#E84672")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "#D4CFB3")}
+              >
+                <RiMailLine size={15} style={{ color: "#E84672", flexShrink: 0 }} />
                 hello@lotusmart.com
               </a>
-              <a href="tel:+919876543210" className="flex items-center gap-2.5 text-sm hover:text-[#E84672] transition-colors">
-                <RiPhoneLine size={16} className="text-[#E84672] shrink-0" />
+              <a
+                href="tel:+919876543210"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.625rem",
+                  fontSize: "0.875rem",
+                  color: "#D4CFB3",
+                  textDecoration: "none",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#E84672")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "#D4CFB3")}
+              >
+                <RiPhoneLine size={15} style={{ color: "#E84672", flexShrink: 0 }} />
                 +91 98765 43210
               </a>
-              <div className="flex items-start gap-2.5 text-sm">
-                <RiMapPinLine size={16} className="text-[#E84672] shrink-0 mt-0.5" />
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "0.625rem",
+                  fontSize: "0.875rem",
+                  color: "#D4CFB3",
+                }}
+              >
+                <RiMapPinLine
+                  size={15}
+                  style={{ color: "#E84672", flexShrink: 0, marginTop: "2px" }}
+                />
                 <span>123 Spice Lane, Mumbai, Maharashtra 400001</span>
               </div>
             </div>
 
-            {/* Socials */}
-            <div className="flex items-center gap-3 mt-6">
+            {/* Social icons */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.625rem",
+                marginTop: "1.5rem",
+              }}
+            >
               {socials.map(({ icon: Icon, href, label }) => (
                 <a
                   key={label}
                   href={href}
                   aria-label={label}
-                  className="w-9 h-9 rounded-xl bg-[#4D4529] flex items-center justify-center text-[#D4CFB3] hover:bg-[#E84672] hover:text-white transition-all duration-200"
+                  style={{
+                    width: "2.25rem",
+                    height: "2.25rem",
+                    borderRadius: "0.625rem",
+                    backgroundColor: "#4D4529",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#D4CFB3",
+                    textDecoration: "none",
+                    transition: "background-color 0.2s, color 0.2s",
+                    flexShrink: 0,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#E84672";
+                    e.currentTarget.style.color = "#ffffff";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "#4D4529";
+                    e.currentTarget.style.color = "#D4CFB3";
+                  }}
                 >
-                  <Icon size={18} />
+                  <Icon size={17} />
                 </a>
               ))}
             </div>
@@ -92,15 +178,41 @@ export function Footer() {
           {/* Link columns */}
           {Object.entries(footerLinks).map(([title, links]) => (
             <div key={title}>
-              <h4 className="font-semibold text-[#FFF9E8] mb-4 text-sm tracking-wide uppercase">
+              <h4
+                style={{
+                  fontWeight: 600,
+                  color: "#FFF9E8",
+                  marginBottom: "1.25rem",
+                  fontSize: "0.75rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                }}
+              >
                 {title}
               </h4>
-              <ul className="space-y-2.5">
+              <ul
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  margin: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.625rem",
+                }}
+              >
                 {links.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-sm text-[#B8AE86] hover:text-[#E84672] transition-colors"
+                      style={{
+                        fontSize: "0.875rem",
+                        color: "#B8AE86",
+                        textDecoration: "none",
+                        transition: "color 0.2s",
+                        display: "inline-block",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = "#E84672")}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = "#B8AE86")}
                     >
                       {link.label}
                     </Link>
@@ -112,21 +224,74 @@ export function Footer() {
         </div>
 
         {/* Newsletter */}
-        <div className="mt-12 pt-8 border-t border-[#4D4529]">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div
+          style={{
+            marginTop: "3rem",
+            paddingTop: "2rem",
+            borderTop: "1px solid #4D4529",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "1.5rem",
+            }}
+          >
             <div>
-              <h4 className="font-semibold text-[#FFF9E8] mb-1">Join the LotusMart family</h4>
-              <p className="text-sm text-[#B8AE86]">Get exclusive deals, new arrivals, and recipes straight to your inbox.</p>
+              <h4
+                style={{
+                  fontWeight: 600,
+                  color: "#FFF9E8",
+                  marginBottom: "0.25rem",
+                  fontSize: "1rem",
+                }}
+              >
+                Join the LotusMart family
+              </h4>
+              <p style={{ fontSize: "0.875rem", color: "#B8AE86", margin: 0 }}>
+                Get exclusive deals, new arrivals, and recipes straight to your inbox.
+              </p>
             </div>
-            <form className="flex gap-2 w-full md:w-auto">
+            <form
+              style={{ display: "flex", gap: "0.5rem", width: "100%", maxWidth: "420px" }}
+              onSubmit={(e) => e.preventDefault()}
+            >
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 md:w-64 px-4 py-2.5 rounded-xl bg-[#4D4529] border border-[#615834] text-[#FFF9E8] placeholder:text-[#9C8F62] text-sm outline-none focus:border-[#E84672] transition-colors"
+                style={{
+                  flex: 1,
+                  padding: "0.625rem 1rem",
+                  borderRadius: "0.75rem",
+                  backgroundColor: "#4D4529",
+                  border: "1px solid #615834",
+                  color: "#FFF9E8",
+                  fontSize: "0.875rem",
+                  outline: "none",
+                  minWidth: 0,
+                }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "#E84672")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "#615834")}
               />
               <button
                 type="submit"
-                className="px-5 py-2.5 rounded-xl bg-[#E84672] text-white text-sm font-medium hover:bg-[#C9305A] transition-colors shrink-0"
+                style={{
+                  padding: "0.625rem 1.25rem",
+                  borderRadius: "0.75rem",
+                  backgroundColor: "#E84672",
+                  color: "#ffffff",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  border: "none",
+                  cursor: "pointer",
+                  flexShrink: 0,
+                  transition: "background-color 0.2s",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#C9305A")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#E84672")}
               >
                 Subscribe
               </button>
@@ -136,14 +301,29 @@ export function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-[#4D4529] py-5">
-        <div className="container-wide flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#9C8F62]">
-          <p>© {new Date().getFullYear()} LotusMart. All rights reserved.</p>
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1">🔒 Secure payments</span>
-            <span>|</span>
+      <div
+        style={{ borderTop: "1px solid #4D4529", paddingTop: "1.25rem", paddingBottom: "1.25rem" }}
+      >
+        <div
+          className="container-wide"
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.75rem",
+            fontSize: "0.75rem",
+            color: "#9C8F62",
+          }}
+        >
+          <p style={{ margin: 0 }}>© {new Date().getFullYear()} LotusMart. All rights reserved.</p>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+            <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+              🔒 Secure payments
+            </span>
+            <span style={{ opacity: 0.4 }}>|</span>
             <span>100% Authentic products</span>
-            <span>|</span>
+            <span style={{ opacity: 0.4 }}>|</span>
             <span>FSSAI Licensed</span>
           </div>
         </div>

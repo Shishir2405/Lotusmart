@@ -1,55 +1,61 @@
 @import "tailwindcss";
 
+/* ✅ CRITICAL FIX for Tailwind v4: explicitly tell it where to scan your source files */
+/* Without this, Tailwind v4 may miss component files and not generate their utility classes */
+@source "../app/**/*.{ts,tsx}";
+@source "../components/**/*.{ts,tsx}";
+@source "../lib/**/*.{ts,tsx}";
+
 @theme {
   /* Primary - Cream tones */
-  --color-cream-50: #FFFDF7;
-  --color-cream-100: #FFF9E8;
-  --color-cream-200: #FFF3D1;
-  --color-cream-300: #FFEBB3;
-  --color-cream-400: #FFE08A;
-  --color-cream-500: #F5D67A;
+  --color-cream-50: #fffdf7;
+  --color-cream-100: #fff9e8;
+  --color-cream-200: #fff3d1;
+  --color-cream-300: #ffebb3;
+  --color-cream-400: #ffe08a;
+  --color-cream-500: #f5d67a;
 
   /* Secondary - Deep Olive / Muted Gold */
-  --color-olive-50: #F7F6F0;
-  --color-olive-100: #EBE8D8;
-  --color-olive-200: #D4CFB3;
-  --color-olive-300: #B8AE86;
-  --color-olive-400: #9C8F62;
-  --color-olive-500: #7A6E42;
+  --color-olive-50: #f7f6f0;
+  --color-olive-100: #ebe8d8;
+  --color-olive-200: #d4cfb3;
+  --color-olive-300: #b8ae86;
+  --color-olive-400: #9c8f62;
+  --color-olive-500: #7a6e42;
   --color-olive-600: #615834;
-  --color-olive-700: #4D4529;
-  --color-olive-800: #3A3420;
-  --color-olive-900: #2A2518;
+  --color-olive-700: #4d4529;
+  --color-olive-800: #3a3420;
+  --color-olive-900: #2a2518;
 
   /* Tertiary - Soft Hot Pink */
-  --color-rose-50: #FFF1F3;
-  --color-rose-100: #FFE0E6;
-  --color-rose-200: #FFC2D1;
-  --color-rose-300: #FF9BB3;
-  --color-rose-400: #FF6B8A;
-  --color-rose-500: #E84672;
-  --color-rose-600: #C9305A;
-  --color-rose-700: #A82249;
-  --color-rose-800: #8B1E3E;
-  --color-rose-900: #731C38;
+  --color-rose-50: #fff1f3;
+  --color-rose-100: #ffe0e6;
+  --color-rose-200: #ffc2d1;
+  --color-rose-300: #ff9bb3;
+  --color-rose-400: #ff6b8a;
+  --color-rose-500: #e84672;
+  --color-rose-600: #c9305a;
+  --color-rose-700: #a82249;
+  --color-rose-800: #8b1e3e;
+  --color-rose-900: #731c38;
 
   /* Neutral */
-  --color-neutral-50: #FAFAF9;
-  --color-neutral-100: #F5F5F3;
-  --color-neutral-200: #E7E5E1;
-  --color-neutral-300: #D6D3CD;
-  --color-neutral-400: #A8A29E;
-  --color-neutral-500: #78716C;
-  --color-neutral-600: #57534E;
-  --color-neutral-700: #44403C;
+  --color-neutral-50: #fafaf9;
+  --color-neutral-100: #f5f5f3;
+  --color-neutral-200: #e7e5e1;
+  --color-neutral-300: #d6d3cd;
+  --color-neutral-400: #a8a29e;
+  --color-neutral-500: #78716c;
+  --color-neutral-600: #57534e;
+  --color-neutral-700: #44403c;
   --color-neutral-800: #292524;
-  --color-neutral-900: #1C1917;
+  --color-neutral-900: #1c1917;
 
   /* Semantic colors */
-  --color-success: #22C55E;
-  --color-warning: #F59E0B;
-  --color-error: #EF4444;
-  --color-info: #3B82F6;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
 
   /* Font */
   --font-poppins: "Poppins", sans-serif;
@@ -77,28 +83,52 @@
   --animate-scale-in: scale-in 0.2s ease-out;
 
   @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   @keyframes slide-up {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @keyframes slide-down {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @keyframes scale-in {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 }
 
 /* Base styles */
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -119,19 +149,36 @@ body {
 }
 
 /* Typography */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-poppins);
   font-weight: 600;
   line-height: 1.3;
   color: var(--color-neutral-900);
 }
 
-h1 { font-size: 2.5rem; }
-h2 { font-size: 2rem; }
-h3 { font-size: 1.5rem; }
-h4 { font-size: 1.25rem; }
-h5 { font-size: 1.125rem; }
-h6 { font-size: 1rem; }
+h1 {
+  font-size: 2.5rem;
+}
+h2 {
+  font-size: 2rem;
+}
+h3 {
+  font-size: 1.5rem;
+}
+h4 {
+  font-size: 1.25rem;
+}
+h5 {
+  font-size: 1.125rem;
+}
+h6 {
+  font-size: 1rem;
+}
 
 p {
   color: var(--color-neutral-600);
@@ -147,16 +194,13 @@ a {
 ::-webkit-scrollbar {
   width: 8px;
 }
-
 ::-webkit-scrollbar-track {
   background: var(--color-cream-100);
 }
-
 ::-webkit-scrollbar-thumb {
   background: var(--color-olive-300);
   border-radius: 4px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-olive-400);
 }
@@ -167,29 +211,50 @@ a {
   color: var(--color-rose-900);
 }
 
-/* Focus visible for accessibility */
+/* Focus visible */
 :focus-visible {
   outline: 2px solid var(--color-rose-400);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* Container */
+/* ✅ Container utilities — defined as real CSS so they always work regardless of scanning */
 .container-wide {
   width: 100%;
   max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
 .container-narrow {
   width: 100%;
   max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
-/* Utility: hide scrollbar */
+/* Responsive container padding */
+@media (min-width: 768px) {
+  .container-wide,
+  .container-narrow {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-wide,
+  .container-narrow {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+/* Hide scrollbar utility */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -198,10 +263,14 @@ a {
   scrollbar-width: none;
 }
 
-/* Skeleton loading shimmer */
+/* Skeleton shimmer */
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .skeleton {
@@ -214,4 +283,76 @@ a {
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
   border-radius: var(--radius-md);
+}
+
+/* ─── Responsive grid helpers ─────────────────────────────────────────────── */
+/* Hero: 2-column on large screens */
+@media (min-width: 1024px) {
+  .lg-hero-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .hero-visual {
+    display: flex !important;
+  }
+}
+
+/* Category grid: 3 cols on sm, 6 cols on lg */
+@media (min-width: 640px) {
+  .category-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+@media (min-width: 1024px) {
+  .category-grid {
+    grid-template-columns: repeat(6, 1fr) !important;
+  }
+}
+
+/* Product grid: 3 cols on sm, 4 cols on lg */
+@media (min-width: 640px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1.25rem !important;
+  }
+}
+@media (min-width: 1024px) {
+  .product-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 1.5rem !important;
+  }
+}
+
+/* ─── Header responsive helpers ──────────────────────────────────────────── */
+/* Show desktop nav on lg+ */
+@media (min-width: 1024px) {
+  .header-nav {
+    display: flex !important;
+  }
+  .header-hamburger {
+    display: none !important;
+  }
+  .header-login-btn {
+    display: flex !important;
+  }
+  .header-mobile-menu {
+    display: none !important;
+  }
+}
+
+/* Hide announcement bar on mobile */
+@media (max-width: 639px) {
+  .header-topbar {
+    display: none !important;
+  }
+}
+
+/* ─── Footer responsive helpers ──────────────────────────────────────────── */
+/* Brand column spans 2 on large screens */
+@media (min-width: 1024px) {
+  .footer-grid {
+    grid-template-columns: 2fr 1fr 1fr 1fr !important;
+  }
+  .footer-brand {
+    grid-column: span 1 !important;
+  }
 }
