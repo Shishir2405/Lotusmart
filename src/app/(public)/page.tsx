@@ -4,6 +4,7 @@ import { CategoryGrid } from "@/components/products/CategoryGrid";
 import { FeaturedProducts } from "@/components/products/FeaturedProducts";
 import { WhyChooseUs } from "@/components/shared/WhyChooseUs";
 import { BannerStrip } from "@/components/shared/BannerStrip";
+import { FAQSection } from "@/components/shared/FAQSection";
 import { ProductGridSkeleton } from "@/components/ui/Skeleton";
 import type { Metadata } from "next";
 
@@ -18,11 +19,14 @@ export default function HomePage() {
     <>
       <HeroSection />
       <CategoryGrid />
-      <Suspense fallback={<div className="container-wide py-12"><ProductGridSkeleton count={8} /></div>}>
+
+      <Suspense fallback={<ProductGridSkeleton />}>
         <FeaturedProducts />
       </Suspense>
+
       <BannerStrip />
       <WhyChooseUs />
+      <FAQSection />
     </>
   );
 }

@@ -5,9 +5,7 @@ import mongoose, { Connection } from "mongoose";
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error(
-    "Please define the MONGODB_URI environment variable in .env.local",
-  );
+  throw new Error("Please define the MONGODB_URI environment variable in .env.local");
 }
 
 /**
@@ -50,6 +48,8 @@ async function connectDB(): Promise<Connection> {
     const opts: mongoose.ConnectOptions = {
       bufferCommands: false,
       maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 5000,
     };
 
     cached.promise = mongoose

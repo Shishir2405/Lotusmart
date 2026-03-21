@@ -1,0 +1,21 @@
+{
+  "name": "LotusMart",
+  "short_name": "LotusMart",
+  "description": "Premium spices, dry fruits, and curated gift boxes.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFDF7",
+  "theme_color": "#E8567F",
+  "icons": [
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

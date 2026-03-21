@@ -12,20 +12,35 @@ import {
   RiMenuLine,
   RiCloseLine,
   RiArrowDownSLine,
+  RiArrowRightLine,
   RiMapPinLine,
   RiLogoutBoxLine,
   RiDashboardLine,
   RiShieldUserLine,
+  RiSparklingLine,
+  RiHeartPulseLine,
+  RiQuestionLine,
+  RiPhoneLine,
+  RiTruckLine,
+  RiRefundLine,
+  RiSettings3Line,
+  RiNotification3Line,
+  RiStarLine,
+  RiCoupon3Line,
+  RiLeafLine,
+  RiGiftLine,
 } from "react-icons/ri";
 import { useCartStore } from "@/store/cart.store";
 import { useWishlistStore } from "@/store/wishlist.store";
 import { useAuthStore } from "@/store/auth.store";
 import { useAuth } from "@/hooks/useAuth";
 import { CATEGORIES } from "@/config/constants";
-import { cn } from "@/utils/helpers";
 import { useDebounce } from "@/hooks/useDebounce";
 import axios from "axios";
 
+/* ─────────────────────────────────────────────
+   TYPES
+───────────────────────────────────────────── */
 interface SearchResult {
   _id: string;
   name: string;
@@ -34,6 +49,599 @@ interface SearchResult {
   images: string[];
 }
 
+/* ─────────────────────────────────────────────
+   NAV CATEGORIES — each with sub-links + featured card
+───────────────────────────────────────────── */
+const NAV_CATEGORIES = [
+  {
+    name: "Spices",
+    slug: "spices",
+    icon: RiLeafLine,
+    desc: "Pure farm-sourced spices",
+    color: "#E84672",
+    colorLight: "#FFF1F3",
+    sub: [
+      { label: "Whole Spices", slug: "whole-spices", badge: "Bestseller" },
+      { label: "Ground Spices", slug: "ground-spices", badge: null },
+      { label: "Spice Blends", slug: "spice-blends", badge: "New" },
+      { label: "Exotic Spices", slug: "exotic-spices", badge: null },
+      { label: "Pepper Range", slug: "pepper", badge: null },
+      { label: "Saffron & Premium", slug: "saffron", badge: "Premium" },
+    ],
+    featured: {
+      label: "Cardamom Collection",
+      desc: "Premium green & black cardamom",
+      href: "/categories/cardamom",
+      image:
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=260&h=160&fit=crop&q=80",
+    },
+  },
+  {
+    name: "Dry Fruits",
+    slug: "dry-fruits",
+    icon: RiGiftLine,
+    desc: "Sourced from Kashmir & Afghanistan",
+    color: "#7A6E42",
+    colorLight: "#F7F6F0",
+    sub: [
+      { label: "Almonds", slug: "almonds", badge: "Popular" },
+      { label: "Cashews", slug: "cashews", badge: null },
+      { label: "Walnuts", slug: "walnuts", badge: null },
+      { label: "Pistachios", slug: "pistachios", badge: "Premium" },
+      { label: "Raisins & Dates", slug: "raisins-dates", badge: null },
+      { label: "Mixed Packs", slug: "mixed-packs", badge: "Value" },
+    ],
+    featured: {
+      label: "Kashmir Dry Fruit Box",
+      desc: "Handpicked premium selection",
+      href: "/products/kashmir-box",
+      image:
+        "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=260&h=160&fit=crop&q=80",
+    },
+  },
+  {
+    name: "Nuts & Seeds",
+    slug: "nuts-seeds",
+    icon: RiLeafLine,
+    desc: "Organic & roasted varieties",
+    color: "#D97706",
+    colorLight: "#FFFBEB",
+    sub: [
+      { label: "Roasted Nuts", slug: "roasted-nuts", badge: "Trending" },
+      { label: "Seeds Mix", slug: "seeds", badge: null },
+      { label: "Peanuts", slug: "peanuts", badge: null },
+      { label: "Superseeds", slug: "superseeds", badge: "Organic" },
+      { label: "Trail Mix", slug: "trail-mix", badge: "New" },
+      { label: "Snack Packs", slug: "snack-packs", badge: null },
+    ],
+    featured: {
+      label: "Daily Nuts Hamper",
+      desc: "Your everyday wellness pack",
+      href: "/products/daily-nuts",
+      image:
+        "https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=260&h=160&fit=crop&q=80",
+    },
+  },
+  {
+    name: "Gift Boxes",
+    slug: "gift-boxes",
+    icon: RiGiftLine,
+    desc: "For every occasion",
+    color: "#E84672",
+    colorLight: "#FFF1F3",
+    sub: [
+      { label: "Festival Hampers", slug: "festival-hampers", badge: "Popular" },
+      { label: "Wedding Gifts", slug: "wedding", badge: null },
+      { label: "Corporate Boxes", slug: "corporate", badge: "Bulk" },
+      { label: "Custom Hampers", slug: "custom", badge: "New" },
+      { label: "Spice Gift Sets", slug: "spice-gift-sets", badge: null },
+      { label: "Premium Boxes", slug: "premium-boxes", badge: "Luxury" },
+    ],
+    featured: {
+      label: "Build Your Own Box",
+      desc: "Personalise from ₹799",
+      href: "/customize",
+      image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=260&h=160&fit=crop&q=80",
+    },
+  },
+  {
+    name: "Organic",
+    slug: "organic",
+    icon: RiLeafLine,
+    desc: "Certified 100% organic range",
+    color: "#16A34A",
+    colorLight: "#F0FDF4",
+    sub: [
+      { label: "Organic Spices", slug: "organic-spices", badge: "Certified" },
+      { label: "Organic Dry Fruits", slug: "organic-dry-fruits", badge: null },
+      { label: "Superfoods", slug: "superfoods", badge: "New" },
+      { label: "Herbal Range", slug: "herbal", badge: null },
+      { label: "Detox Packs", slug: "detox", badge: "Popular" },
+      { label: "Organic Bundles", slug: "organic-bundles", badge: "Value" },
+    ],
+    featured: {
+      label: "Organic Starter Kit",
+      desc: "Begin your clean eating journey",
+      href: "/products/organic-starter",
+      image:
+        "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=260&h=160&fit=crop&q=80",
+    },
+  },
+];
+
+/* ─────────────────────────────────────────────
+   PROFILE DROPDOWN SECTIONS
+───────────────────────────────────────────── */
+const PROFILE_SECTIONS = [
+  {
+    title: "My Activity",
+    items: [
+      {
+        icon: RiHeartPulseLine,
+        label: "My Orders",
+        href: "/orders",
+        badge: null,
+        color: "#7A6E42",
+      },
+      {
+        icon: RiHeartLine,
+        label: "Wishlist",
+        href: "/wishlist",
+        badge: "wishlist",
+        color: "#E84672",
+      },
+      {
+        icon: RiStarLine,
+        label: "Reviews & Ratings",
+        href: "/account/reviews",
+        badge: null,
+        color: "#D97706",
+      },
+      {
+        icon: RiCoupon3Line,
+        label: "Coupons & Offers",
+        href: "/account/coupons",
+        badge: "2 new",
+        color: "#16A34A",
+      },
+    ],
+  },
+  {
+    title: "Account",
+    items: [
+      { icon: RiUserLine, label: "My Profile", href: "/account", badge: null, color: "#2563EB" },
+      {
+        icon: RiMapPinLine,
+        label: "Saved Addresses",
+        href: "/account/addresses",
+        badge: null,
+        color: "#7C3AED",
+      },
+      {
+        icon: RiNotification3Line,
+        label: "Notifications",
+        href: "/account/notifications",
+        badge: "3",
+        color: "#E84672",
+      },
+      {
+        icon: RiSettings3Line,
+        label: "Settings",
+        href: "/account/settings",
+        badge: null,
+        color: "#57534e",
+      },
+    ],
+  },
+  {
+    title: "Help & Support",
+    items: [
+      {
+        icon: RiTruckLine,
+        label: "Track My Order",
+        href: "/orders/track",
+        badge: null,
+        color: "#D97706",
+      },
+      {
+        icon: RiRefundLine,
+        label: "Returns & Refunds",
+        href: "/returns",
+        badge: null,
+        color: "#16A34A",
+      },
+      { icon: RiQuestionLine, label: "FAQs", href: "/faqs", badge: null, color: "#7C3AED" },
+      {
+        icon: RiPhoneLine,
+        label: "Contact Support",
+        href: "/contact",
+        badge: null,
+        color: "#E84672",
+      },
+    ],
+  },
+];
+
+/* ─────────────────────────────────────────────
+   ICON BUTTON
+───────────────────────────────────────────── */
+function IconBtn({
+  children,
+  label,
+  badge,
+  onClick,
+  href,
+}: {
+  children: React.ReactNode;
+  label: string;
+  badge?: number;
+  onClick?: () => void;
+  href?: string;
+}) {
+  const inner = (
+    <motion.span
+      whileHover={{ backgroundColor: "#FFF1F3", color: "#E84672" }}
+      whileTap={{ scale: 0.91 }}
+      transition={{ duration: 0.15 }}
+      className="relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl"
+      style={{ color: "#57534e" }}
+      aria-label={label}
+    >
+      {children}
+      <AnimatePresence>
+        {badge !== undefined && badge > 0 && (
+          <motion.span
+            key="badge"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            exit={{ scale: 0 }}
+            transition={{ type: "spring", stiffness: 400, damping: 18 }}
+            className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full font-bold text-white"
+            style={{ fontSize: "0.58rem", backgroundColor: "#E84672" }}
+          >
+            {badge > 9 ? "9+" : badge}
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </motion.span>
+  );
+  if (href) return <Link href={href}>{inner}</Link>;
+  return (
+    <button onClick={onClick} style={{ background: "none", border: "none", padding: 0 }}>
+      {inner}
+    </button>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   CATEGORY MEGA DROPDOWN
+───────────────────────────────────────────── */
+function CategoryMegaMenu({
+  cat,
+  onClose,
+}: {
+  cat: (typeof NAV_CATEGORIES)[0];
+  onClose: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -10, scale: 0.98 }}
+      transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+      className="absolute top-full z-50 mt-2 overflow-hidden rounded-3xl border"
+      style={{
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: "640px",
+        backgroundColor: "#FFFDF7",
+        borderColor: "#EBE8D8",
+        boxShadow: "0 28px 80px rgba(0,0,0,0.14)",
+      }}
+    >
+      <div className="grid grid-cols-[1fr_220px]">
+        {/* Left: sub-links */}
+        <div className="p-5">
+          {/* Header row */}
+          <div
+            className="mb-4 flex items-center gap-2.5 border-b pb-3.5"
+            style={{ borderColor: "#EBE8D8" }}
+          >
+            <span
+              className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl"
+              style={{ backgroundColor: cat.colorLight }}
+            >
+              <cat.icon size={16} style={{ color: cat.color }} />
+            </span>
+            <div className="flex-1">
+              <p className="text-sm leading-tight font-bold" style={{ color: "#1c1917" }}>
+                {cat.name}
+              </p>
+              <p className="mt-0.5 text-xs leading-tight" style={{ color: "#a8a29e" }}>
+                {cat.desc}
+              </p>
+            </div>
+            <Link href={`/categories/${cat.slug}`} onClick={onClose}>
+              <motion.span
+                whileHover={{ x: 2 }}
+                className="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold"
+                style={{ color: cat.color }}
+              >
+                All {cat.name} <RiArrowRightLine size={12} />
+              </motion.span>
+            </Link>
+          </div>
+
+          {/* Sub-links 2 col grid */}
+          <div className="grid grid-cols-2 gap-0.5">
+            {cat.sub.map((sub, i) => (
+              <motion.div
+                key={sub.slug}
+                initial={{ opacity: 0, x: -6 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.035, duration: 0.2 }}
+              >
+                <Link href={`/categories/${sub.slug}`} onClick={onClose}>
+                  <motion.span
+                    whileHover={{ backgroundColor: cat.colorLight, x: 3 }}
+                    transition={{ duration: 0.13 }}
+                    className="flex cursor-pointer items-center justify-between rounded-xl px-3 py-2"
+                  >
+                    <span className="text-[0.82rem] font-medium" style={{ color: "#44403c" }}>
+                      {sub.label}
+                    </span>
+                    {sub.badge && (
+                      <span
+                        className="rounded-full px-1.5 py-0.5 text-[0.57rem] leading-none font-bold"
+                        style={{ backgroundColor: cat.colorLight, color: cat.color }}
+                      >
+                        {sub.badge}
+                      </span>
+                    )}
+                  </motion.span>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right: featured card */}
+        <div
+          className="border-l p-4"
+          style={{ borderColor: "#EBE8D8", backgroundColor: "#FAFAF8" }}
+        >
+          <p
+            className="mb-3 text-[0.62rem] font-bold tracking-widest uppercase"
+            style={{ color: "#B8AE86" }}
+          >
+            Featured
+          </p>
+          <Link href={cat.featured.href} onClick={onClose}>
+            <motion.div
+              whileHover={{ y: -4, boxShadow: "0 16px 40px rgba(0,0,0,0.11)" }}
+              transition={{ duration: 0.2 }}
+              className="cursor-pointer overflow-hidden rounded-2xl border"
+              style={{ borderColor: "#EBE8D8" }}
+            >
+              <div className="relative h-28 overflow-hidden">
+                <img
+                  src={cat.featured.image}
+                  alt={cat.featured.label}
+                  className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+              </div>
+              <div className="bg-white p-3">
+                <p className="text-[0.82rem] leading-tight font-bold" style={{ color: "#1c1917" }}>
+                  {cat.featured.label}
+                </p>
+                <p className="mt-0.5 text-[0.72rem]" style={{ color: "#a8a29e" }}>
+                  {cat.featured.desc}
+                </p>
+                <motion.span
+                  className="mt-2 inline-flex items-center gap-1 text-[0.72rem] font-semibold"
+                  style={{ color: cat.color }}
+                  whileHover={{ gap: "0.4rem" }}
+                >
+                  Shop now <RiArrowRightLine size={11} />
+                </motion.span>
+              </div>
+            </motion.div>
+          </Link>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   PROFILE DROPDOWN
+───────────────────────────────────────────── */
+function ProfileDropdown({
+  user,
+  wishlistCount,
+  onClose,
+  onLogout,
+}: {
+  user: { name: string; email: string; role?: string };
+  wishlistCount: number;
+  onClose: () => void;
+  onLogout: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -10, scale: 0.96 }}
+      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+      className="absolute top-14 right-0 z-50 w-72 overflow-hidden rounded-3xl border"
+      style={{
+        backgroundColor: "#FFFDF7",
+        borderColor: "#EBE8D8",
+        boxShadow: "0 28px 80px rgba(0,0,0,0.14)",
+      }}
+    >
+      {/* ── User header ── */}
+      <div
+        className="relative overflow-hidden px-5 py-4"
+        style={{ background: "linear-gradient(135deg, #1c1914 0%, #4D4529 100%)" }}
+      >
+        {/* Decorative rings */}
+        <div
+          className="pointer-events-none absolute -top-8 -right-8 h-28 w-28 rounded-full"
+          style={{ border: "1.5px solid rgba(255,224,138,0.2)" }}
+        />
+        <div
+          className="pointer-events-none absolute -top-2 -right-2 h-16 w-16 rounded-full"
+          style={{ border: "1.5px solid rgba(255,224,138,0.12)" }}
+        />
+
+        <div className="relative z-10 flex items-center gap-3">
+          <motion.div
+            whileHover={{ scale: 1.06 }}
+            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl text-base font-black text-white shadow-lg"
+            style={{ background: "linear-gradient(135deg, #E84672, #C9305A)" }}
+          >
+            {user.name?.charAt(0).toUpperCase()}
+          </motion.div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm leading-tight font-bold text-white">{user.name}</p>
+            <p className="mt-0.5 truncate text-xs" style={{ color: "#9C8F62" }}>
+              {user.email}
+            </p>
+          </div>
+          {user.role === "admin" && (
+            <Link href="/admin/dashboard" onClick={onClose}>
+              <motion.span
+                whileHover={{ scale: 1.05 }}
+                className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-[0.6rem] font-bold"
+                style={{
+                  backgroundColor: "rgba(232,70,114,0.2)",
+                  color: "#E84672",
+                  border: "1px solid rgba(232,70,114,0.3)",
+                }}
+              >
+                <RiShieldUserLine size={9} /> Admin
+              </motion.span>
+            </Link>
+          )}
+        </div>
+
+        {/* Quick stats row */}
+        <div className="relative z-10 mt-4 grid grid-cols-3 gap-1.5">
+          {[
+            { label: "Orders", value: "12", icon: RiHeartPulseLine },
+            { label: "Wishlist", value: String(wishlistCount || 0), icon: RiHeartLine },
+            { label: "Reviews", value: "5", icon: RiStarLine },
+          ].map(({ label, value, icon: Icon }) => (
+            <motion.div
+              key={label}
+              whileHover={{ backgroundColor: "rgba(255,255,255,0.13)" }}
+              transition={{ duration: 0.13 }}
+              className="flex cursor-pointer flex-col items-center rounded-xl py-2"
+              style={{ backgroundColor: "rgba(255,255,255,0.07)" }}
+            >
+              <Icon size={12} style={{ color: "#FFE08A", marginBottom: 2 }} />
+              <span className="text-[0.9rem] leading-none font-black text-white">{value}</span>
+              <span className="mt-0.5 text-[0.58rem]" style={{ color: "#9C8F62" }}>
+                {label}
+              </span>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Sections ── */}
+      <div className="max-h-[320px] overflow-y-auto py-1.5" style={{ scrollbarWidth: "none" }}>
+        {PROFILE_SECTIONS.map((section, si) => (
+          <div key={section.title}>
+            {si > 0 && <div className="mx-3 my-1 border-t" style={{ borderColor: "#EBE8D8" }} />}
+            <p
+              className="px-4 pt-2.5 pb-1 text-[0.6rem] font-black tracking-widest uppercase"
+              style={{ color: "#C8BF9A" }}
+            >
+              {section.title}
+            </p>
+            {section.items.map((item, i) => (
+              <motion.div
+                key={item.href}
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: si * 0.04 + i * 0.025, duration: 0.18 }}
+              >
+                <Link href={item.href} onClick={onClose}>
+                  <motion.span
+                    whileHover={{ backgroundColor: "#F7F6F0", x: 2 }}
+                    transition={{ duration: 0.12 }}
+                    className="mx-1 flex cursor-pointer items-center justify-between rounded-xl px-3 py-1.5"
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <span
+                        className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-xl"
+                        style={{ backgroundColor: `${item.color}15` }}
+                      >
+                        <item.icon size={13} style={{ color: item.color }} />
+                      </span>
+                      <span className="text-[0.82rem] font-medium" style={{ color: "#44403c" }}>
+                        {item.label}
+                      </span>
+                    </span>
+                    {item.badge && (
+                      <span
+                        className="rounded-full px-1.5 py-0.5 text-[0.58rem] leading-none font-bold"
+                        style={{
+                          backgroundColor:
+                            item.badge === "wishlist"
+                              ? wishlistCount > 0
+                                ? "#FFF1F3"
+                                : "#F7F6F0"
+                              : "#FFF1F3",
+                          color:
+                            item.badge === "wishlist"
+                              ? wishlistCount > 0
+                                ? "#E84672"
+                                : "#a8a29e"
+                              : "#E84672",
+                        }}
+                      >
+                        {item.badge === "wishlist" ? wishlistCount : item.badge}
+                      </span>
+                    )}
+                  </motion.span>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      {/* ── Logout ── */}
+      <div className="border-t px-3 pt-1 pb-3" style={{ borderColor: "#EBE8D8" }}>
+        <motion.button
+          whileHover={{ backgroundColor: "#FEF2F2" }}
+          whileTap={{ scale: 0.97 }}
+          onClick={onLogout}
+          className="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5"
+          style={{ background: "none", border: "none" }}
+        >
+          <span
+            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-xl"
+            style={{ backgroundColor: "#FEE2E2" }}
+          >
+            <RiLogoutBoxLine size={13} style={{ color: "#ef4444" }} />
+          </span>
+          <span className="text-[0.82rem] font-semibold" style={{ color: "#ef4444" }}>
+            Log out
+          </span>
+        </motion.button>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   MAIN HEADER
+───────────────────────────────────────────── */
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
@@ -43,23 +651,29 @@ export function Header() {
   const wishlistCount = useWishlistStore((s) => s.items.length);
 
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileExpandedCat, setMobileExpandedCat] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [hoveredCat, setHoveredCat] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
 
   const searchRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const debouncedSearch = useDebounce(searchQuery, 350);
 
+  /* ── Scroll ── */
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handler, { passive: true });
-    return () => window.removeEventListener("scroll", handler);
+    const h = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", h, { passive: true });
+    return () => window.removeEventListener("scroll", h);
   }, []);
 
+  /* ── Search fetch ── */
   useEffect(() => {
     if (!debouncedSearch || debouncedSearch.length < 2) {
       setSearchResults([]);
@@ -75,22 +689,35 @@ export function Header() {
       .finally(() => setSearchLoading(false));
   }, [debouncedSearch]);
 
+  /* ── Click outside ── */
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
+    const h = (e: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
         setSearchOpen(false);
         setSearchQuery("");
         setSearchResults([]);
       }
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node))
         setUserMenuOpen(false);
-      }
+      if (navRef.current && !navRef.current.contains(e.target as Node)) setHoveredCat(null);
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
   }, []);
 
-  useEffect(() => setMobileOpen(false), [pathname]);
+  useEffect(() => {
+    setMobileOpen(false);
+    setHoveredCat(null);
+  }, [pathname]);
+
+  const handleCatHover = (slug: string | null) => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    if (slug) {
+      setHoveredCat(slug);
+    } else {
+      hoverTimeoutRef.current = setTimeout(() => setHoveredCat(null), 130);
+    }
+  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,308 +729,293 @@ export function Header() {
     }
   };
 
-  const topCategories = CATEGORIES.slice(0, 5);
+  const activeCatData = NAV_CATEGORIES.find((c) => c.slug === hoveredCat) ?? null;
 
   return (
     <header
+      className="sticky top-0 z-40 w-full transition-all duration-300"
       style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 40,
-        width: "100%",
-        backgroundColor: scrolled ? "rgba(255,253,247,0.95)" : "#FFFDF7",
-        boxShadow: scrolled ? "0 1px 20px rgba(0,0,0,0.06)" : "none",
-        backdropFilter: scrolled ? "blur(12px)" : "none",
-        transition: "all 0.3s ease",
+        backgroundColor: scrolled ? "rgba(255,253,247,0.96)" : "#FFFDF7",
+        boxShadow: scrolled ? "0 1px 24px rgba(0,0,0,0.07)" : "none",
+        backdropFilter: scrolled ? "blur(14px)" : "none",
       }}
     >
-      {/* Top announcement bar */}
-      <div
-        style={{
-          backgroundColor: "#4D4529",
-          padding: "0.5rem 1rem",
-          textAlign: "center",
-          fontSize: "0.75rem",
-          fontWeight: 500,
-          color: "#FFF9E8",
-        }}
-        className="header-topbar"
+      {/* ── Announcement bar ── */}
+      <motion.div
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: "auto", opacity: 1 }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        className="hidden overflow-hidden sm:block"
+        style={{ backgroundColor: "#2A2518" }}
       >
-        🌸 Free shipping on orders above ₹500 &nbsp;|&nbsp; Fresh stock added weekly
-      </div>
-
-      {/* Main header row */}
-      <div className="container-wide">
-        <div
-          style={{
-            display: "flex",
-            height: "4rem",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "1rem",
-          }}
-        >
-          {/* Logo */}
-          <Link
-            href="/"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              flexShrink: 0,
-              textDecoration: "none",
-            }}
-          >
-            <span
-              style={{
-                fontSize: "1.5rem",
-                fontWeight: 700,
-                letterSpacing: "-0.02em",
-                color: "#4D4529",
-              }}
+        <div className="flex items-center justify-center gap-6 px-4 py-2">
+          <span className="text-[0.7rem] font-semibold tracking-wide" style={{ color: "#D4CFB3" }}>
+            Free shipping on orders above ₹500
+          </span>
+          <span className="h-3 w-px opacity-30" style={{ backgroundColor: "#D4CFB3" }} />
+          <span className="text-[0.7rem] font-semibold tracking-wide" style={{ color: "#FFE08A" }}>
+            Fresh stock added every week
+          </span>
+          <span className="h-3 w-px opacity-30" style={{ backgroundColor: "#D4CFB3" }} />
+          <Link href="/bulk-orders">
+            <motion.span
+              whileHover={{ color: "#FFE08A" }}
+              className="inline-flex cursor-pointer items-center gap-1 text-[0.7rem] font-semibold tracking-wide"
+              style={{ color: "#D4CFB3" }}
             >
-              Lotus<span style={{ color: "#E84672" }}>Mart</span>
-            </span>
+              <RiSparklingLine size={11} /> Bulk orders available
+            </motion.span>
+          </Link>
+        </div>
+      </motion.div>
+
+      {/* ── Main row ── */}
+      <div className="mx-auto w-full max-w-[1400px] px-6 md:px-8 lg:px-12">
+        <div className="flex h-16 items-center justify-between gap-4">
+          {/* Logo */}
+          <Link href="/" className="flex-shrink-0">
+            <motion.span
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              className="inline-flex cursor-pointer items-center gap-0.5"
+            >
+              <span
+                className="text-[1.45rem] leading-none font-black tracking-tight"
+                style={{ color: "#2A2518" }}
+              >
+                Lotus
+              </span>
+              <span
+                className="text-[1.45rem] leading-none font-black tracking-tight"
+                style={{ color: "#E84672" }}
+              >
+                Mart
+              </span>
+            </motion.span>
           </Link>
 
-          {/* Desktop nav */}
+          {/* ── Desktop nav ── */}
           <nav
-            className="header-nav"
-            style={{ display: "none", alignItems: "center", gap: "1.5rem" }}
+            ref={navRef}
+            className="relative hidden items-center gap-0.5 lg:flex"
+            onMouseLeave={() => handleCatHover(null)}
           >
-            {topCategories.map((cat) => (
-              <Link
-                key={cat.slug}
-                href={`/categories/${cat.slug}`}
+            {NAV_CATEGORIES.map((cat) => {
+              const isActive = !!pathname?.includes(cat.slug);
+              const isHovered = hoveredCat === cat.slug;
+              return (
+                <div
+                  key={cat.slug}
+                  className="relative"
+                  onMouseEnter={() => handleCatHover(cat.slug)}
+                >
+                  <Link href={`/categories/${cat.slug}`}>
+                    <motion.span
+                      animate={{
+                        color: isHovered || isActive ? cat.color : "#57534e",
+                        backgroundColor: isHovered || isActive ? cat.colorLight : "transparent",
+                      }}
+                      transition={{ duration: 0.15 }}
+                      className="inline-flex cursor-pointer items-center gap-1 rounded-xl px-3.5 py-2 text-[0.84rem] font-medium select-none"
+                    >
+                      {cat.name}
+                      <motion.span
+                        animate={{ rotate: isHovered ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <RiArrowDownSLine size={14} />
+                      </motion.span>
+                    </motion.span>
+                  </Link>
+                </div>
+              );
+            })}
+
+            <Link href="/products">
+              <motion.span
+                whileHover={{ color: "#E84672", backgroundColor: "#FFF1F3" }}
+                transition={{ duration: 0.15 }}
+                className="inline-flex cursor-pointer items-center rounded-xl px-3.5 py-2 text-[0.84rem] font-medium select-none"
                 style={{
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  color: pathname?.includes(cat.slug) ? "#E84672" : "#57534e",
-                  textDecoration: "none",
-                  transition: "color 0.2s",
+                  color: pathname === "/products" ? "#E84672" : "#57534e",
+                  backgroundColor: pathname === "/products" ? "#FFF1F3" : "transparent",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#E84672")}
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.color = pathname?.includes(cat.slug)
-                    ? "#E84672"
-                    : "#57534e")
-                }
               >
-                {cat.name}
-              </Link>
-            ))}
-            <Link
-              href="/products"
-              style={{
-                fontSize: "0.875rem",
-                fontWeight: 500,
-                color: pathname === "/products" ? "#E84672" : "#57534e",
-                textDecoration: "none",
-                transition: "color 0.2s",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#E84672")}
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = pathname === "/products" ? "#E84672" : "#57534e")
-              }
-            >
-              All Products
+                All Products
+              </motion.span>
             </Link>
+
+            {/* ── Mega dropdown portal ── */}
+            <AnimatePresence>
+              {activeCatData && (
+                <div
+                  className="absolute top-full left-0 z-50 pt-2"
+                  style={{ width: "1px" }} /* anchor — dropdown is self-positioned */
+                  onMouseEnter={() => handleCatHover(activeCatData.slug)}
+                  onMouseLeave={() => handleCatHover(null)}
+                >
+                  <CategoryMegaMenu cat={activeCatData} onClose={() => setHoveredCat(null)} />
+                </div>
+              )}
+            </AnimatePresence>
           </nav>
 
-          {/* Right icons */}
-          <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+          {/* ── Right actions ── */}
+          <div className="flex items-center gap-0.5">
             {/* Search */}
-            <div ref={searchRef} style={{ position: "relative" }}>
-              <button
-                onClick={() => setSearchOpen((v) => !v)}
-                aria-label="Search"
-                style={{
-                  borderRadius: "0.75rem",
-                  padding: "0.5rem",
-                  color: "#57534e",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "background 0.2s, color 0.2s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#FFF1F3";
-                  e.currentTarget.style.color = "#E84672";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.color = "#57534e";
-                }}
-              >
-                <RiSearchLine size={20} />
-              </button>
+            <div ref={searchRef} className="relative">
+              <IconBtn label="Search" onClick={() => setSearchOpen((v) => !v)}>
+                <RiSearchLine size={19} />
+              </IconBtn>
 
               <AnimatePresence>
                 {searchOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                    initial={{ opacity: 0, y: -10, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -8, scale: 0.98 }}
-                    transition={{ duration: 0.18 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.97 }}
+                    transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                    className="absolute top-12 right-0 z-50 w-80 overflow-hidden rounded-2xl border"
                     style={{
-                      position: "absolute",
-                      top: "3rem",
-                      right: 0,
-                      width: "20rem",
-                      overflow: "hidden",
-                      borderRadius: "1rem",
-                      border: "1px solid #EBE8D8",
                       backgroundColor: "#FFFDF7",
-                      boxShadow: "0 20px 60px rgba(0,0,0,0.12)",
-                      zIndex: 50,
+                      borderColor: "#EBE8D8",
+                      boxShadow: "0 20px 60px rgba(0,0,0,0.13)",
                     }}
                   >
-                    <form onSubmit={handleSearchSubmit} style={{ padding: "0.75rem" }}>
+                    <form onSubmit={handleSearchSubmit} className="p-3">
                       <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "0.5rem",
-                          borderRadius: "0.75rem",
-                          backgroundColor: "#F7F6F0",
-                          padding: "0.5rem 0.75rem",
-                        }}
+                        className="flex items-center gap-2 rounded-xl px-3 py-2.5"
+                        style={{ backgroundColor: "#F7F6F0", border: "1px solid #EBE8D8" }}
                       >
-                        <RiSearchLine size={15} style={{ color: "#a8a29e", flexShrink: 0 }} />
+                        <RiSearchLine size={14} style={{ color: "#a8a29e", flexShrink: 0 }} />
                         <input
                           autoFocus
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           placeholder="Search products..."
-                          style={{
-                            flex: 1,
-                            background: "transparent",
-                            fontSize: "0.875rem",
-                            color: "#292524",
-                            outline: "none",
-                            border: "none",
-                            minWidth: 0,
-                          }}
+                          className="min-w-0 flex-1 border-none bg-transparent text-sm outline-none"
+                          style={{ color: "#292524" }}
                         />
-                        {searchQuery && (
-                          <button
-                            type="button"
-                            onClick={() => setSearchQuery("")}
-                            style={{
-                              background: "none",
-                              border: "none",
-                              cursor: "pointer",
-                              padding: 0,
-                              color: "#a8a29e",
-                              display: "flex",
-                            }}
-                          >
-                            <RiCloseLine size={15} />
-                          </button>
-                        )}
+                        <AnimatePresence>
+                          {searchQuery && (
+                            <motion.button
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              exit={{ scale: 0 }}
+                              type="button"
+                              onClick={() => setSearchQuery("")}
+                              className="flex h-4 w-4 flex-shrink-0 cursor-pointer items-center justify-center rounded-full"
+                              style={{ backgroundColor: "#a8a29e", border: "none" }}
+                            >
+                              <RiCloseLine size={10} color="#fff" />
+                            </motion.button>
+                          )}
+                        </AnimatePresence>
                       </div>
                     </form>
 
                     {searchLoading && (
                       <div
-                        style={{
-                          padding: "1.5rem 1rem",
-                          textAlign: "center",
-                          fontSize: "0.875rem",
-                          color: "#a8a29e",
-                        }}
+                        className="flex items-center justify-center gap-2 py-6 text-sm"
+                        style={{ color: "#a8a29e" }}
                       >
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
+                          className="h-4 w-4 flex-shrink-0 rounded-full border-2"
+                          style={{ borderColor: "#E84672", borderTopColor: "transparent" }}
+                        />
                         Searching...
                       </div>
                     )}
 
                     {!searchLoading && searchResults.length > 0 && (
-                      <ul style={{ listStyle: "none", padding: "0 0 0.5rem", margin: 0 }}>
-                        {searchResults.map((r) => (
-                          <li key={r._id}>
+                      <ul
+                        className="pb-2"
+                        style={{ listStyle: "none", margin: 0, padding: "0 0 0.5rem" }}
+                      >
+                        {searchResults.map((r, i) => (
+                          <motion.li
+                            key={r._id}
+                            initial={{ opacity: 0, x: -8 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.04 }}
+                          >
                             <Link
                               href={`/products/${r.slug}`}
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "0.75rem",
-                                padding: "0.625rem 1rem",
-                                textDecoration: "none",
-                                transition: "background 0.15s",
-                              }}
                               onClick={() => {
                                 setSearchOpen(false);
                                 setSearchQuery("");
                               }}
-                              onMouseEnter={(e) =>
-                                (e.currentTarget.style.backgroundColor = "#F7F6F0")
-                              }
-                              onMouseLeave={(e) =>
-                                (e.currentTarget.style.backgroundColor = "transparent")
-                              }
                             >
-                              <div
-                                style={{
-                                  width: "2.5rem",
-                                  height: "2.5rem",
-                                  flexShrink: 0,
-                                  overflow: "hidden",
-                                  borderRadius: "0.5rem",
-                                  backgroundColor: "#EBE8D8",
-                                }}
+                              <motion.span
+                                whileHover={{ backgroundColor: "#F7F6F0" }}
+                                className="flex cursor-pointer items-center gap-3 px-4 py-2.5"
                               >
-                                {r.images?.[0] && (
-                                  <img
-                                    src={r.images[0]}
-                                    alt={r.name}
-                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                  />
-                                )}
-                              </div>
-                              <div style={{ minWidth: 0, flex: 1 }}>
-                                <p
-                                  style={{
-                                    fontSize: "0.875rem",
-                                    fontWeight: 500,
-                                    color: "#292524",
-                                    margin: 0,
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                    whiteSpace: "nowrap",
-                                  }}
+                                <div
+                                  className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-xl"
+                                  style={{ backgroundColor: "#EBE8D8" }}
                                 >
-                                  {r.name}
-                                </p>
-                                <p
-                                  style={{
-                                    fontSize: "0.75rem",
-                                    fontWeight: 600,
-                                    color: "#E84672",
-                                    margin: 0,
-                                  }}
-                                >
-                                  ₹{r.price}
-                                </p>
-                              </div>
+                                  {r.images?.[0] && (
+                                    <img
+                                      src={r.images[0]}
+                                      alt={r.name}
+                                      className="h-full w-full object-cover"
+                                    />
+                                  )}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <p
+                                    className="truncate text-sm font-medium"
+                                    style={{ color: "#292524" }}
+                                  >
+                                    {r.name}
+                                  </p>
+                                  <p className="text-xs font-semibold" style={{ color: "#E84672" }}>
+                                    ₹{r.price}
+                                  </p>
+                                </div>
+                                <RiArrowRightLine
+                                  size={13}
+                                  style={{ color: "#a8a29e", flexShrink: 0 }}
+                                />
+                              </motion.span>
                             </Link>
-                          </li>
+                          </motion.li>
                         ))}
                       </ul>
                     )}
 
                     {!searchLoading && searchQuery.length >= 2 && searchResults.length === 0 && (
-                      <div
-                        style={{
-                          padding: "1.5rem 1rem",
-                          textAlign: "center",
-                          fontSize: "0.875rem",
-                          color: "#a8a29e",
-                        }}
-                      >
+                      <div className="py-6 text-center text-sm" style={{ color: "#a8a29e" }}>
                         No results for &quot;{searchQuery}&quot;
+                      </div>
+                    )}
+
+                    {!searchQuery && (
+                      <div className="px-4 pb-4">
+                        <p
+                          className="mb-2 text-[0.68rem] font-bold tracking-wider uppercase"
+                          style={{ color: "#B8AE86" }}
+                        >
+                          Popular
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {["Cardamom", "Almonds", "Saffron", "Gift Box"].map((tag) => (
+                            <button
+                              key={tag}
+                              onClick={() => setSearchQuery(tag)}
+                              className="cursor-pointer rounded-lg border px-2.5 py-1 text-[0.75rem] font-medium"
+                              style={{
+                                backgroundColor: "#F7F6F0",
+                                color: "#57534e",
+                                borderColor: "#EBE8D8",
+                              }}
+                            >
+                              {tag}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </motion.div>
@@ -412,488 +1024,253 @@ export function Header() {
             </div>
 
             {/* Wishlist */}
-            <Link
-              href="/wishlist"
-              aria-label="Wishlist"
-              style={{
-                position: "relative",
-                borderRadius: "0.75rem",
-                padding: "0.5rem",
-                color: "#57534e",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "background 0.2s, color 0.2s",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#FFF1F3";
-                e.currentTarget.style.color = "#E84672";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "#57534e";
-              }}
-            >
-              <RiHeartLine size={20} />
-              {wishlistCount > 0 && (
-                <span
-                  style={{
-                    position: "absolute",
-                    top: "-2px",
-                    right: "-2px",
-                    width: "1rem",
-                    height: "1rem",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderRadius: "9999px",
-                    backgroundColor: "#E84672",
-                    fontSize: "0.625rem",
-                    fontWeight: 700,
-                    color: "#ffffff",
-                  }}
-                >
-                  {wishlistCount > 9 ? "9+" : wishlistCount}
-                </span>
-              )}
-            </Link>
+            <IconBtn label="Wishlist" badge={wishlistCount} href="/wishlist">
+              <RiHeartLine size={19} />
+            </IconBtn>
 
             {/* Cart */}
-            <Link
-              href="/cart"
-              aria-label="Cart"
-              style={{
-                position: "relative",
-                borderRadius: "0.75rem",
-                padding: "0.5rem",
-                color: "#57534e",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "background 0.2s, color 0.2s",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#FFF1F3";
-                e.currentTarget.style.color = "#E84672";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "#57534e";
-              }}
-            >
-              <RiShoppingCartLine size={20} />
-              {cartCount > 0 && (
-                <span
-                  style={{
-                    position: "absolute",
-                    top: "-2px",
-                    right: "-2px",
-                    width: "1rem",
-                    height: "1rem",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderRadius: "9999px",
-                    backgroundColor: "#E84672",
-                    fontSize: "0.625rem",
-                    fontWeight: 700,
-                    color: "#ffffff",
-                  }}
-                >
-                  {cartCount > 9 ? "9+" : cartCount}
-                </span>
-              )}
-            </Link>
+            <IconBtn label="Cart" badge={cartCount} href="/cart">
+              <RiShoppingCartLine size={19} />
+            </IconBtn>
 
-            {/* User menu */}
+            {/* Profile */}
             {user ? (
-              <div ref={userMenuRef} style={{ position: "relative" }}>
-                <button
+              <div ref={userMenuRef} className="relative">
+                <motion.button
                   onClick={() => setUserMenuOpen((v) => !v)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.375rem",
-                    borderRadius: "0.75rem",
-                    padding: "0.25rem 0.5rem 0.25rem 0.25rem",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "background 0.2s",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F7F6F0")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                  whileHover={{ backgroundColor: "#F7F6F0" }}
+                  whileTap={{ scale: 0.96 }}
+                  className="flex cursor-pointer items-center gap-1.5 rounded-xl py-1 pr-2 pl-1"
+                  style={{ background: "none", border: "none" }}
                 >
-                  <div
-                    style={{
-                      width: "2rem",
-                      height: "2rem",
-                      borderRadius: "9999px",
-                      background: "linear-gradient(135deg, #E84672, #C9305A)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "0.875rem",
-                      fontWeight: 600,
-                      color: "#ffffff",
-                      flexShrink: 0,
-                    }}
+                  <motion.div
+                    whileHover={{ scale: 1.06 }}
+                    className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+                    style={{ background: "linear-gradient(135deg, #E84672, #C9305A)" }}
                   >
                     {user.name?.charAt(0).toUpperCase()}
-                  </div>
-                  <RiArrowDownSLine
-                    size={16}
-                    style={{
-                      color: "#a8a29e",
-                      transition: "transform 0.2s",
-                      transform: userMenuOpen ? "rotate(180deg)" : "rotate(0deg)",
-                    }}
-                  />
-                </button>
+                  </motion.div>
+                  <motion.span
+                    animate={{ rotate: userMenuOpen ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <RiArrowDownSLine size={15} style={{ color: "#a8a29e" }} />
+                  </motion.span>
+                </motion.button>
 
                 <AnimatePresence>
                   {userMenuOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -8, scale: 0.97 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -8, scale: 0.97 }}
-                      transition={{ duration: 0.15 }}
-                      style={{
-                        position: "absolute",
-                        top: "3rem",
-                        right: 0,
-                        width: "13rem",
-                        overflow: "hidden",
-                        borderRadius: "1rem",
-                        border: "1px solid #EBE8D8",
-                        backgroundColor: "#FFFDF7",
-                        paddingTop: "0.5rem",
-                        paddingBottom: "0.5rem",
-                        boxShadow: "0 20px 60px rgba(0,0,0,0.12)",
-                        zIndex: 50,
+                    <ProfileDropdown
+                      user={user}
+                      wishlistCount={wishlistCount}
+                      onClose={() => setUserMenuOpen(false)}
+                      onLogout={() => {
+                        setUserMenuOpen(false);
+                        logout();
                       }}
-                    >
-                      <div
-                        style={{
-                          padding: "0.5rem 1rem 0.75rem",
-                          borderBottom: "1px solid #EBE8D8",
-                          marginBottom: "0.25rem",
-                        }}
-                      >
-                        <p
-                          style={{
-                            fontSize: "0.875rem",
-                            fontWeight: 600,
-                            color: "#292524",
-                            margin: 0,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {user.name}
-                        </p>
-                        <p
-                          style={{
-                            fontSize: "0.75rem",
-                            color: "#a8a29e",
-                            margin: 0,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {user.email}
-                        </p>
-                      </div>
-
-                      {user.role === "admin" && (
-                        <MenuLink
-                          href="/admin/dashboard"
-                          icon={<RiShieldUserLine size={15} />}
-                          onClick={() => setUserMenuOpen(false)}
-                        >
-                          Admin Panel
-                        </MenuLink>
-                      )}
-                      <MenuLink
-                        href="/account"
-                        icon={<RiUserLine size={15} />}
-                        onClick={() => setUserMenuOpen(false)}
-                      >
-                        My Account
-                      </MenuLink>
-                      <MenuLink
-                        href="/orders"
-                        icon={<RiDashboardLine size={15} />}
-                        onClick={() => setUserMenuOpen(false)}
-                      >
-                        My Orders
-                      </MenuLink>
-                      <MenuLink
-                        href="/account/addresses"
-                        icon={<RiMapPinLine size={15} />}
-                        onClick={() => setUserMenuOpen(false)}
-                      >
-                        Addresses
-                      </MenuLink>
-
-                      <div
-                        style={{
-                          marginTop: "0.25rem",
-                          borderTop: "1px solid #EBE8D8",
-                          paddingTop: "0.25rem",
-                        }}
-                      >
-                        <button
-                          onClick={() => {
-                            setUserMenuOpen(false);
-                            logout();
-                          }}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.5rem",
-                            width: "100%",
-                            padding: "0.5rem 1rem",
-                            fontSize: "0.8125rem",
-                            fontWeight: 500,
-                            color: "#ef4444",
-                            background: "none",
-                            border: "none",
-                            cursor: "pointer",
-                            textAlign: "left",
-                            transition: "background 0.15s",
-                          }}
-                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#FEF2F2")}
-                          onMouseLeave={(e) =>
-                            (e.currentTarget.style.backgroundColor = "transparent")
-                          }
-                        >
-                          <RiLogoutBoxLine size={15} /> Log out
-                        </button>
-                      </div>
-                    </motion.div>
+                    />
                   )}
                 </AnimatePresence>
               </div>
             ) : (
-              <Link
-                href="/login"
-                className="header-login-btn"
-                style={{
-                  display: "none",
-                  alignItems: "center",
-                  gap: "0.375rem",
-                  borderRadius: "0.75rem",
-                  backgroundColor: "#E84672",
-                  padding: "0.5rem 1rem",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  color: "#ffffff",
-                  textDecoration: "none",
-                  transition: "background-color 0.2s",
-                  flexShrink: 0,
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#C9305A")}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#E84672")}
-              >
-                <RiUserLine size={16} /> Login
+              <Link href="/login" className="ml-1 hidden lg:block">
+                <motion.span
+                  whileHover={{ y: -2, boxShadow: "0 8px 20px rgba(232,70,114,0.22)" }}
+                  whileTap={{ scale: 0.97 }}
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-white"
+                  style={{ backgroundColor: "#E84672" }}
+                >
+                  <RiUserLine size={15} /> Login
+                </motion.span>
               </Link>
             )}
 
-            {/* Mobile hamburger */}
-            <button
+            {/* Hamburger */}
+            <motion.button
+              whileTap={{ scale: 0.92 }}
               onClick={() => setMobileOpen((v) => !v)}
-              className="header-hamburger"
-              style={{
-                borderRadius: "0.75rem",
-                padding: "0.5rem",
-                color: "#57534e",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "background 0.2s",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F7F6F0")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+              className="ml-1 flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl lg:hidden"
+              style={{ background: "none", border: "none", color: "#57534e" }}
             >
-              {mobileOpen ? <RiCloseLine size={22} /> : <RiMenuLine size={22} />}
-            </button>
+              <AnimatePresence mode="wait">
+                {mobileOpen ? (
+                  <motion.span
+                    key="x"
+                    initial={{ rotate: -90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: 90, opacity: 0 }}
+                    transition={{ duration: 0.14 }}
+                  >
+                    <RiCloseLine size={22} />
+                  </motion.span>
+                ) : (
+                  <motion.span
+                    key="m"
+                    initial={{ rotate: 90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: -90, opacity: 0 }}
+                    transition={{ duration: 0.14 }}
+                  >
+                    <RiMenuLine size={22} />
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </motion.button>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* ── Mobile menu ── */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            style={{
-              overflow: "hidden",
-              borderTop: "1px solid #EBE8D8",
-              backgroundColor: "#FFFDF7",
-            }}
-            className="header-mobile-menu"
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden border-t lg:hidden"
+            style={{ backgroundColor: "#FFFDF7", borderColor: "#EBE8D8" }}
           >
-            <nav
-              className="container-wide"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.25rem",
-                paddingTop: "1rem",
-                paddingBottom: "1rem",
-              }}
-            >
-              {topCategories.map((cat) => (
-                <Link
-                  key={cat.slug}
-                  href={`/categories/${cat.slug}`}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.75rem",
-                    borderRadius: "0.75rem",
-                    padding: "0.625rem 0.75rem",
-                    fontSize: "0.875rem",
-                    fontWeight: 500,
-                    color: "#44403c",
-                    textDecoration: "none",
-                    transition: "background 0.15s, color 0.15s",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#F7F6F0";
-                    e.currentTarget.style.color = "#E84672";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                    e.currentTarget.style.color = "#44403c";
-                  }}
-                >
-                  {cat.name}
-                </Link>
-              ))}
-              <Link
-                href="/products"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  borderRadius: "0.75rem",
-                  padding: "0.625rem 0.75rem",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  color: "#44403c",
-                  textDecoration: "none",
-                  transition: "background 0.15s, color 0.15s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#F7F6F0";
-                  e.currentTarget.style.color = "#E84672";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.color = "#44403c";
-                }}
-              >
-                All Products
-              </Link>
+            <nav className="mx-auto flex w-full max-w-[1400px] flex-col gap-0.5 px-5 py-3">
+              {NAV_CATEGORIES.map((cat, i) => {
+                const expanded = mobileExpandedCat === cat.slug;
+                return (
+                  <motion.div
+                    key={cat.slug}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.04, duration: 0.22 }}
+                  >
+                    {/* Row */}
+                    <button
+                      onClick={() => setMobileExpandedCat(expanded ? null : cat.slug)}
+                      className="flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2.5"
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: expanded ? cat.color : "#44403c",
+                      }}
+                    >
+                      <span className="flex items-center gap-2.5 text-sm font-medium">
+                        <span
+                          className="flex h-6 w-6 items-center justify-center rounded-lg"
+                          style={{ backgroundColor: cat.colorLight }}
+                        >
+                          <cat.icon size={12} style={{ color: cat.color }} />
+                        </span>
+                        {cat.name}
+                      </span>
+                      <motion.span
+                        animate={{ rotate: expanded ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <RiArrowDownSLine size={16} style={{ color: "#a8a29e" }} />
+                      </motion.span>
+                    </button>
 
+                    {/* Sub items */}
+                    <AnimatePresence>
+                      {expanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                          className="overflow-hidden pl-4"
+                        >
+                          <div className="grid grid-cols-2 gap-1 py-1.5">
+                            {cat.sub.map((sub, j) => (
+                              <motion.div
+                                key={sub.slug}
+                                initial={{ opacity: 0, y: 4 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: j * 0.03, duration: 0.18 }}
+                              >
+                                <Link
+                                  href={`/categories/${sub.slug}`}
+                                  onClick={() => setMobileOpen(false)}
+                                >
+                                  <motion.span
+                                    whileHover={{ backgroundColor: cat.colorLight }}
+                                    className="flex cursor-pointer items-center justify-between rounded-xl px-3 py-1.5"
+                                  >
+                                    <span
+                                      className="text-[0.79rem] font-medium"
+                                      style={{ color: "#57534e" }}
+                                    >
+                                      {sub.label}
+                                    </span>
+                                    {sub.badge && (
+                                      <span
+                                        className="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold"
+                                        style={{
+                                          backgroundColor: cat.colorLight,
+                                          color: cat.color,
+                                        }}
+                                      >
+                                        {sub.badge}
+                                      </span>
+                                    )}
+                                  </motion.span>
+                                </Link>
+                              </motion.div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                );
+              })}
+
+              {/* All Products */}
+              <motion.div
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: NAV_CATEGORIES.length * 0.04, duration: 0.22 }}
+              >
+                <Link href="/products" onClick={() => setMobileOpen(false)}>
+                  <motion.span
+                    whileHover={{ backgroundColor: "#FFF1F3", color: "#E84672" }}
+                    className="flex cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium"
+                    style={{ color: "#44403c" }}
+                  >
+                    All Products <RiArrowRightLine size={14} style={{ color: "#D4CFB3" }} />
+                  </motion.span>
+                </Link>
+              </motion.div>
+
+              {/* Auth */}
               {!user && (
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "0.5rem",
-                    borderTop: "1px solid #EBE8D8",
-                    paddingTop: "0.75rem",
-                    marginTop: "0.25rem",
-                  }}
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.28, duration: 0.22 }}
+                  className="mt-1 flex gap-2 border-t pt-3"
+                  style={{ borderColor: "#EBE8D8" }}
                 >
-                  <Link
-                    href="/login"
-                    style={{
-                      flex: 1,
-                      borderRadius: "0.75rem",
-                      backgroundColor: "#E84672",
-                      padding: "0.625rem",
-                      textAlign: "center",
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                      color: "#ffffff",
-                      textDecoration: "none",
-                    }}
-                  >
-                    Login
+                  <Link href="/login" className="flex-1">
+                    <span
+                      className="flex w-full items-center justify-center rounded-xl py-2.5 text-sm font-semibold text-white"
+                      style={{ backgroundColor: "#E84672" }}
+                    >
+                      Login
+                    </span>
                   </Link>
-                  <Link
-                    href="/register"
-                    style={{
-                      flex: 1,
-                      borderRadius: "0.75rem",
-                      border: "2px solid #E84672",
-                      padding: "0.625rem",
-                      textAlign: "center",
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                      color: "#E84672",
-                      textDecoration: "none",
-                    }}
-                  >
-                    Register
+                  <Link href="/register" className="flex-1">
+                    <span
+                      className="flex w-full items-center justify-center rounded-xl border-2 py-2.5 text-sm font-semibold"
+                      style={{ color: "#E84672", borderColor: "#E84672" }}
+                    >
+                      Register
+                    </span>
                   </Link>
-                </div>
+                </motion.div>
               )}
             </nav>
           </motion.div>
         )}
       </AnimatePresence>
     </header>
-  );
-}
-
-// Small helper component for dropdown menu items
-function MenuLink({
-  href,
-  icon,
-  children,
-  onClick,
-}: {
-  href: string;
-  icon: React.ReactNode;
-  children: React.ReactNode;
-  onClick?: () => void;
-}) {
-  return (
-    <Link
-      href={href}
-      onClick={onClick}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "0.5rem",
-        padding: "0.5rem 1rem",
-        fontSize: "0.8125rem",
-        fontWeight: 500,
-        color: "#44403c",
-        textDecoration: "none",
-        transition: "background 0.15s, color 0.15s",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = "#F7F6F0";
-        e.currentTarget.style.color = "#1c1917";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = "transparent";
-        e.currentTarget.style.color = "#44403c";
-      }}
-    >
-      {icon}
-      {children}
-    </Link>
   );
 }

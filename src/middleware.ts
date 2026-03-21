@@ -59,6 +59,9 @@ const adminPatterns = [/^\/admin(\/|$)/];
 /** Routes that authenticated users should be redirected away from. */
 const guestOnlyPatterns = [/^\/login(\/|$)/, /^\/register(\/|$)/];
 
+/** Admin login — unauthenticated users go here for admin access. */
+const adminLoginPattern = /^\/admin-login(\/|$)/;
+
 function matchesAny(pathname: string, patterns: RegExp[]): boolean {
   return patterns.some((pattern) => pattern.test(pathname));
 }
@@ -71,10 +74,19 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const user = await verifyAuth(request);
 
+  // ── Admin login page ──────────────────────
+  if (adminLoginPattern.test(pathname)) {
+    // If already authenticated as admin, redirect to dashboard
+    if (user && user.role === "admin") {
+      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+    }
+    return NextResponse.next();
+  }
+
   // ── Admin routes ───────────────────────────
   if (matchesAny(pathname, adminPatterns)) {
     if (!user) {
-      const loginUrl = new URL("/login", request.url);
+      const loginUrl = new URL("/admin-login", request.url);
       loginUrl.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(loginUrl);
     }
@@ -115,6 +127,7 @@ export const config = {
     "/checkout/:path*",
     "/wishlist/:path*",
     "/admin/:path*",
+    "/admin-login",
     "/login",
     "/register",
   ],
