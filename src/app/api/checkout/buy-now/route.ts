@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     // Emails (non-blocking)
     sendOrderConfirmation(authUser.email, authUser.name ?? "Customer", {
       orderNumber: order.orderNumber,
-      items: [{ name: product.name, quantity: qty, price: unitPrice }],
+      items: [{ name: product.name, quantity: qty, price: unitPrice, image: product.images?.[0] ?? "" }],
       subtotal,
       shippingCost,
       tax,

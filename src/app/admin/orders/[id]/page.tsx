@@ -131,12 +131,12 @@ export default function AdminOrderDetailPage() {
         <Skeleton className="h-8 w-48" />
         <div className="grid lg:grid-cols-3 gap-5">
           <div className="lg:col-span-2 space-y-4">
-            <Skeleton className="h-40 w-full" rounded="2xl" />
-            <Skeleton className="h-64 w-full" rounded="2xl" />
+            <Skeleton className="h-40 w-full" rounded="xl" />
+            <Skeleton className="h-64 w-full" rounded="xl" />
           </div>
           <div className="space-y-4">
-            <Skeleton className="h-40 w-full" rounded="2xl" />
-            <Skeleton className="h-32 w-full" rounded="2xl" />
+            <Skeleton className="h-40 w-full" rounded="xl" />
+            <Skeleton className="h-32 w-full" rounded="xl" />
           </div>
         </div>
       </div>

@@ -134,7 +134,7 @@ export default function AdminAnalyticsPage() {
           {loading ? (
             <div className="flex items-end gap-1 h-40">
               {Array.from({ length: 14 }).map((_, i) => (
-                <Skeleton key={i} className="flex-1" style={{ height: `${30 + Math.random() * 70}%` }} />
+                <Skeleton key={i} className={`flex-1 h-[${30 + Math.floor(Math.random() * 70)}%]`} />
               ))}
             </div>
           ) : data?.revenueByDay.length === 0 ? (

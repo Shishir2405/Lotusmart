@@ -156,7 +156,6 @@ export function WhyChooseUs() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.07 }}
               whileHover={{ backgroundColor: "#FFF1F3" }}
-              transition={{ duration: 0.15 }}
               className="flex flex-col justify-between px-5 py-5 bg-white transition-colors"
               style={{ borderRight: i < 3 ? "1px solid #EBE8D8" : "none" }}
             >

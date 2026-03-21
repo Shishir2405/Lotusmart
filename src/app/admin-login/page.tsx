@@ -14,6 +14,7 @@ import {
   RiAdminLine,
   RiArrowRightLine,
   RiDashboardLine,
+  RiArrowLeftLine,
 } from "react-icons/ri";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -48,7 +49,17 @@ export default function AdminLoginPage() {
     setErrors({});
     try {
       const res = await axios.post<{
-        data: { user: { _id: string; name: string; email: string; role: string; avatar?: string } };
+        data: {
+          user: {
+            _id: string;
+            id: string;
+            name: string;
+            email: string;
+            role: string;
+            avatar?: string;
+            isVerified: boolean;
+          };
+        };
       }>("/api/auth/login", { email, password });
       const user = res.data.data.user;
       if (user.role !== "admin") {
@@ -56,7 +67,14 @@ export default function AdminLoginPage() {
         toast.error("You are not authorized to access the admin panel.");
         return;
       }
-      setUser(user as Parameters<typeof setUser>[0]);
+      setUser({
+        id: user.id || user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role as "admin" | "customer",
+        avatar: user.avatar,
+        isVerified: user.isVerified,
+      });
       toast.success(`Welcome back, ${user.name?.split(" ")[0]}!`);
       router.push("/admin/dashboard");
     } catch (err) {
@@ -92,12 +110,13 @@ export default function AdminLoginPage() {
             gridTemplateColumns: "1fr",
             borderRadius: "1.75rem",
             overflow: "hidden",
-            border: "1px solid rgba(255,255,255,0.06)",
-            boxShadow: "0 40px 100px rgba(0,0,0,0.5)",
+            border: "1px solid #EBE8D8",
+            boxShadow: "0 24px 80px rgba(0,0,0,0.08)",
+            backgroundColor: "#fff",
           }}
           className="lg:grid-cols-2"
         >
-          {/* ── Left Panel — Branding ── */}
+          {/* ── Left Panel — Branding (dark accent panel) ── */}
           <div
             className="hidden lg:flex"
             style={{
@@ -136,36 +155,13 @@ export default function AdminLoginPage() {
             {/* Logo */}
             <div>
               <Link href="/" style={{ textDecoration: "none" }}>
-                <span
-                  style={{
-                    fontSize: "1.75rem",
-                    fontWeight: 800,
-                    color: "#FFF9E8",
-                    letterSpacing: "-0.02em",
-                  }}
-                >
-                  Lotus
-                  <span style={{ color: "#E84672" }}>Mart</span>
+                <span style={{ fontSize: "1.75rem", fontWeight: 800, color: "#FFF9E8", letterSpacing: "-0.02em" }}>
+                  Lotus<span style={{ color: "#E84672" }}>Mart</span>
                 </span>
               </Link>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  marginTop: "0.5rem",
-                }}
-              >
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem" }}>
                 <RiShieldCheckLine size={12} style={{ color: "#FFE08A" }} />
-                <span
-                  style={{
-                    fontSize: "0.65rem",
-                    fontWeight: 700,
-                    letterSpacing: "0.15em",
-                    textTransform: "uppercase",
-                    color: "#9C8F62",
-                  }}
-                >
+                <span style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "#9C8F62" }}>
                   Admin Console
                 </span>
               </div>
@@ -190,26 +186,10 @@ export default function AdminLoginPage() {
                   }}
                 />
                 <div style={{ position: "absolute", bottom: "1rem", left: "1rem", right: "1rem" }}>
-                  <p
-                    style={{
-                      fontSize: "0.6rem",
-                      fontWeight: 800,
-                      letterSpacing: "0.18em",
-                      textTransform: "uppercase",
-                      color: "#FFE08A",
-                      marginBottom: "0.25rem",
-                    }}
-                  >
+                  <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "#FFE08A", marginBottom: "0.25rem" }}>
                     Dashboard Access
                   </p>
-                  <p
-                    style={{
-                      fontSize: "1rem",
-                      fontWeight: 700,
-                      color: "#fff",
-                      lineHeight: 1.3,
-                    }}
-                  >
+                  <p style={{ fontSize: "1rem", fontWeight: 700, color: "#fff", lineHeight: 1.3 }}>
                     Manage your entire store from one place
                   </p>
                 </div>
@@ -223,16 +203,7 @@ export default function AdminLoginPage() {
                 { icon: RiShieldCheckLine, text: "Role-based access control" },
                 { icon: RiAdminLine, text: "Product, order & user management" },
               ].map((item) => (
-                <div
-                  key={item.text}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.75rem",
-                    fontSize: "0.8rem",
-                    color: "#B8AE86",
-                  }}
-                >
+                <div key={item.text} style={{ display: "flex", alignItems: "center", gap: "0.75rem", fontSize: "0.8rem", color: "#B8AE86" }}>
                   <div
                     style={{
                       width: "28px",
@@ -253,28 +224,32 @@ export default function AdminLoginPage() {
               ))}
             </div>
 
-            {/* Bottom */}
             <p style={{ fontSize: "0.65rem", color: "#615834", marginTop: "1.5rem" }}>
               Secure 256-bit encrypted connection
             </p>
           </div>
 
-          {/* ── Right Panel — Login Form ── */}
+          {/* ── Right Panel — Login Form (LIGHT) ── */}
           <div
             style={{
               padding: "2.5rem",
-              backgroundColor: "#1C1914",
+              backgroundColor: "#FFFDF7",
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
             }}
           >
-            {/* Mobile logo */}
-            <div className="lg:hidden" style={{ marginBottom: "2rem", textAlign: "center" }}>
+            {/* Mobile header */}
+            <div className="lg:hidden" style={{ marginBottom: "2rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <Link href="/" style={{ textDecoration: "none" }}>
-                <span style={{ fontSize: "1.5rem", fontWeight: 800, color: "#FFF9E8" }}>
+                <span style={{ fontSize: "1.5rem", fontWeight: 800, color: "#2A2518" }}>
                   Lotus<span style={{ color: "#E84672" }}>Mart</span>
                 </span>
+              </Link>
+              <Link href="/" style={{ textDecoration: "none" }}>
+                <motion.span whileHover={{ x: -3 }} style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontSize: "0.72rem", fontWeight: 600, color: "#B8AE86", cursor: "pointer" }}>
+                  <RiArrowLeftLine size={12} /> Back to store
+                </motion.span>
               </Link>
             </div>
 
@@ -285,28 +260,21 @@ export default function AdminLoginPage() {
               transition={{ delay: 0.2, duration: 0.5, ease }}
               style={{ marginBottom: "2rem" }}
             >
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  padding: "0.375rem 0.875rem",
-                  borderRadius: "9999px",
-                  backgroundColor: "rgba(232,70,114,0.1)",
-                  border: "1px solid rgba(232,70,114,0.2)",
-                  marginBottom: "1rem",
-                }}
-              >
-                <RiAdminLine size={11} style={{ color: "#E84672" }} />
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
+                <span style={{ height: "1px", width: "1.5rem", backgroundColor: "#E84672" }} />
                 <span
                   style={{
-                    fontSize: "0.62rem",
-                    fontWeight: 700,
-                    letterSpacing: "0.15em",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.375rem",
+                    fontSize: "0.6rem",
+                    fontWeight: 800,
+                    letterSpacing: "0.2em",
                     textTransform: "uppercase",
                     color: "#E84672",
                   }}
                 >
+                  <RiAdminLine size={11} />
                   Admin Access
                 </span>
               </div>
@@ -314,15 +282,15 @@ export default function AdminLoginPage() {
                 style={{
                   fontSize: "1.75rem",
                   fontWeight: 800,
-                  color: "#FFF9E8",
+                  color: "#1C1917",
                   letterSpacing: "-0.02em",
-                  lineHeight: 1.2,
+                  lineHeight: 1.15,
                   marginBottom: "0.375rem",
                 }}
               >
-                Welcome back
+                Welcome back.
               </h1>
-              <p style={{ fontSize: "0.85rem", color: "#9C8F62" }}>
+              <p style={{ fontSize: "0.82rem", color: "#A8A29E", fontWeight: 500 }}>
                 Sign in with your admin credentials to continue
               </p>
             </motion.div>
@@ -336,13 +304,13 @@ export default function AdminLoginPage() {
                   exit={{ opacity: 0, y: -8, height: 0 }}
                   style={{
                     padding: "0.75rem 1rem",
-                    borderRadius: "0.75rem",
-                    backgroundColor: "rgba(239,68,68,0.1)",
-                    border: "1px solid rgba(239,68,68,0.2)",
+                    borderRadius: "0.875rem",
+                    backgroundColor: "#FEF2F2",
+                    border: "1px solid #FECACA",
                     marginBottom: "1.25rem",
                   }}
                 >
-                  <p style={{ fontSize: "0.8rem", color: "#FCA5A5" }}>{errors.general}</p>
+                  <p style={{ fontSize: "0.8rem", color: "#DC2626", fontWeight: 500 }}>{errors.general}</p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -360,7 +328,7 @@ export default function AdminLoginPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: "0.375rem" }}>
                 <label
                   htmlFor="admin-email"
-                  style={{ fontSize: "0.78rem", fontWeight: 600, color: "#D4CFB3" }}
+                  style={{ fontSize: "0.7rem", fontWeight: 700, color: "#9C8F62", letterSpacing: "0.06em", textTransform: "uppercase" }}
                 >
                   Email address
                 </label>
@@ -370,16 +338,17 @@ export default function AdminLoginPage() {
                     display: "flex",
                     alignItems: "center",
                     borderRadius: "0.875rem",
-                    backgroundColor: "#2A2518",
-                    border: `1.5px solid ${focusedField === "email" ? "#E84672" : errors.email ? "#EF4444" : "#4D4529"}`,
+                    backgroundColor: "#FAFAF8",
+                    border: `1.5px solid ${focusedField === "email" ? "#E84672" : errors.email ? "#EF4444" : "#EBE8D8"}`,
                     transition: "border-color 0.2s",
+                    boxShadow: focusedField === "email" ? "0 0 0 3px rgba(232,70,114,0.06)" : "none",
                   }}
                 >
                   <span
                     style={{
                       position: "absolute",
                       left: "0.875rem",
-                      color: focusedField === "email" ? "#E84672" : "#9C8F62",
+                      color: focusedField === "email" ? "#E84672" : "#C8BF9A",
                       transition: "color 0.2s",
                       pointerEvents: "none",
                     }}
@@ -390,7 +359,7 @@ export default function AdminLoginPage() {
                     id="admin-email"
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => { setEmail(e.target.value); if (errors.email) setErrors((p) => ({ ...p, email: undefined })); }}
                     onFocus={() => setFocusedField("email")}
                     onBlur={() => setFocusedField(null)}
                     placeholder="admin@lotusmart.com"
@@ -405,12 +374,13 @@ export default function AdminLoginPage() {
                       border: "none",
                       outline: "none",
                       fontSize: "0.875rem",
-                      color: "#FFF9E8",
+                      color: "#1C1917",
+                      fontWeight: 500,
                     }}
                   />
                 </div>
                 {errors.email && (
-                  <p style={{ fontSize: "0.72rem", color: "#FCA5A5" }}>{errors.email}</p>
+                  <p style={{ fontSize: "0.72rem", color: "#EF4444", fontWeight: 500 }}>{errors.email}</p>
                 )}
               </div>
 
@@ -418,7 +388,7 @@ export default function AdminLoginPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: "0.375rem" }}>
                 <label
                   htmlFor="admin-password"
-                  style={{ fontSize: "0.78rem", fontWeight: 600, color: "#D4CFB3" }}
+                  style={{ fontSize: "0.7rem", fontWeight: 700, color: "#9C8F62", letterSpacing: "0.06em", textTransform: "uppercase" }}
                 >
                   Password
                 </label>
@@ -428,16 +398,17 @@ export default function AdminLoginPage() {
                     display: "flex",
                     alignItems: "center",
                     borderRadius: "0.875rem",
-                    backgroundColor: "#2A2518",
-                    border: `1.5px solid ${focusedField === "password" ? "#E84672" : errors.password ? "#EF4444" : "#4D4529"}`,
+                    backgroundColor: "#FAFAF8",
+                    border: `1.5px solid ${focusedField === "password" ? "#E84672" : errors.password ? "#EF4444" : "#EBE8D8"}`,
                     transition: "border-color 0.2s",
+                    boxShadow: focusedField === "password" ? "0 0 0 3px rgba(232,70,114,0.06)" : "none",
                   }}
                 >
                   <span
                     style={{
                       position: "absolute",
                       left: "0.875rem",
-                      color: focusedField === "password" ? "#E84672" : "#9C8F62",
+                      color: focusedField === "password" ? "#E84672" : "#C8BF9A",
                       transition: "color 0.2s",
                       pointerEvents: "none",
                     }}
@@ -448,7 +419,7 @@ export default function AdminLoginPage() {
                     id="admin-password"
                     type={showPassword ? "text" : "password"}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => { setPassword(e.target.value); if (errors.password) setErrors((p) => ({ ...p, password: undefined })); }}
                     onFocus={() => setFocusedField("password")}
                     onBlur={() => setFocusedField(null)}
                     placeholder="Enter your password"
@@ -463,7 +434,8 @@ export default function AdminLoginPage() {
                       border: "none",
                       outline: "none",
                       fontSize: "0.875rem",
-                      color: "#FFF9E8",
+                      color: "#1C1917",
+                      fontWeight: 500,
                     }}
                   />
                   <button
@@ -472,7 +444,7 @@ export default function AdminLoginPage() {
                     style={{
                       position: "absolute",
                       right: "0.875rem",
-                      color: "#9C8F62",
+                      color: "#C8BF9A",
                       background: "none",
                       border: "none",
                       cursor: "pointer",
@@ -484,7 +456,7 @@ export default function AdminLoginPage() {
                   </button>
                 </div>
                 {errors.password && (
-                  <p style={{ fontSize: "0.72rem", color: "#FCA5A5" }}>{errors.password}</p>
+                  <p style={{ fontSize: "0.72rem", color: "#EF4444", fontWeight: 500 }}>{errors.password}</p>
                 )}
               </div>
 
@@ -492,8 +464,8 @@ export default function AdminLoginPage() {
               <motion.button
                 type="submit"
                 disabled={isLoading}
-                whileHover={{ y: -2, boxShadow: "0 12px 32px rgba(232,70,114,0.3)" }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={!isLoading ? { y: -2, boxShadow: "0 12px 32px rgba(232,70,114,0.25)" } : {}}
+                whileTap={!isLoading ? { scale: 0.98 } : {}}
                 style={{
                   width: "100%",
                   padding: "0.875rem",
@@ -546,16 +518,13 @@ export default function AdminLoginPage() {
               style={{
                 marginTop: "2rem",
                 paddingTop: "1.25rem",
-                borderTop: "1px solid rgba(255,255,255,0.06)",
+                borderTop: "1px solid #EBE8D8",
                 textAlign: "center",
               }}
             >
-              <p style={{ fontSize: "0.75rem", color: "#615834" }}>
+              <p style={{ fontSize: "0.75rem", color: "#A8A29E" }}>
                 Not an admin?{" "}
-                <Link
-                  href="/login"
-                  style={{ color: "#E84672", fontWeight: 600, textDecoration: "none" }}
-                >
+                <Link href="/login" style={{ color: "#E84672", fontWeight: 600, textDecoration: "none" }}>
                   Customer login
                 </Link>
               </p>

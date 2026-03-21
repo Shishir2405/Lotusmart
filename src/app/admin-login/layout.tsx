@@ -3,7 +3,7 @@ export default function AdminLoginLayout({ children }: { children: React.ReactNo
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(145deg, #0F0D0A 0%, #1C1914 30%, #2A2518 60%, #1C1914 100%)",
+        background: "linear-gradient(155deg, #FFFDF7 0%, #FFF9E8 30%, #F7F6F0 60%, #FFFDF7 100%)",
         position: "relative",
         overflow: "hidden",
       }}
@@ -17,7 +17,7 @@ export default function AdminLoginLayout({ children }: { children: React.ReactNo
           width: "600px",
           height: "600px",
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(232,70,114,0.08) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(232,70,114,0.06) 0%, transparent 70%)",
           pointerEvents: "none",
         }}
       />
@@ -29,18 +29,17 @@ export default function AdminLoginLayout({ children }: { children: React.ReactNo
           width: "500px",
           height: "500px",
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(181,159,107,0.06) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(181,159,107,0.05) 0%, transparent 70%)",
           pointerEvents: "none",
         }}
       />
-      {/* Grid pattern overlay */}
+      {/* Dot grid overlay */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
+          backgroundImage: "radial-gradient(circle, rgba(122,110,66,0.06) 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
           pointerEvents: "none",
         }}
       />
