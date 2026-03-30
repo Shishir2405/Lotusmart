@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { RiArrowLeftLine, RiUploadLine, RiDeleteBinLine, RiAddLine, RiArrowDownSLine } from "react-icons/ri";
+import { RiArrowLeftLine, RiUploadLine, RiDeleteBinLine, RiAddLine, RiArrowDownSLine, RiSearchLine } from "react-icons/ri";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import axios from "axios";
 import toast from "react-hot-toast";
+import hsnCodesData from "@/data/hsn-codes.json";
 
 interface Category {
   _id: string;
@@ -112,6 +113,16 @@ export default function NewProductPage() {
   const [saving, setSaving] = useState(false);
   const [bulkPricing, setBulkPricing] = useState<BulkPriceRow[]>([]);
   const [nutritionOpen, setNutritionOpen] = useState(false);
+  const [hsnSearch, setHsnSearch] = useState("");
+  const [hsnDropdownOpen, setHsnDropdownOpen] = useState(false);
+
+  const filteredHsnCodes = hsnSearch.length >= 2
+    ? hsnCodesData.filter(
+        (h) =>
+          h.code.includes(hsnSearch) ||
+          h.description.toLowerCase().includes(hsnSearch.toLowerCase())
+      ).slice(0, 10)
+    : [];
 
   useEffect(() => {
     axios.get<{ data: Category[] }>("/api/categories").then((r) => setCategories(r.data.data)).catch(() => null);
@@ -185,7 +196,9 @@ export default function NewProductPage() {
     setSaving(true);
     try {
       await axios.post("/api/products", {
-        ...form,
+        name: form.name,
+        description: form.description,
+        shortDescription: form.shortDescription || undefined,
         price: Number(form.price),
         compareAtPrice: form.compareAtPrice ? Number(form.compareAtPrice) : undefined,
         costPrice: form.costPrice ? Number(form.costPrice) : undefined,
@@ -193,6 +206,7 @@ export default function NewProductPage() {
         pricePerGram: form.pricePerGram ? Number(form.pricePerGram) : undefined,
         pricePerUnit: form.pricePerUnit ? Number(form.pricePerUnit) : undefined,
         gstRate: Number(form.gstRate),
+        hsn: form.hsnCode || undefined,
         stock: Number(form.stock),
         lowStockThreshold: form.lowStockThreshold ? Number(form.lowStockThreshold) : undefined,
         weight: form.weight ? Number(form.weight) : undefined,
@@ -202,6 +216,24 @@ export default function NewProductPage() {
         tags: form.tags ? form.tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
         allergens: form.allergens ? form.allergens.split(",").map((t) => t.trim()).filter(Boolean) : [],
         category: form.category || undefined,
+        subcategory: form.subcategory || undefined,
+        sku: form.sku || undefined,
+        barcode: form.barcode || undefined,
+        unit: form.unit,
+        productType: form.productType || undefined,
+        brand: form.brand || undefined,
+        manufacturer: form.manufacturer || undefined,
+        countryOfOrigin: form.countryOfOrigin || undefined,
+        ingredients: form.ingredients || undefined,
+        shelfLife: form.shelfLife || undefined,
+        bestBefore: form.bestBefore || undefined,
+        certifications: form.certifications.length > 0 ? form.certifications : undefined,
+        fssaiLicense: form.fssaiLicenseNumber || undefined,
+        isOrganic: form.isOrganic,
+        isVegan: form.isVegan,
+        isGlutenFree: form.isGlutenFree,
+        isActive: form.isActive,
+        isFeatured: form.isFeatured,
         images,
         bulkPricing: bulkPricing
           .filter((r) => r.minQty && r.price)
@@ -232,10 +264,8 @@ export default function NewProductPage() {
         },
         returnPolicy: form.returnPolicy || undefined,
         warranty: form.warranty || undefined,
-        seo: {
-          metaTitle: form.metaTitle || undefined,
-          metaDescription: form.metaDescription || undefined,
-        },
+        metaTitle: form.metaTitle || undefined,
+        metaDescription: form.metaDescription || undefined,
         videoUrl: form.videoUrl || undefined,
       });
       toast.success("Product created");
@@ -363,7 +393,44 @@ export default function NewProductPage() {
                 {GST_RATES.map((r) => <option key={r} value={r}>{r}%</option>)}
               </select>
             </div>
-            <Input label="HSN Code" value={form.hsnCode} onChange={(e) => setForm((f) => ({ ...f, hsnCode: e.target.value }))} placeholder="e.g. 0910" />
+            <div className="relative">
+              <label className={labelClass}>HSN Code</label>
+              <div className="relative">
+                <input
+                  value={form.hsnCode}
+                  onChange={(e) => {
+                    setForm((f) => ({ ...f, hsnCode: e.target.value }));
+                    setHsnSearch(e.target.value);
+                    setHsnDropdownOpen(true);
+                  }}
+                  onFocus={() => { if (form.hsnCode.length >= 2) setHsnDropdownOpen(true); }}
+                  onBlur={() => setTimeout(() => setHsnDropdownOpen(false), 200)}
+                  placeholder="Search HSN code or description..."
+                  className={selectClass}
+                />
+                <RiSearchLine size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+              </div>
+              {hsnDropdownOpen && filteredHsnCodes.length > 0 && (
+                <div className="absolute z-20 mt-1 w-full max-h-48 overflow-y-auto rounded-xl border border-neutral-200 bg-white shadow-lg">
+                  {filteredHsnCodes.map((h) => (
+                    <button
+                      key={h.code}
+                      type="button"
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-neutral-50 transition-colors"
+                      onMouseDown={() => {
+                        setForm((f) => ({ ...f, hsnCode: h.code, gstRate: String(h.gst) }));
+                        setHsnDropdownOpen(false);
+                        setHsnSearch("");
+                      }}
+                    >
+                      <span className="font-mono font-semibold text-[#E84672] shrink-0">{h.code}</span>
+                      <span className="text-neutral-600 truncate">{h.description}</span>
+                      <span className="ml-auto shrink-0 text-xs text-neutral-400">{h.gst}% GST</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
         </div>

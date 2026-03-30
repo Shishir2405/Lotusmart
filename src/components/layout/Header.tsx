@@ -877,8 +877,8 @@ export function Header() {
 
           {/* ── Right actions ── */}
           <div className="flex items-center gap-0.5">
-            {/* Search */}
-            <div ref={searchRef} className="relative">
+            {/* Search — hidden on mobile, shown in bottom nav */}
+            <div ref={searchRef} className="relative hidden lg:block">
               <IconBtn label="Search" onClick={() => setSearchOpen((v) => !v)}>
                 <RiSearchLine size={19} />
               </IconBtn>
@@ -1038,18 +1038,24 @@ export function Header() {
               </AnimatePresence>
             </div>
 
-            {/* Language Toggler */}
-            <LanguageToggler />
+            {/* Language Toggler — hidden on mobile */}
+            <span className="hidden lg:block">
+              <LanguageToggler />
+            </span>
 
-            {/* Wishlist */}
-            <IconBtn label="Wishlist" badge={wishlistCount} href="/wishlist">
-              <RiHeartLine size={19} />
-            </IconBtn>
+            {/* Wishlist — hidden on mobile, shown in bottom nav */}
+            <span className="hidden lg:block">
+              <IconBtn label="Wishlist" badge={wishlistCount} href="/wishlist">
+                <RiHeartLine size={19} />
+              </IconBtn>
+            </span>
 
-            {/* Cart */}
-            <IconBtn label="Cart" badge={cartCount} href="/cart">
-              <RiShoppingCartLine size={19} />
-            </IconBtn>
+            {/* Cart — hidden on mobile, shown in bottom nav */}
+            <span className="hidden lg:block">
+              <IconBtn label="Cart" badge={cartCount} href="/cart">
+                <RiShoppingCartLine size={19} />
+              </IconBtn>
+            </span>
 
             {/* Profile */}
             {user ? (
@@ -1138,43 +1144,76 @@ export function Header() {
         </div>
       </div>
 
-      {/* ── Mobile menu ── */}
+      {/* ── Mobile Side Drawer Overlay ── */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden border-t lg:hidden"
-            style={{ backgroundColor: "#FFFDF7", borderColor: "#EBE8D8" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-50 lg:hidden"
+            style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
+            onClick={() => setMobileOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ── Mobile Side Drawer ── */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed top-0 right-0 z-50 flex h-full w-[280px] flex-col lg:hidden"
+            style={{ backgroundColor: "#FFFDF7", boxShadow: "-8px 0 30px rgba(0,0,0,0.12)" }}
           >
-            <nav className="mx-auto flex w-full max-w-[1400px] flex-col gap-0.5 px-5 py-3">
+            {/* Drawer Header */}
+            <div
+              className="flex items-center justify-between px-5 py-4"
+              style={{ borderBottom: "1px solid #EBE8D8" }}
+            >
+              <span className="text-sm font-bold tracking-wider uppercase" style={{ color: "#7A6E42" }}>
+                Categories
+              </span>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setMobileOpen(false)}
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-xl"
+                style={{ background: "none", border: "none", color: "#57534e" }}
+              >
+                <RiCloseLine size={20} />
+              </motion.button>
+            </div>
+
+            {/* Drawer Body — Categories Only */}
+            <nav className="flex-1 overflow-y-auto px-3 py-3" style={{ scrollbarWidth: "none" }}>
               {navCategories.map((cat, i) => {
                 const expanded = mobileExpandedCat === cat.slug;
                 return (
                   <motion.div
                     key={cat.slug}
-                    initial={{ opacity: 0, x: -12 }}
+                    initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.04, duration: 0.22 }}
+                    transition={{ delay: i * 0.05, duration: 0.25 }}
                   >
-                    {/* Row */}
                     <button
                       onClick={() => setMobileExpandedCat(expanded ? null : cat.slug)}
                       className="flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2.5"
                       style={{
-                        background: "none",
+                        background: expanded ? cat.colorLight : "none",
                         border: "none",
                         color: expanded ? cat.color : "#44403c",
                       }}
                     >
                       <span className="flex items-center gap-2.5 text-sm font-medium">
                         <span
-                          className="flex h-6 w-6 items-center justify-center rounded-lg"
+                          className="flex h-7 w-7 items-center justify-center rounded-lg"
                           style={{ backgroundColor: cat.colorLight }}
                         >
-                          <cat.icon size={12} style={{ color: cat.color }} />
+                          <cat.icon size={13} style={{ color: cat.color }} />
                         </span>
                         {cat.name}
                       </span>
@@ -1186,7 +1225,6 @@ export function Header() {
                       </motion.span>
                     </button>
 
-                    {/* Sub items */}
                     <AnimatePresence>
                       {expanded && (
                         <motion.div
@@ -1194,46 +1232,56 @@ export function Header() {
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
                           transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                          className="overflow-hidden pl-4"
+                          className="overflow-hidden"
                         >
-                          <div className="grid grid-cols-2 gap-1 py-1.5">
-                            {cat.sub.map((sub, j) => (
-                              <motion.div
-                                key={sub.slug}
-                                initial={{ opacity: 0, y: 4 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: j * 0.03, duration: 0.18 }}
+                          {/* View all for this category */}
+                          <Link
+                            href={`/categories/${cat.slug}`}
+                            onClick={() => setMobileOpen(false)}
+                          >
+                            <span
+                              className="flex items-center gap-2 rounded-xl px-4 py-2 pl-12 text-[0.78rem] font-semibold"
+                              style={{ color: cat.color }}
+                            >
+                              All {cat.name} <RiArrowRightLine size={12} />
+                            </span>
+                          </Link>
+                          {cat.sub.map((sub, j) => (
+                            <motion.div
+                              key={sub.slug}
+                              initial={{ opacity: 0, x: 10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: j * 0.03, duration: 0.18 }}
+                            >
+                              <Link
+                                href={`/categories/${sub.slug}`}
+                                onClick={() => setMobileOpen(false)}
                               >
-                                <Link
-                                  href={`/categories/${sub.slug}`}
-                                  onClick={() => setMobileOpen(false)}
+                                <motion.span
+                                  whileHover={{ backgroundColor: cat.colorLight }}
+                                  className="flex cursor-pointer items-center justify-between rounded-xl px-4 py-2 pl-12"
                                 >
-                                  <motion.span
-                                    whileHover={{ backgroundColor: cat.colorLight }}
-                                    className="flex cursor-pointer items-center justify-between rounded-xl px-3 py-1.5"
+                                  <span
+                                    className="text-[0.79rem] font-medium"
+                                    style={{ color: "#57534e" }}
                                   >
+                                    {sub.label}
+                                  </span>
+                                  {sub.badge && (
                                     <span
-                                      className="text-[0.79rem] font-medium"
-                                      style={{ color: "#57534e" }}
+                                      className="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold"
+                                      style={{
+                                        backgroundColor: cat.colorLight,
+                                        color: cat.color,
+                                      }}
                                     >
-                                      {sub.label}
+                                      {sub.badge}
                                     </span>
-                                    {sub.badge && (
-                                      <span
-                                        className="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold"
-                                        style={{
-                                          backgroundColor: cat.colorLight,
-                                          color: cat.color,
-                                        }}
-                                      >
-                                        {sub.badge}
-                                      </span>
-                                    )}
-                                  </motion.span>
-                                </Link>
-                              </motion.div>
-                            ))}
-                          </div>
+                                  )}
+                                </motion.span>
+                              </Link>
+                            </motion.div>
+                          ))}
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -1241,21 +1289,13 @@ export function Header() {
                 );
               })}
 
-              {/* Language Toggler */}
+              {/* All Products link */}
               <motion.div
-                initial={{ opacity: 0, x: -12 }}
+                initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: navCategories.length * 0.04, duration: 0.22 }}
-                className="px-3 py-2"
-              >
-                <LanguageToggler />
-              </motion.div>
-
-              {/* All Products */}
-              <motion.div
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: navCategories.length * 0.04, duration: 0.22 }}
+                transition={{ delay: navCategories.length * 0.05, duration: 0.25 }}
+                className="mt-1"
+                style={{ borderTop: "1px solid #EBE8D8", paddingTop: "0.5rem" }}
               >
                 <Link href="/products" onClick={() => setMobileOpen(false)}>
                   <motion.span
@@ -1267,17 +1307,14 @@ export function Header() {
                   </motion.span>
                 </Link>
               </motion.div>
+            </nav>
 
-              {/* Auth */}
+            {/* Drawer Footer */}
+            <div className="px-4 pb-5 pt-2" style={{ borderTop: "1px solid #EBE8D8" }}>
+              <LanguageToggler />
               {!user && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.28, duration: 0.22 }}
-                  className="mt-1 flex gap-2 border-t pt-3"
-                  style={{ borderColor: "#EBE8D8" }}
-                >
-                  <Link href="/login" className="flex-1">
+                <div className="mt-3 flex gap-2">
+                  <Link href="/login" className="flex-1" onClick={() => setMobileOpen(false)}>
                     <span
                       className="flex w-full items-center justify-center rounded-xl py-2.5 text-sm font-semibold text-white"
                       style={{ backgroundColor: "#E84672" }}
@@ -1285,7 +1322,7 @@ export function Header() {
                       Login
                     </span>
                   </Link>
-                  <Link href="/register" className="flex-1">
+                  <Link href="/register" className="flex-1" onClick={() => setMobileOpen(false)}>
                     <span
                       className="flex w-full items-center justify-center rounded-xl border-2 py-2.5 text-sm font-semibold"
                       style={{ color: "#E84672", borderColor: "#E84672" }}
@@ -1293,9 +1330,9 @@ export function Header() {
                       Register
                     </span>
                   </Link>
-                </motion.div>
+                </div>
               )}
-            </nav>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
