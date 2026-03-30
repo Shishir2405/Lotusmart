@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   RiMailLine,
@@ -11,16 +10,24 @@ import {
   RiEyeLine,
   RiEyeOffLine,
   RiShieldCheckLine,
-  RiAdminLine,
   RiArrowRightLine,
   RiDashboardLine,
-  RiArrowLeftLine,
+  RiSettings3Line,
+  RiBarChartBoxLine,
+  RiLockStarLine,
 } from "react-icons/ri";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuthStore } from "@/store/auth.store";
 
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+const features = [
+  { icon: RiDashboardLine, title: "Dashboard", desc: "Real-time analytics" },
+  { icon: RiBarChartBoxLine, title: "Reports", desc: "Revenue tracking" },
+  { icon: RiSettings3Line, title: "Management", desc: "Products & orders" },
+  { icon: RiShieldCheckLine, title: "Access Control", desc: "Role-based security" },
+];
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -30,7 +37,7 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
-  const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [focused, setFocused] = useState<string | null>(null);
 
   const validate = () => {
     const errs: typeof errors = {};
@@ -88,443 +95,279 @@ export default function AdminLoginPage() {
     }
   };
 
+  const inputCls = (field: string, hasError?: string) =>
+    `w-full rounded-xl border bg-white/60 py-3 pl-10 pr-4 text-sm font-medium text-neutral-800
+     placeholder:text-neutral-400 outline-none transition-all duration-200
+     ${hasError ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100" : "border-neutral-200 focus:border-[#E84672] focus:ring-2 focus:ring-[#E84672]/10"}
+     ${focused === field && !hasError ? "border-[#E84672] ring-2 ring-[#E84672]/10" : ""}`;
+
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "2rem 1.5rem",
-      }}
-    >
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-8">
+      {/* Dark premium background */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(160deg, #0f0f12 0%, #16141c 25%, #1a1520 50%, #141118 75%, #0f0f12 100%)",
+        }}
+      />
+
+      {/* Subtle grid pattern */}
+      <div
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(232,70,114,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(232,70,114,0.3) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
+        }}
+      />
+
+      {/* Dark warm glow accents */}
+      <div
+        className="absolute left-1/4 top-1/4 h-80 w-80 rounded-full opacity-[0.06] blur-3xl"
+        style={{ background: "radial-gradient(circle, #E84672 0%, transparent 70%)" }}
+      />
+      <div
+        className="absolute bottom-1/4 right-1/4 h-64 w-64 rounded-full opacity-[0.04] blur-3xl"
+        style={{ background: "radial-gradient(circle, #B59F6B 0%, transparent 70%)" }}
+      />
+
+      {/* Top accent border */}
+      <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent, #E84672, transparent)" }} />
+
       <motion.div
-        initial={{ opacity: 0, y: 30, scale: 0.97 }}
+        initial={{ opacity: 0, y: 24, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.7, ease }}
-        style={{ width: "100%", maxWidth: "960px" }}
+        transition={{ duration: 0.55, ease }}
+        className="relative z-10 w-full max-w-[900px]"
       >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr",
-            borderRadius: "1.75rem",
-            overflow: "hidden",
-            border: "1px solid #EBE8D8",
-            boxShadow: "0 24px 80px rgba(0,0,0,0.08)",
-            backgroundColor: "#fff",
-          }}
-          className="lg:grid-cols-2"
-        >
-          {/* ── Left Panel — Branding (dark accent panel) ── */}
-          <div
-            className="hidden lg:flex"
-            style={{
-              flexDirection: "column",
-              justifyContent: "space-between",
-              padding: "2.5rem",
-              background: "linear-gradient(160deg, #2A2518 0%, #4D4529 50%, #615834 100%)",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            {/* Decorative circles */}
+        <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-2xl backdrop-blur-sm lg:grid-cols-2">
+          {/* -- Left Panel -- Dark premium brand side -- */}
+          <div className="relative hidden overflow-hidden border-r border-white/[0.06] p-10 lg:flex lg:flex-col lg:justify-between">
+            {/* Inner gradient */}
             <div
+              className="absolute inset-0"
               style={{
-                position: "absolute",
-                top: "-40px",
-                right: "-40px",
-                width: "200px",
-                height: "200px",
-                borderRadius: "50%",
-                border: "1px solid rgba(255,224,138,0.1)",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                bottom: "-60px",
-                left: "-60px",
-                width: "280px",
-                height: "280px",
-                borderRadius: "50%",
-                border: "1px solid rgba(232,70,114,0.08)",
+                background:
+                  "linear-gradient(180deg, rgba(232,70,114,0.03) 0%, transparent 40%, rgba(181,159,107,0.03) 100%)",
               }}
             />
 
-            {/* Logo */}
-            <div>
-              <Link href="/" style={{ textDecoration: "none" }}>
-                <span style={{ fontSize: "1.75rem", fontWeight: 800, color: "#FFF9E8", letterSpacing: "-0.02em" }}>
-                  Lotus<span style={{ color: "#E84672" }}>Mart</span>
-                </span>
-              </Link>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem" }}>
-                <RiShieldCheckLine size={12} style={{ color: "#FFE08A" }} />
-                <span style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "#9C8F62" }}>
-                  Admin Console
-                </span>
-              </div>
-            </div>
+            {/* Decorative rings */}
+            <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full border border-white/[0.03]" />
+            <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full border border-white/[0.02]" />
+            <div className="absolute -bottom-10 -left-10 h-36 w-36 rounded-full border border-[#E84672]/[0.04]" />
 
-            {/* Hero Image */}
-            <div style={{ position: "relative", borderRadius: "1.25rem", overflow: "hidden", margin: "2rem 0" }}>
-              <div style={{ position: "relative", height: "220px" }}>
-                <Image
-                  src="/images/banners/spice-banner.jpg"
-                  alt="LotusMart Admin"
-                  fill
-                  style={{ objectFit: "cover", borderRadius: "1.25rem" }}
-                  sizes="400px"
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    background: "linear-gradient(to top, rgba(42,37,24,0.8) 0%, transparent 60%)",
-                    borderRadius: "1.25rem",
-                  }}
-                />
-                <div style={{ position: "absolute", bottom: "1rem", left: "1rem", right: "1rem" }}>
-                  <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "#FFE08A", marginBottom: "0.25rem" }}>
-                    Dashboard Access
-                  </p>
-                  <p style={{ fontSize: "1rem", fontWeight: 700, color: "#fff", lineHeight: 1.3 }}>
-                    Manage your entire store from one place
-                  </p>
+            <div className="relative z-10 flex h-full flex-col justify-between">
+              {/* Logo + badge */}
+              <div>
+                <Link href="/" className="inline-flex items-center gap-0.5">
+                  <span className="text-xl font-extrabold tracking-tight text-white">
+                    Lotus
+                  </span>
+                  <span className="text-xl font-extrabold tracking-tight text-[#E84672]">
+                    Mart
+                  </span>
+                </Link>
+                <div className="mt-2 flex items-center gap-1.5">
+                  <RiLockStarLine size={11} className="text-[#E84672]" />
+                  <span className="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-white/30">
+                    Admin Console
+                  </span>
                 </div>
               </div>
-            </div>
 
-            {/* Feature list */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              {[
-                { icon: RiDashboardLine, text: "Real-time analytics & revenue tracking" },
-                { icon: RiShieldCheckLine, text: "Role-based access control" },
-                { icon: RiAdminLine, text: "Product, order & user management" },
-              ].map((item) => (
-                <div key={item.text} style={{ display: "flex", alignItems: "center", gap: "0.75rem", fontSize: "0.8rem", color: "#B8AE86" }}>
+              {/* Hero text */}
+              <div>
+                <h2 className="text-xl font-bold tracking-tight text-white">
+                  Manage your entire
+                  <br />
+                  <span className="text-[#E84672]">store in one place.</span>
+                </h2>
+                <p className="mt-3 text-sm leading-relaxed text-white/30">
+                  Access real-time analytics, manage products, track orders,
+                  and control your business.
+                </p>
+              </div>
+
+              {/* Features grid */}
+              <div className="grid grid-cols-2 gap-2.5">
+                {features.map(({ icon: Icon, title, desc }) => (
                   <div
-                    style={{
-                      width: "28px",
-                      height: "28px",
-                      borderRadius: "0.5rem",
-                      backgroundColor: "rgba(255,224,138,0.1)",
-                      border: "1px solid rgba(255,224,138,0.15)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0,
-                    }}
+                    key={title}
+                    className="rounded-xl border border-white/[0.05] bg-white/[0.02] p-3.5"
                   >
-                    <item.icon size={13} style={{ color: "#FFE08A" }} />
+                    <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-lg bg-[#E84672]/10">
+                      <Icon size={13} className="text-[#E84672]/80" />
+                    </div>
+                    <p className="text-xs font-semibold text-white/60">{title}</p>
+                    <p className="mt-0.5 text-[0.62rem] text-white/25">{desc}</p>
                   </div>
-                  {item.text}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
 
-            <p style={{ fontSize: "0.65rem", color: "#615834", marginTop: "1.5rem" }}>
-              Secure 256-bit encrypted connection
-            </p>
+              <div className="flex items-center gap-1.5">
+                <div className="h-1.5 w-1.5 rounded-full bg-emerald-400/60" />
+                <p className="text-[0.65rem] text-white/20">
+                  Secure 256-bit encrypted connection
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* ── Right Panel — Login Form (LIGHT) ── */}
-          <div
-            style={{
-              padding: "2.5rem",
-              backgroundColor: "#FFFDF7",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-            }}
-          >
+          {/* -- Right Panel -- Login Form -- */}
+          <div className="flex flex-col justify-center bg-white p-8 sm:p-10">
             {/* Mobile header */}
-            <div className="lg:hidden" style={{ marginBottom: "2rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <Link href="/" style={{ textDecoration: "none" }}>
-                <span style={{ fontSize: "1.5rem", fontWeight: 800, color: "#2A2518" }}>
-                  Lotus<span style={{ color: "#E84672" }}>Mart</span>
+            <div className="mb-8 flex items-center justify-between lg:hidden">
+              <Link href="/" className="inline-flex items-center gap-0.5">
+                <span className="text-xl font-extrabold tracking-tight text-neutral-800">
+                  Lotus
+                </span>
+                <span className="text-xl font-extrabold tracking-tight text-[#E84672]">
+                  Mart
                 </span>
               </Link>
-              <Link href="/" style={{ textDecoration: "none" }}>
-                <motion.span whileHover={{ x: -3 }} style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontSize: "0.72rem", fontWeight: 600, color: "#B8AE86", cursor: "pointer" }}>
-                  <RiArrowLeftLine size={12} /> Back to store
-                </motion.span>
+              <Link href="/" className="text-xs font-medium text-neutral-400 transition-colors hover:text-neutral-600">
+                Back to store
               </Link>
             </div>
 
             {/* Header */}
             <motion.div
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.5, ease }}
-              style={{ marginBottom: "2rem" }}
+              transition={{ delay: 0.15, duration: 0.4, ease }}
+              className="mb-7"
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-                <span style={{ height: "1px", width: "1.5rem", backgroundColor: "#E84672" }} />
-                <span
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "0.375rem",
-                    fontSize: "0.6rem",
-                    fontWeight: 800,
-                    letterSpacing: "0.2em",
-                    textTransform: "uppercase",
-                    color: "#E84672",
-                  }}
-                >
-                  <RiAdminLine size={11} />
+              <div className="mb-3 flex items-center gap-1.5 lg:hidden">
+                <RiShieldCheckLine size={11} className="text-[#E84672]" />
+                <span className="text-[0.6rem] font-bold uppercase tracking-[0.15em] text-neutral-400">
                   Admin Access
                 </span>
               </div>
-              <h1
-                style={{
-                  fontSize: "1.75rem",
-                  fontWeight: 800,
-                  color: "#1C1917",
-                  letterSpacing: "-0.02em",
-                  lineHeight: 1.15,
-                  marginBottom: "0.375rem",
-                }}
-              >
-                Welcome back.
+              <h1 className="text-[1.75rem] font-bold tracking-tight text-neutral-900">
+                Welcome back
               </h1>
-              <p style={{ fontSize: "0.82rem", color: "#A8A29E", fontWeight: 500 }}>
+              <p className="mt-1.5 text-sm text-neutral-400">
                 Sign in with your admin credentials to continue
               </p>
             </motion.div>
 
-            {/* Error */}
+            {/* General error */}
             <AnimatePresence>
               {errors.general && (
                 <motion.div
-                  initial={{ opacity: 0, y: -8, height: 0 }}
+                  initial={{ opacity: 0, y: -6, height: 0 }}
                   animate={{ opacity: 1, y: 0, height: "auto" }}
-                  exit={{ opacity: 0, y: -8, height: 0 }}
-                  style={{
-                    padding: "0.75rem 1rem",
-                    borderRadius: "0.875rem",
-                    backgroundColor: "#FEF2F2",
-                    border: "1px solid #FECACA",
-                    marginBottom: "1.25rem",
-                  }}
+                  exit={{ opacity: 0, y: -6, height: 0 }}
+                  className="mb-5 rounded-xl border border-red-100 bg-red-50 px-4 py-3"
                 >
-                  <p style={{ fontSize: "0.8rem", color: "#DC2626", fontWeight: 500 }}>{errors.general}</p>
+                  <p className="text-sm font-medium text-red-600">{errors.general}</p>
                 </motion.div>
               )}
             </AnimatePresence>
 
             {/* Form */}
             <motion.form
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.5, ease }}
+              transition={{ delay: 0.2, duration: 0.4, ease }}
               onSubmit={handleSubmit}
-              style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}
               noValidate
+              className="space-y-4"
             >
               {/* Email */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.375rem" }}>
-                <label
-                  htmlFor="admin-email"
-                  style={{ fontSize: "0.7rem", fontWeight: 700, color: "#9C8F62", letterSpacing: "0.06em", textTransform: "uppercase" }}
-                >
-                  Email address
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                  Email
                 </label>
-                <div
-                  style={{
-                    position: "relative",
-                    display: "flex",
-                    alignItems: "center",
-                    borderRadius: "0.875rem",
-                    backgroundColor: "#FAFAF8",
-                    border: `1.5px solid ${focusedField === "email" ? "#E84672" : errors.email ? "#EF4444" : "#EBE8D8"}`,
-                    transition: "border-color 0.2s",
-                    boxShadow: focusedField === "email" ? "0 0 0 3px rgba(232,70,114,0.06)" : "none",
-                  }}
-                >
-                  <span
-                    style={{
-                      position: "absolute",
-                      left: "0.875rem",
-                      color: focusedField === "email" ? "#E84672" : "#C8BF9A",
-                      transition: "color 0.2s",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <RiMailLine size={16} />
-                  </span>
+                <div className="relative">
+                  <RiMailLine
+                    size={15}
+                    className={`pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors ${focused === "email" ? "text-[#E84672]" : "text-neutral-300"}`}
+                  />
                   <input
-                    id="admin-email"
                     type="email"
                     value={email}
                     onChange={(e) => { setEmail(e.target.value); if (errors.email) setErrors((p) => ({ ...p, email: undefined })); }}
-                    onFocus={() => setFocusedField("email")}
-                    onBlur={() => setFocusedField(null)}
+                    onFocus={() => setFocused("email")}
+                    onBlur={() => setFocused(null)}
                     placeholder="admin@lotusmart.com"
                     autoComplete="email"
-                    style={{
-                      width: "100%",
-                      paddingLeft: "2.75rem",
-                      paddingRight: "1rem",
-                      paddingTop: "0.75rem",
-                      paddingBottom: "0.75rem",
-                      backgroundColor: "transparent",
-                      border: "none",
-                      outline: "none",
-                      fontSize: "0.875rem",
-                      color: "#1C1917",
-                      fontWeight: 500,
-                    }}
+                    className={inputCls("email", errors.email)}
                   />
                 </div>
-                {errors.email && (
-                  <p style={{ fontSize: "0.72rem", color: "#EF4444", fontWeight: 500 }}>{errors.email}</p>
-                )}
+                {errors.email && <p className="text-xs font-medium text-red-500">{errors.email}</p>}
               </div>
 
               {/* Password */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.375rem" }}>
-                <label
-                  htmlFor="admin-password"
-                  style={{ fontSize: "0.7rem", fontWeight: 700, color: "#9C8F62", letterSpacing: "0.06em", textTransform: "uppercase" }}
-                >
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
                   Password
                 </label>
-                <div
-                  style={{
-                    position: "relative",
-                    display: "flex",
-                    alignItems: "center",
-                    borderRadius: "0.875rem",
-                    backgroundColor: "#FAFAF8",
-                    border: `1.5px solid ${focusedField === "password" ? "#E84672" : errors.password ? "#EF4444" : "#EBE8D8"}`,
-                    transition: "border-color 0.2s",
-                    boxShadow: focusedField === "password" ? "0 0 0 3px rgba(232,70,114,0.06)" : "none",
-                  }}
-                >
-                  <span
-                    style={{
-                      position: "absolute",
-                      left: "0.875rem",
-                      color: focusedField === "password" ? "#E84672" : "#C8BF9A",
-                      transition: "color 0.2s",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <RiLockLine size={16} />
-                  </span>
+                <div className="relative">
+                  <RiLockLine
+                    size={15}
+                    className={`pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors ${focused === "password" ? "text-[#E84672]" : "text-neutral-300"}`}
+                  />
                   <input
-                    id="admin-password"
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => { setPassword(e.target.value); if (errors.password) setErrors((p) => ({ ...p, password: undefined })); }}
-                    onFocus={() => setFocusedField("password")}
-                    onBlur={() => setFocusedField(null)}
+                    onFocus={() => setFocused("password")}
+                    onBlur={() => setFocused(null)}
                     placeholder="Enter your password"
                     autoComplete="current-password"
-                    style={{
-                      width: "100%",
-                      paddingLeft: "2.75rem",
-                      paddingRight: "3rem",
-                      paddingTop: "0.75rem",
-                      paddingBottom: "0.75rem",
-                      backgroundColor: "transparent",
-                      border: "none",
-                      outline: "none",
-                      fontSize: "0.875rem",
-                      color: "#1C1917",
-                      fontWeight: 500,
-                    }}
+                    className={`${inputCls("password", errors.password)} !pr-10`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    style={{
-                      position: "absolute",
-                      right: "0.875rem",
-                      color: "#C8BF9A",
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      padding: 0,
-                    }}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 cursor-pointer text-neutral-300 transition-colors hover:text-neutral-500"
                     tabIndex={-1}
                   >
                     {showPassword ? <RiEyeOffLine size={16} /> : <RiEyeLine size={16} />}
                   </button>
                 </div>
-                {errors.password && (
-                  <p style={{ fontSize: "0.72rem", color: "#EF4444", fontWeight: 500 }}>{errors.password}</p>
-                )}
+                {errors.password && <p className="text-xs font-medium text-red-500">{errors.password}</p>}
               </div>
 
               {/* Submit */}
               <motion.button
                 type="submit"
                 disabled={isLoading}
-                whileHover={!isLoading ? { y: -2, boxShadow: "0 12px 32px rgba(232,70,114,0.25)" } : {}}
-                whileTap={!isLoading ? { scale: 0.98 } : {}}
-                style={{
-                  width: "100%",
-                  padding: "0.875rem",
-                  borderRadius: "0.875rem",
-                  border: "none",
-                  backgroundColor: "#E84672",
-                  color: "#fff",
-                  fontSize: "0.9rem",
-                  fontWeight: 700,
-                  cursor: isLoading ? "not-allowed" : "pointer",
-                  opacity: isLoading ? 0.7 : 1,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "0.5rem",
-                  marginTop: "0.5rem",
-                  transition: "opacity 0.2s",
-                }}
+                whileHover={!isLoading ? { y: -1 } : {}}
+                whileTap={!isLoading ? { scale: 0.985 } : {}}
+                className="mt-2 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#E84672] py-3 text-sm font-semibold text-white shadow-sm transition-shadow hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isLoading ? (
                   <>
-                    <motion.span
+                    <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                      style={{
-                        width: "16px",
-                        height: "16px",
-                        border: "2px solid rgba(255,255,255,0.3)",
-                        borderTopColor: "#fff",
-                        borderRadius: "50%",
-                        display: "inline-block",
-                      }}
+                      transition={{ repeat: Infinity, duration: 0.7, ease: "linear" }}
+                      className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white"
                     />
                     Authenticating...
                   </>
                 ) : (
                   <>
                     Access Dashboard
-                    <RiArrowRightLine size={16} />
+                    <RiArrowRightLine size={15} />
                   </>
                 )}
               </motion.button>
             </motion.form>
 
-            {/* Bottom */}
+            {/* Separator */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-              style={{
-                marginTop: "2rem",
-                paddingTop: "1.25rem",
-                borderTop: "1px solid #EBE8D8",
-                textAlign: "center",
-              }}
+              transition={{ delay: 0.35, duration: 0.4 }}
+              className="mt-7 border-t border-neutral-100 pt-5 text-center"
             >
-              <p style={{ fontSize: "0.75rem", color: "#A8A29E" }}>
+              <p className="text-sm text-neutral-400">
                 Not an admin?{" "}
-                <Link href="/login" style={{ color: "#E84672", fontWeight: 600, textDecoration: "none" }}>
+                <Link href="/login" className="font-semibold text-[#E84672] transition-colors hover:text-[#C9305A]">
                   Customer login
                 </Link>
               </p>

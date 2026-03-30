@@ -52,8 +52,8 @@ export const useAuthStore = create<AuthState>()(
       fetchMe: async () => {
         try {
           set({ isLoading: true });
-          const res = await axios.get<{ data: AuthUser }>("/api/auth/me");
-          set({ user: res.data.data });
+          const res = await axios.get<{ data: { user: AuthUser } }>("/api/auth/me");
+          set({ user: res.data.data.user });
         } catch {
           set({ user: null });
         } finally {

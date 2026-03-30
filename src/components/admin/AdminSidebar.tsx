@@ -13,19 +13,53 @@ import {
   RiLogoutBoxLine,
   RiPriceTag3Line,
   RiAppsLine,
+  RiCoupon3Line,
+  RiLayoutLine,
+  RiPagesLine,
+  RiStackLine,
 } from "react-icons/ri";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/utils/helpers";
 
-const navItems = [
-  { href: "/admin/dashboard", label: "Dashboard", icon: RiDashboardLine },
-  { href: "/admin/products", label: "Products", icon: RiShoppingBag3Line },
-  { href: "/admin/categories", label: "Categories", icon: RiAppsLine },
-  { href: "/admin/orders", label: "Orders", icon: RiListUnordered },
-  { href: "/admin/users", label: "Users", icon: RiUserLine },
-  { href: "/admin/banners", label: "Banners", icon: RiImageLine },
-  { href: "/admin/analytics", label: "Analytics", icon: RiBarChartLine },
-  { href: "/admin/settings", label: "Settings", icon: RiSettingsLine },
+const navGroups = [
+  {
+    label: "Overview",
+    items: [
+      { href: "/admin/dashboard", label: "Dashboard", icon: RiDashboardLine },
+      { href: "/admin/analytics", label: "Analytics", icon: RiBarChartLine },
+    ],
+  },
+  {
+    label: "Catalog",
+    items: [
+      { href: "/admin/products", label: "Products", icon: RiShoppingBag3Line },
+      { href: "/admin/categories", label: "Categories", icon: RiAppsLine },
+      { href: "/admin/coupons", label: "Coupons", icon: RiCoupon3Line },
+      { href: "/admin/price-editor", label: "Price Editor", icon: RiPriceTag3Line },
+      { href: "/admin/inventory", label: "Inventory", icon: RiStackLine },
+    ],
+  },
+  {
+    label: "Sales",
+    items: [
+      { href: "/admin/orders", label: "Orders", icon: RiListUnordered },
+      { href: "/admin/users", label: "Customers", icon: RiUserLine },
+    ],
+  },
+  {
+    label: "Content",
+    items: [
+      { href: "/admin/landing", label: "Landing Page", icon: RiLayoutLine },
+      { href: "/admin/banners", label: "Banners", icon: RiImageLine },
+      { href: "/admin/site-settings", label: "Site Content", icon: RiPagesLine },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { href: "/admin/settings", label: "Settings", icon: RiSettingsLine },
+    ],
+  },
 ];
 
 export function AdminSidebar() {
@@ -43,21 +77,30 @@ export function AdminSidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {navItems.map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
-              pathname === href || pathname?.startsWith(`${href}/`)
-                ? "bg-[#E84672] text-white"
-                : "text-[#B8AE86] hover:bg-[#4D4529] hover:text-[#FFF9E8]",
-            )}
-          >
-            <Icon size={18} />
-            {label}
-          </Link>
+      <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
+        {navGroups.map((group) => (
+          <div key={group.label}>
+            <p className="px-3 mb-1.5 text-[0.6rem] font-bold uppercase tracking-[0.15em] text-[#7A6E42]">
+              {group.label}
+            </p>
+            <div className="space-y-0.5">
+              {group.items.map(({ href, label, icon: Icon }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all",
+                    pathname === href || pathname?.startsWith(`${href}/`)
+                      ? "bg-[#E84672] text-white"
+                      : "text-[#B8AE86] hover:bg-[#4D4529] hover:text-[#FFF9E8]",
+                  )}
+                >
+                  <Icon size={17} />
+                  {label}
+                </Link>
+              ))}
+            </div>
+          </div>
         ))}
       </nav>
 

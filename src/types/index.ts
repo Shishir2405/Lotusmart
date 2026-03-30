@@ -16,7 +16,7 @@ export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 // ──────────────────────────────────────────────
 export type UserRole = "admin" | "customer";
 export type AddressLabel = "home" | "work" | "other";
-export type ProductUnit = "kg" | "g" | "pieces" | "pack";
+export type ProductUnit = "kg" | "g" | "pieces" | "pack" | "ml" | "L" | "box";
 export type PaymentMethod = "cod" | "razorpay";
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 export type OrderStatus =
@@ -85,6 +85,41 @@ export interface IProductVariant {
 }
 
 // ──────────────────────────────────────────────
+// Product-related types & sub-interfaces
+// ──────────────────────────────────────────────
+export type ProductType = "spice" | "dry_fruit" | "gifting" | "herb" | "honey" | "superfood";
+
+export interface IBulkPricing {
+  minQty: number;
+  maxQty: number;
+  price: number;
+  unit: ProductUnit;
+}
+
+export interface INutritionInfo {
+  servingSize?: string;
+  calories?: number;
+  totalFat?: number;
+  saturatedFat?: number;
+  transFat?: number;
+  cholesterol?: number;
+  sodium?: number;
+  totalCarbs?: number;
+  dietaryFiber?: number;
+  sugars?: number;
+  protein?: number;
+  vitamins?: Record<string, string>;
+  minerals?: Record<string, string>;
+}
+
+export interface IProductDimensions {
+  length?: number;
+  width?: number;
+  height?: number;
+  unit: "cm" | "in";
+}
+
+// ──────────────────────────────────────────────
 // IProduct
 // ──────────────────────────────────────────────
 export interface IProduct extends Timestamps {
@@ -113,6 +148,38 @@ export interface IProduct extends Timestamps {
     average: number;
     count: number;
   };
+
+  // New enhanced fields
+  brand?: string;
+  manufacturer?: string;
+  countryOfOrigin?: string;
+  hsn?: string; // HSN code for GST
+  gstRate?: number; // GST percentage (5, 12, 18, 28)
+  pricePerKg?: number;
+  pricePerGram?: number;
+  pricePerUnit?: number; // for pieces/packs
+  bulkPricing?: IBulkPricing[];
+  shelfLife?: string; // e.g. "12 months"
+  bestBefore?: Date;
+  nutritionInfo?: INutritionInfo;
+  ingredients?: string;
+  allergens?: string[];
+  certifications?: string[]; // e.g. ["FSSAI", "Organic India", "ISO 22000"]
+  fssaiLicense?: string;
+  isOrganic?: boolean;
+  isVegan?: boolean;
+  isGlutenFree?: boolean;
+  productType?: ProductType; // "spice" | "dry_fruit" | "gifting" | "herb" | "honey" | "superfood"
+  dimensions?: IProductDimensions;
+  shippingWeight?: number; // in grams, for shipping calculations
+  minOrderQuantity?: number;
+  maxOrderQuantity?: number;
+  returnPolicy?: string;
+  warranty?: string;
+  videoUrl?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  lastPriceUpdate?: Date;
 }
 
 // ──────────────────────────────────────────────

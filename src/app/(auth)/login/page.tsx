@@ -2,7 +2,6 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -15,140 +14,214 @@ import {
   RiShieldCheckLine,
   RiTruckLine,
   RiStarFill,
-  RiArrowLeftLine,
+  RiPlantLine,
+  RiGiftLine,
+  RiSeedlingLine,
 } from "react-icons/ri";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/hooks/useAuth";
 
 /* ─────────────────────────────────────────────
-   LEFT PANEL — image + brand story
+   BRAND PANEL (left side on desktop)
 ───────────────────────────────────────────── */
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const testimonial = {
   text: "LotusMart has completely changed how I shop for spices. The quality is unlike anything I've found elsewhere.",
   author: "Priya Sharma",
-  role: "Home Chef · Mumbai",
-  avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=80&h=80&fit=crop&q=80",
+  role: "Home Chef, Mumbai",
   rating: 5,
 };
 
 const trustItems = [
-  { icon: RiLeafLine, label: "100% Natural" },
   { icon: RiShieldCheckLine, label: "FSSAI Certified" },
-  { icon: RiTruckLine, label: "Free Shipping ₹500+" },
+  { icon: RiLeafLine, label: "100% Natural" },
+  { icon: RiTruckLine, label: "Free Shipping 499+" },
 ];
 
-function LeftPanel() {
-  return (
-    <div
-      className="relative hidden h-full flex-col overflow-hidden lg:flex"
-      style={{ background: "linear-gradient(160deg, #1c1610 0%, #2A2518 60%, #3a2408 100%)" }}
-    >
-      {/* Background image */}
-      <div className="absolute inset-0">
-        <Image
-          src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=900&h=1200&fit=crop&q=80"
-          alt="Spices"
-          fill
-          className="object-cover opacity-20"
-          sizes="50vw"
-          priority
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(160deg, rgba(28,22,16,0.92) 0%, rgba(42,37,24,0.85) 50%, rgba(58,36,8,0.9) 100%)",
-          }}
-        />
-      </div>
+const categories = [
+  { icon: RiSeedlingLine, title: "Premium Spices", desc: "200+ varieties", emoji: "\u{1F336}\u{FE0F}" },
+  { icon: RiPlantLine, title: "Dry Fruits & Nuts", desc: "Premium quality", emoji: "\u{1F95C}" },
+  { icon: RiGiftLine, title: "Curated Gift Boxes", desc: "Handpicked hampers", emoji: "\u{1F381}" },
+];
 
-      {/* Dot grid overlay */}
+/* Floating spice emoji decorations */
+const floatingSpices = [
+  { emoji: "\u{1F336}\u{FE0F}", top: "8%", left: "78%", size: "1.5rem", delay: 0, opacity: 0.12 },
+  { emoji: "\u{1FAD0}", top: "18%", left: "88%", size: "1.1rem", delay: 0.5, opacity: 0.09 },
+  { emoji: "\u{1F33F}", top: "45%", left: "82%", size: "1.3rem", delay: 1.0, opacity: 0.1 },
+  { emoji: "\u{1F95C}", top: "65%", left: "90%", size: "1rem", delay: 1.5, opacity: 0.08 },
+  { emoji: "\u{1F33E}", top: "80%", left: "75%", size: "1.2rem", delay: 2.0, opacity: 0.09 },
+  { emoji: "\u{1F336}\u{FE0F}", top: "30%", left: "5%", size: "1rem", delay: 0.8, opacity: 0.07 },
+  { emoji: "\u{1FAD0}", top: "72%", left: "10%", size: "1.3rem", delay: 1.3, opacity: 0.1 },
+  { emoji: "\u{1F33F}", top: "12%", left: "15%", size: "1.1rem", delay: 1.8, opacity: 0.08 },
+];
+
+/* SVG decorative spice bowl pattern */
+function SpiceBowlDecoration({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 120 120"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Outer bowl ring */}
+      <circle cx="60" cy="60" r="55" stroke="currentColor" strokeWidth="1.5" opacity="0.15" />
+      <circle cx="60" cy="60" r="45" stroke="currentColor" strokeWidth="1" opacity="0.1" />
+      {/* Inner spice dots pattern */}
+      <circle cx="60" cy="45" r="4" fill="currentColor" opacity="0.2" />
+      <circle cx="48" cy="55" r="3.5" fill="currentColor" opacity="0.15" />
+      <circle cx="72" cy="55" r="3.5" fill="currentColor" opacity="0.15" />
+      <circle cx="54" cy="66" r="3" fill="currentColor" opacity="0.12" />
+      <circle cx="66" cy="66" r="3" fill="currentColor" opacity="0.12" />
+      <circle cx="60" cy="58" r="5" fill="currentColor" opacity="0.18" />
+      {/* Decorative arc */}
+      <path d="M30 75 Q60 95 90 75" stroke="currentColor" strokeWidth="1" opacity="0.1" />
+    </svg>
+  );
+}
+
+function BrandPanel() {
+  return (
+    <div className="relative hidden h-full flex-col overflow-hidden lg:flex">
+      {/* Warm spice gradient background */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.04]"
+        className="absolute inset-0"
         style={{
-          backgroundImage: "radial-gradient(circle, #FFE08A 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
+          background:
+            "linear-gradient(135deg, #1a1208 0%, #2d1a0a 25%, #3a1f0e 40%, #1f1610 60%, #1a1208 100%)",
         }}
       />
 
+      {/* Decorative spice-bowl circles */}
+      <div className="absolute -right-10 -top-10 text-amber-400">
+        <SpiceBowlDecoration className="h-56 w-56" />
+      </div>
+      <div className="absolute -bottom-8 -left-8 text-orange-300">
+        <SpiceBowlDecoration className="h-44 w-44" />
+      </div>
+      <div className="absolute right-16 bottom-32 text-yellow-500">
+        <SpiceBowlDecoration className="h-28 w-28" />
+      </div>
+
+      {/* Radial warm glow overlays */}
+      <div
+        className="absolute left-1/2 top-1/4 h-64 w-64 -translate-x-1/2 rounded-full opacity-20 blur-3xl"
+        style={{ background: "radial-gradient(circle, #F4A623 0%, transparent 70%)" }}
+      />
+      <div
+        className="absolute bottom-1/4 right-1/4 h-48 w-48 rounded-full opacity-15 blur-3xl"
+        style={{ background: "radial-gradient(circle, #E8891C 0%, transparent 70%)" }}
+      />
+
+      {/* Subtle pattern overlay */}
+      <div
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 25% 25%, #D4A31E 1px, transparent 1px), radial-gradient(circle at 75% 75%, #8B4513 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
+
+      {/* Warm bottom accent gradient */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-32 opacity-30"
+        style={{
+          background: "linear-gradient(to top, #F4A623, transparent)",
+        }}
+      />
+
+      {/* SVG leaf vine decoration */}
+      <svg
+        className="absolute bottom-0 left-0 right-0 h-24 w-full text-[#D4A31E]/[0.06]"
+        viewBox="0 0 400 80"
+        fill="none"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M0 60 Q50 20 100 50 T200 40 T300 55 T400 30" stroke="currentColor" strokeWidth="1.5" fill="none" />
+        <path d="M0 70 Q80 40 160 65 T320 50 T400 60" stroke="currentColor" strokeWidth="1" fill="none" />
+      </svg>
+
+      {/* Floating spice emoji decorations */}
+      {floatingSpices.map((spice, i) => (
+        <motion.div
+          key={i}
+          className="absolute z-[1] select-none"
+          style={{ top: spice.top, left: spice.left, fontSize: spice.size, opacity: spice.opacity }}
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{
+            opacity: spice.opacity,
+            scale: 1,
+            y: [0, -8, 0],
+          }}
+          transition={{
+            opacity: { duration: 0.8, delay: spice.delay },
+            scale: { duration: 0.8, delay: spice.delay },
+            y: { duration: 4 + i * 0.5, repeat: Infinity, ease: "easeInOut", delay: spice.delay },
+          }}
+        >
+          {spice.emoji}
+        </motion.div>
+      ))}
+
       {/* Content */}
       <div className="relative z-10 flex h-full flex-col justify-between p-10 xl:p-14">
-        {/* Top: Logo + back */}
-        <div className="flex items-center justify-between">
-          <Link href="/">
-            <motion.span
-              whileHover={{ opacity: 0.85 }}
-              className="inline-flex cursor-pointer items-center gap-0.5"
-            >
-              <span className="text-[1.35rem] leading-none font-black tracking-tight text-white">
-                Lotus
-              </span>
-              <span
-                className="text-[1.35rem] leading-none font-black tracking-tight"
-                style={{ color: "#E84672" }}
-              >
-                Mart
-              </span>
-            </motion.span>
-          </Link>
-          <Link href="/">
-            <motion.span
-              whileHover={{ x: -3 }}
-              className="inline-flex cursor-pointer items-center gap-1.5 text-[0.72rem] font-bold"
-              style={{ color: "#9C8F62" }}
-            >
-              <RiArrowLeftLine size={12} /> Back to store
-            </motion.span>
-          </Link>
-        </div>
+        {/* Logo */}
+        <Link href="/" className="inline-flex w-fit items-center gap-0.5">
+          <span className="text-xl font-extrabold tracking-tight text-white">
+            Lotus
+          </span>
+          <span className="text-xl font-extrabold tracking-tight text-[#E84672]">
+            Mart
+          </span>
+        </Link>
 
-        {/* Center: headline */}
+        {/* Headline */}
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2, ease }}
+          transition={{ duration: 0.6, delay: 0.15, ease }}
         >
-          {/* Eyebrow */}
-          <div className="mb-5 flex items-center gap-3">
-            <span className="h-px w-8" style={{ backgroundColor: "#E84672" }} />
-            <span
-              className="text-[0.58rem] font-black tracking-[0.26em] uppercase"
-              style={{ color: "#7A6E42" }}
-            >
-              Premium Grocery
-            </span>
-          </div>
-
-          <h2 className="mb-5 text-[clamp(2rem,3.5vw,3rem)] leading-[0.95] font-black tracking-[-0.04em] text-white">
+          <p className="mb-4 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-[#F4A623]/60">
+            Premium Grocery
+          </p>
+          <h2 className="text-[clamp(1.75rem,3vw,2.75rem)] font-bold leading-[1.1] tracking-tight text-white italic">
             The finest flavours,
             <br />
-            <span style={{ color: "#FFE08A" }}>at your doorstep.</span>
+            <span className="not-italic text-[#F4A623]/90">at your doorstep.</span>
           </h2>
-
-          <p
-            className="max-w-xs text-[0.82rem] leading-[1.85] font-medium"
-            style={{ color: "#78716c" }}
-          >
-            Over 200 premium spices, dry fruits, and gift collections — handpicked and delivered
-            fresh across India.
+          <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/40">
+            Over 200 premium spices, dry fruits, and gift collections
+            -- handpicked and delivered fresh across India.
           </p>
 
+          {/* Category cards */}
+          <div className="mt-6 flex gap-3">
+            {categories.map(({ icon: Icon, title, desc, emoji }) => (
+              <div
+                key={title}
+                className="group rounded-xl border border-white/[0.06] bg-white/[0.04] px-3.5 py-3 backdrop-blur-sm transition-colors hover:bg-white/[0.07]"
+              >
+                <div className="mb-1.5 flex h-7 w-7 items-center justify-center rounded-lg bg-[#F4A623]/10">
+                  <span className="text-xs">{emoji}</span>
+                </div>
+                <p className="text-[0.72rem] font-semibold text-white/70">{title}</p>
+                <p className="mt-0.5 text-[0.6rem] text-white/30">{desc}</p>
+              </div>
+            ))}
+          </div>
+
           {/* Trust badges */}
-          <div className="mt-7 flex flex-wrap gap-4">
+          <div className="mt-5 flex flex-wrap gap-4">
             {trustItems.map(({ icon: Icon, label }) => (
               <span
                 key={label}
-                className="flex items-center gap-1.5 text-[0.7rem] font-semibold"
-                style={{ color: "#9C8F62" }}
+                className="flex items-center gap-1.5 text-[0.7rem] font-semibold text-[#D4A31E]/50"
               >
-                <span
-                  className="flex h-5 w-5 items-center justify-center rounded-lg"
-                  style={{ backgroundColor: "rgba(255,224,138,0.1)" }}
-                >
-                  <Icon size={11} style={{ color: "#FFE08A" }} />
+                <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[#D4A31E]/10">
+                  <Icon size={11} className="text-[#D4A31E]/70" />
                 </span>
                 {label}
               </span>
@@ -156,47 +229,30 @@ function LeftPanel() {
           </div>
         </motion.div>
 
-        {/* Bottom: testimonial */}
+        {/* Testimonial */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4, ease }}
-          className="rounded-2xl p-5"
-          style={{
-            backgroundColor: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.07)",
-          }}
+          transition={{ duration: 0.5, delay: 0.35, ease }}
+          className="rounded-2xl border border-[#F4A623]/[0.08] bg-[#F4A623]/[0.04] p-5 backdrop-blur-sm"
         >
-          {/* Stars */}
-          <div className="mb-3 flex gap-0.5">
+          <div className="mb-2.5 flex gap-0.5">
             {Array.from({ length: testimonial.rating }).map((_, i) => (
-              <RiStarFill key={i} size={11} style={{ color: "#FFE08A" }} />
+              <RiStarFill key={i} size={11} className="text-[#F4A623]/80" />
             ))}
           </div>
-          <p
-            className="mb-4 text-[0.78rem] leading-[1.75] font-medium"
-            style={{ color: "#78716c" }}
-          >
+          <p className="mb-3.5 text-[0.8rem] leading-relaxed text-white/50">
             &ldquo;{testimonial.text}&rdquo;
           </p>
-          <div className="flex items-center gap-3">
-            <div
-              className="h-8 w-8 flex-shrink-0 overflow-hidden rounded-full"
-              style={{ border: "1.5px solid rgba(255,224,138,0.2)" }}
-            >
-              <Image
-                src={testimonial.avatar}
-                alt={testimonial.author}
-                width={32}
-                height={32}
-                className="object-cover"
-              />
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#F4A623]/15 ring-1 ring-[#F4A623]/10">
+              <span className="text-[0.6rem] font-bold text-[#F4A623]/70">PS</span>
             </div>
             <div>
-              <p className="text-[0.72rem] leading-tight font-bold text-white">
+              <p className="text-[0.72rem] font-semibold text-white/80">
                 {testimonial.author}
               </p>
-              <p className="text-[0.62rem] font-medium" style={{ color: "#615834" }}>
+              <p className="text-[0.62rem] text-white/30">
                 {testimonial.role}
               </p>
             </div>
@@ -240,83 +296,59 @@ function LoginForm() {
     }
   };
 
+  const inputCls = (field: string, hasError?: string) =>
+    `w-full rounded-xl border bg-white/60 py-3 pl-10 pr-4 text-sm font-medium text-neutral-800
+     placeholder:text-neutral-400 outline-none transition-all duration-200
+     ${hasError ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100" : "border-neutral-200 focus:border-[#E84672] focus:ring-2 focus:ring-[#E84672]/10"}
+     ${focused === field && !hasError ? "border-[#E84672] ring-2 ring-[#E84672]/10" : ""}`;
+
   return (
-    <div className="flex h-full w-full flex-col justify-center px-6 py-12 sm:px-10 xl:px-16">
+    <div className="flex h-full w-full flex-col justify-center px-6 py-12 sm:px-10 lg:px-14 xl:px-20">
       {/* Mobile logo */}
       <div className="mb-10 flex items-center justify-between lg:hidden">
-        <Link href="/">
-          <span className="inline-flex items-center gap-0.5">
-            <span className="text-[1.25rem] font-black tracking-tight" style={{ color: "#2A2518" }}>
-              Lotus
-            </span>
-            <span className="text-[1.25rem] font-black tracking-tight" style={{ color: "#E84672" }}>
-              Mart
-            </span>
+        <Link href="/" className="inline-flex items-center gap-0.5">
+          <span className="text-xl font-extrabold tracking-tight text-neutral-800">
+            Lotus
+          </span>
+          <span className="text-xl font-extrabold tracking-tight text-[#E84672]">
+            Mart
           </span>
         </Link>
-        <Link href="/">
-          <motion.span
-            whileHover={{ x: -3 }}
-            className="inline-flex cursor-pointer items-center gap-1 text-[0.72rem] font-bold"
-            style={{ color: "#B8AE86" }}
-          >
-            <RiArrowLeftLine size={12} /> Back
-          </motion.span>
+        <Link
+          href="/"
+          className="text-xs font-medium text-neutral-400 transition-colors hover:text-neutral-600"
+        >
+          Back to store
         </Link>
       </div>
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease }}
-        className="mx-auto w-full max-w-sm"
+        transition={{ duration: 0.45, ease }}
+        className="mx-auto w-full max-w-[380px]"
       >
         {/* Header */}
-        <div className="mb-9">
-          <div className="mb-3 flex items-center gap-2.5">
-            <span className="h-px w-6" style={{ backgroundColor: "#E84672" }} />
-            <span
-              className="text-[0.55rem] font-black tracking-[0.26em] uppercase"
-              style={{ color: "#C8BF9A" }}
-            >
-              Welcome Back
-            </span>
-          </div>
-          <h1 className="mb-1.5 text-[1.9rem] leading-tight font-black tracking-[-0.03em] text-neutral-900">
-            Sign in to your
-            <br />
-            <span style={{ color: "#E84672" }}>account.</span>
+        <div className="mb-8">
+          <h1 className="text-[1.75rem] font-bold tracking-tight text-neutral-900">
+            Welcome back
           </h1>
-          <p className="text-[0.78rem] font-medium" style={{ color: "#a8a29e" }}>
-            Access your orders, wishlist, and exclusive offers.
+          <p className="mt-1.5 text-sm text-neutral-400">
+            Sign in to access your orders, wishlist, and offers.
           </p>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
-          {/* Email field */}
+          {/* Email */}
           <div className="space-y-1.5">
-            <label
-              className="block text-[0.7rem] font-bold tracking-wide uppercase"
-              style={{ color: "#9C8F62" }}
-            >
-              Email Address
+            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
+              Email
             </label>
-            <motion.div
-              animate={{
-                borderColor: errors.email ? "#ef4444" : focused === "email" ? "#E84672" : "#EBE8D8",
-              }}
-              transition={{ duration: 0.15 }}
-              className="flex items-center gap-3 rounded-2xl px-4 py-3 transition-shadow"
-              style={{
-                backgroundColor: "#FAFAF8",
-                border: "1.5px solid #EBE8D8",
-                boxShadow: focused === "email" ? "0 0 0 3px rgba(232,70,114,0.08)" : "none",
-              }}
-            >
+            <div className="relative">
               <RiMailLine
                 size={15}
-                style={{ color: focused === "email" ? "#E84672" : "#C8BF9A", flexShrink: 0 }}
+                className={`pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors ${focused === "email" ? "text-[#E84672]" : "text-neutral-300"}`}
               />
               <input
                 type="email"
@@ -329,18 +361,16 @@ function LoginForm() {
                 onBlur={() => setFocused(null)}
                 placeholder="you@example.com"
                 autoComplete="email"
-                className="min-w-0 flex-1 border-none bg-transparent text-[0.84rem] font-medium outline-none"
-                style={{ color: "#1c1917" }}
+                className={inputCls("email", errors.email)}
               />
-            </motion.div>
+            </div>
             <AnimatePresence>
               {errors.email && (
                 <motion.p
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
-                  className="text-[0.68rem] font-semibold"
-                  style={{ color: "#ef4444" }}
+                  className="text-xs font-medium text-red-500"
                 >
                   {errors.email}
                 </motion.p>
@@ -348,44 +378,23 @@ function LoginForm() {
             </AnimatePresence>
           </div>
 
-          {/* Password field */}
+          {/* Password */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label
-                className="block text-[0.7rem] font-bold tracking-wide uppercase"
-                style={{ color: "#9C8F62" }}
-              >
+              <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
                 Password
               </label>
-              <Link href="/forgot-password">
-                <motion.span
-                  whileHover={{ color: "#C9305A" }}
-                  className="cursor-pointer text-[0.68rem] font-semibold transition-colors"
-                  style={{ color: "#E84672" }}
-                >
-                  Forgot password?
-                </motion.span>
+              <Link
+                href="/forgot-password"
+                className="text-xs font-medium text-[#E84672] transition-colors hover:text-[#C9305A]"
+              >
+                Forgot password?
               </Link>
             </div>
-            <motion.div
-              animate={{
-                borderColor: errors.password
-                  ? "#ef4444"
-                  : focused === "password"
-                    ? "#E84672"
-                    : "#EBE8D8",
-              }}
-              transition={{ duration: 0.15 }}
-              className="flex items-center gap-3 rounded-2xl px-4 py-3"
-              style={{
-                backgroundColor: "#FAFAF8",
-                border: "1.5px solid #EBE8D8",
-                boxShadow: focused === "password" ? "0 0 0 3px rgba(232,70,114,0.08)" : "none",
-              }}
-            >
+            <div className="relative">
               <RiLockLine
                 size={15}
-                style={{ color: focused === "password" ? "#E84672" : "#C8BF9A", flexShrink: 0 }}
+                className={`pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors ${focused === "password" ? "text-[#E84672]" : "text-neutral-300"}`}
               />
               <input
                 type={showPassword ? "text" : "password"}
@@ -398,28 +407,24 @@ function LoginForm() {
                 onBlur={() => setFocused(null)}
                 placeholder="Enter your password"
                 autoComplete="current-password"
-                className="min-w-0 flex-1 border-none bg-transparent text-[0.84rem] font-medium outline-none"
-                style={{ color: "#1c1917" }}
+                className={`${inputCls("password", errors.password)} !pr-10`}
               />
-              <motion.button
+              <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.92 }}
-                className="flex-shrink-0 cursor-pointer"
-                style={{ background: "none", border: "none", padding: 0, color: "#C8BF9A" }}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 cursor-pointer text-neutral-300 transition-colors hover:text-neutral-500"
+                tabIndex={-1}
               >
                 {showPassword ? <RiEyeOffLine size={15} /> : <RiEyeLine size={15} />}
-              </motion.button>
-            </motion.div>
+              </button>
+            </div>
             <AnimatePresence>
               {errors.password && (
                 <motion.p
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
-                  className="text-[0.68rem] font-semibold"
-                  style={{ color: "#ef4444" }}
+                  className="text-xs font-medium text-red-500"
                 >
                   {errors.password}
                 </motion.p>
@@ -428,100 +433,77 @@ function LoginForm() {
           </div>
 
           {/* Submit */}
-          <div className="pt-1">
-            <motion.button
-              type="submit"
-              disabled={isLoading}
-              whileHover={
-                !isLoading ? { y: -2, boxShadow: "0 12px 28px rgba(232,70,114,0.28)" } : {}
-              }
-              whileTap={!isLoading ? { scale: 0.98 } : {}}
-              transition={{ duration: 0.18 }}
-              className="flex w-full cursor-pointer items-center justify-center gap-2.5 rounded-2xl py-3.5 text-[0.88rem] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
-              style={{ backgroundColor: "#E84672", border: "none" }}
-            >
-              {isLoading ? (
-                <>
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 0.7, ease: "linear" }}
-                    className="h-4 w-4 rounded-full border-2 border-white border-t-transparent"
-                  />
-                  Signing in…
-                </>
-              ) : (
-                <>
-                  Sign In
-                  <motion.span
-                    animate={{ x: [0, 3, 0] }}
-                    transition={{ repeat: Infinity, duration: 1.5 }}
-                  >
-                    <RiArrowRightLine size={16} />
-                  </motion.span>
-                </>
-              )}
-            </motion.button>
-          </div>
+          <motion.button
+            type="submit"
+            disabled={isLoading}
+            whileHover={!isLoading ? { y: -1 } : {}}
+            whileTap={!isLoading ? { scale: 0.985 } : {}}
+            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#E84672] py-3 text-sm font-semibold text-white shadow-sm transition-shadow hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isLoading ? (
+              <>
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 0.7, ease: "linear" }}
+                  className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white"
+                />
+                Signing in...
+              </>
+            ) : (
+              <>
+                Sign In
+                <RiArrowRightLine size={15} />
+              </>
+            )}
+          </motion.button>
         </form>
 
         {/* Register link */}
-        <p className="mt-6 text-center text-[0.76rem] font-medium" style={{ color: "#a8a29e" }}>
-          Don't have an account?{" "}
-          <Link href="/register">
-            <motion.span
-              whileHover={{ color: "#C9305A" }}
-              className="cursor-pointer font-bold transition-colors"
-              style={{ color: "#E84672" }}
-            >
-              Create one
-            </motion.span>
+        <p className="mt-6 text-center text-sm text-neutral-400">
+          Don&apos;t have an account?{" "}
+          <Link
+            href="/register"
+            className="font-semibold text-[#E84672] transition-colors hover:text-[#C9305A]"
+          >
+            Create one
           </Link>
         </p>
 
         {/* Divider */}
         <div className="my-5 flex items-center gap-3">
-          <span className="h-px flex-1" style={{ backgroundColor: "#F0EDE6" }} />
-          <span
-            className="text-[0.62rem] font-bold tracking-wider uppercase"
-            style={{ color: "#D4CFB3" }}
-          >
+          <span className="h-px flex-1 bg-neutral-100" />
+          <span className="text-[0.65rem] font-medium uppercase tracking-wider text-neutral-300">
             or
           </span>
-          <span className="h-px flex-1" style={{ backgroundColor: "#F0EDE6" }} />
+          <span className="h-px flex-1 bg-neutral-100" />
         </div>
 
         {/* Guest */}
         <Link href="/checkout">
-          <motion.div
-            whileHover={{ borderColor: "#D4CFB3", backgroundColor: "#FAFAF8" }}
-            transition={{ duration: 0.15 }}
-            className="flex cursor-pointer items-center justify-between rounded-2xl px-4 py-3 transition-colors"
-            style={{ border: "1.5px solid #EBE8D8", backgroundColor: "transparent" }}
-          >
+          <div className="group flex cursor-pointer items-center justify-between rounded-xl border border-neutral-150 px-4 py-3 transition-all hover:border-neutral-200 hover:bg-neutral-50/50">
             <div>
-              <p className="text-[0.76rem] font-bold" style={{ color: "#57534e" }}>
+              <p className="text-sm font-medium text-neutral-600">
                 Continue as guest
               </p>
-              <p className="mt-0.5 text-[0.65rem] font-medium" style={{ color: "#C8BF9A" }}>
-                No account needed — create one at checkout
+              <p className="mt-0.5 text-xs text-neutral-400">
+                No account needed
               </p>
             </div>
-            <RiArrowRightLine size={14} style={{ color: "#D4CFB3", flexShrink: 0 }} />
-          </motion.div>
+            <RiArrowRightLine
+              size={14}
+              className="text-neutral-300 transition-transform group-hover:translate-x-0.5"
+            />
+          </div>
         </Link>
 
-        {/* Bottom micro text */}
-        <p className="mt-8 text-center text-[0.6rem] font-medium" style={{ color: "#D4CFB3" }}>
+        {/* Legal */}
+        <p className="mt-8 text-center text-[0.65rem] text-neutral-300">
           By signing in you agree to our{" "}
-          <Link href="/terms" className="underline underline-offset-2" style={{ color: "#B8AE86" }}>
+          <Link href="/terms" className="underline underline-offset-2 hover:text-neutral-400">
             Terms
           </Link>{" "}
           and{" "}
-          <Link
-            href="/privacy-policy"
-            className="underline underline-offset-2"
-            style={{ color: "#B8AE86" }}
-          >
+          <Link href="/privacy-policy" className="underline underline-offset-2 hover:text-neutral-400">
             Privacy Policy
           </Link>
         </p>
@@ -535,15 +517,9 @@ function LoginForm() {
 ───────────────────────────────────────────── */
 export default function LoginPage() {
   return (
-    <div
-      className="grid min-h-screen grid-cols-1 lg:grid-cols-2"
-      style={{ backgroundColor: "#FFFDF7" }}
-    >
-      {/* Left — image panel */}
-      <LeftPanel />
-
-      {/* Right — form */}
-      <div className="flex flex-col overflow-y-auto" style={{ backgroundColor: "#FFFDF7" }}>
+    <div className="grid min-h-screen grid-cols-1 bg-white lg:grid-cols-2">
+      <BrandPanel />
+      <div className="flex flex-col overflow-y-auto bg-[#FAFAF9]">
         <Suspense>
           <LoginForm />
         </Suspense>

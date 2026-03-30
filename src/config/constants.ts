@@ -25,8 +25,8 @@ export const COLORS = {
 } as const;
 
 export const FONT_FAMILY = {
-  heading: "'Poppins', sans-serif",
-  body: "'Poppins', sans-serif",
+  heading: "'Playfair Display', Georgia, serif",
+  body: "'DM Sans', system-ui, sans-serif",
 } as const;
 
 // ──────────────────────────────────────────────
@@ -158,8 +158,41 @@ export type AddressLabel = (typeof ADDRESS_LABELS)[number];
 // ──────────────────────────────────────────────
 // Product units
 // ──────────────────────────────────────────────
-export const PRODUCT_UNITS = ["kg", "g", "pieces", "pack"] as const;
+export const PRODUCT_UNITS = ["kg", "g", "pieces", "pack", "ml", "L", "box"] as const;
 export type ProductUnit = (typeof PRODUCT_UNITS)[number];
+
+// ──────────────────────────────────────────────
+// Product types
+// ──────────────────────────────────────────────
+export const PRODUCT_TYPES = ["spice", "dry_fruit", "gifting", "herb", "honey", "superfood"] as const;
+export type ProductType = (typeof PRODUCT_TYPES)[number];
+
+export const PRODUCT_TYPE_LABELS: Record<ProductType, string> = {
+  spice: "Spice",
+  dry_fruit: "Dry Fruit",
+  gifting: "Gifting",
+  herb: "Herb & Tea",
+  honey: "Honey",
+  superfood: "Superfood",
+};
+
+// ──────────────────────────────────────────────
+// GST & Certifications
+// ──────────────────────────────────────────────
+export const GST_RATES = [0, 5, 12, 18, 28] as const;
+
+export const CERTIFICATIONS = [
+  "FSSAI",
+  "Organic India",
+  "ISO 22000",
+  "HACCP",
+  "GMP",
+  "Halal",
+  "Kosher",
+  "USDA Organic",
+  "India Organic",
+  "Fair Trade",
+] as const;
 
 // ──────────────────────────────────────────────
 // Banner positions

@@ -59,7 +59,30 @@ const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 /* ─────────────────────────────────────────────
    COMPONENT
 ───────────────────────────────────────────── */
-export function BannerStrip() {
+interface BannerStripProps {
+  settings?: {
+    image?: string;
+    title?: string;
+    subtitle?: string;
+    link?: string;
+    [key: string]: unknown;
+  };
+}
+
+export function BannerStrip({ settings }: BannerStripProps = {}) {
+  // If admin provided custom banner settings, override the primary card data
+  const activePrimary = settings?.image
+    ? {
+        ...primary,
+        image: settings.image,
+        headline: settings.title || primary.headline,
+        body: settings.subtitle || primary.body,
+        cta: {
+          label: primary.cta.label,
+          href: settings.link || primary.cta.href,
+        },
+      }
+    : primary;
   return (
     <section className="py-16 lg:py-24" style={{ backgroundColor: "#FAFAF9" }}>
       <div className="mx-auto w-full max-w-[1400px] px-6 md:px-8 lg:px-12">
@@ -106,7 +129,7 @@ export function BannerStrip() {
             viewport={{ once: true }}
             transition={{ duration: 0.65, ease }}
           >
-            <Link href={primary.cta.href} className="group block h-full">
+            <Link href={activePrimary.cta.href} className="group block h-full">
               <motion.div
                 whileHover={{ boxShadow: "0 32px 80px rgba(0,0,0,0.2)" }}
                 whileTap={{ scale: 0.99 }}
@@ -115,8 +138,8 @@ export function BannerStrip() {
               >
                 {/* Image */}
                 <Image
-                  src={primary.image}
-                  alt={primary.headline}
+                  src={activePrimary.image}
+                  alt={activePrimary.headline}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                   sizes="(max-width: 1024px) 100vw, 60vw"
@@ -127,12 +150,12 @@ export function BannerStrip() {
                 <div
                   className="absolute inset-0"
                   style={{
-                    background: `linear-gradient(160deg, ${primary.bg.match(/#[a-f0-9]+/gi)?.[0]}F0 0%, transparent 55%, rgba(0,0,0,0.6) 100%)`,
+                    background: `linear-gradient(160deg, ${activePrimary.bg.match(/#[a-f0-9]+/gi)?.[0]}F0 0%, transparent 55%, rgba(0,0,0,0.6) 100%)`,
                   }}
                 />
                 <div
                   className="absolute inset-0"
-                  style={{ background: primary.bg, opacity: 0.75 }}
+                  style={{ background: activePrimary.bg, opacity: 0.75 }}
                 />
 
                 {/* Content */}
@@ -148,11 +171,11 @@ export function BannerStrip() {
                       style={{
                         backgroundColor: "rgba(255,224,138,0.15)",
                         border: "1px solid rgba(255,224,138,0.25)",
-                        color: primary.accentColor,
+                        color: activePrimary.accentColor,
                       }}
                     >
                       <RiTimeLine size={10} />
-                      {primary.eyebrow}
+                      {activePrimary.eyebrow}
                     </motion.span>
 
                     {/* Big discount badge */}
@@ -162,17 +185,17 @@ export function BannerStrip() {
                       viewport={{ once: true }}
                       transition={{ delay: 0.3, type: "spring", stiffness: 280, damping: 18 }}
                       className="flex h-16 w-16 flex-col items-center justify-center rounded-2xl"
-                      style={{ backgroundColor: primary.accentColor }}
+                      style={{ backgroundColor: activePrimary.accentColor }}
                     >
                       <span
                         className="text-[1.1rem] leading-none font-black"
-                        style={{ color: primary.textDark }}
+                        style={{ color: activePrimary.textDark }}
                       >
                         20%
                       </span>
                       <span
                         className="text-[0.55rem] font-black tracking-wider uppercase"
-                        style={{ color: primary.textDark }}
+                        style={{ color: activePrimary.textDark }}
                       >
                         OFF
                       </span>
@@ -184,9 +207,9 @@ export function BannerStrip() {
                     {/* Micro label */}
                     <p
                       className="mb-2 text-[0.62rem] font-black tracking-[0.2em] uppercase"
-                      style={{ color: `${primary.accentColor}80` }}
+                      style={{ color: `${activePrimary.accentColor}80` }}
                     >
-                      {primary.tag}
+                      {activePrimary.tag}
                     </p>
 
                     {/* Headline */}
@@ -194,17 +217,17 @@ export function BannerStrip() {
                       className="mb-4 leading-[0.92] font-black tracking-[-0.04em] whitespace-pre-line"
                       style={{
                         fontSize: "clamp(3rem, 6vw, 4.5rem)",
-                        color: primary.accentColor,
+                        color: activePrimary.accentColor,
                       }}
                     >
-                      {primary.headline}
+                      {activePrimary.headline}
                     </h3>
 
                     <p
                       className="mb-6 max-w-xs text-[0.85rem] leading-relaxed"
                       style={{ color: "rgba(255,224,138,0.6)" }}
                     >
-                      {primary.body}
+                      {activePrimary.body}
                     </p>
 
                     {/* CTA */}

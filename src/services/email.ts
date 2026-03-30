@@ -2,7 +2,7 @@
  * Email Service — Brevo (Sendinblue) transactional email
  *
  * Uses the Brevo REST API v3 via axios.
- * All templates use inline CSS with Poppins font, cream background, rose accent.
+ * All templates use inline CSS with DM Sans + Playfair Display fonts, cream background, rose accent.
  */
 
 import axios from "axios";
@@ -57,7 +57,7 @@ function emailWrapper(content: string): string {
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap');
     body { margin:0; padding:0; background:${COLOR.creamBg}; -webkit-text-size-adjust:100%; }
     * { box-sizing:border-box; }
   </style>
@@ -68,7 +68,7 @@ function emailWrapper(content: string): string {
     <tr>
       <td align="center">
         <table width="600" cellpadding="0" cellspacing="0" role="presentation"
-               style="font-family:'Poppins','Segoe UI',sans-serif;background:${COLOR.cream};
+               style="font-family:'DM Sans','Segoe UI',sans-serif;background:${COLOR.cream};
                       border-radius:16px;overflow:hidden;
                       box-shadow:0 4px 32px rgba(0,0,0,0.08);max-width:600px;width:100%;">
 

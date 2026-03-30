@@ -28,6 +28,61 @@ function buildTokenPayload(user: IUserDocument): ITokenPayload {
   };
 }
 
+/**
+ * Ensure a default admin account exists for local/dev environments.
+ * The account is sourced from ADMIN_EMAIL and ADMIN_PASSWORD env vars.
+ */
+async function ensureDefaultAdminAccount() {
+  try {
+    const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+    const adminPassword = process.env.ADMIN_PASSWORD?.trim();
+
+    if (!adminEmail || !adminPassword) return;
+
+    await connectDB();
+
+    const existingAdmin = await User.findOne({ email: adminEmail }).select("+password");
+
+    if (!existingAdmin) {
+      await User.create({
+        name: "LotusMart Admin",
+        email: adminEmail,
+        password: adminPassword,
+        role: "admin",
+        isVerified: true,
+      });
+      console.log("[Auth] Default admin account created");
+      return;
+    }
+
+    let shouldSave = false;
+
+    if (existingAdmin.role !== "admin") {
+      existingAdmin.role = "admin";
+      shouldSave = true;
+    }
+
+    if (!existingAdmin.isVerified) {
+      existingAdmin.isVerified = true;
+      existingAdmin.verificationToken = undefined;
+      shouldSave = true;
+    }
+
+    const matchesEnvPassword = await existingAdmin.comparePassword(adminPassword);
+    if (!matchesEnvPassword) {
+      existingAdmin.password = adminPassword;
+      shouldSave = true;
+    }
+
+    if (shouldSave) {
+      await existingAdmin.save();
+      console.log("[Auth] Default admin account updated");
+    }
+  } catch (err) {
+    console.error("[Auth] Failed to ensure default admin account:", err);
+  }
+}
+
 // ──────────────────────────────────────────────
 // Auth Service
 // ──────────────────────────────────────────────
@@ -74,8 +129,13 @@ export async function register(data: RegisterInput) {
 export async function login(email: string, password: string) {
   await connectDB();
 
+  await ensureDefaultAdminAccount();
+
+  // Normalize email to match how Mongoose stores it (lowercase + trimmed)
+  const normalizedEmail = email.trim().toLowerCase();
+
   // Find user with password field explicitly selected
-  const user = await User.findOne({ email }).select("+password");
+  const user = await User.findOne({ email: normalizedEmail }).select("+password");
   if (!user) {
     throw ApiError.unauthorized("Invalid email or password");
   }
@@ -88,9 +148,7 @@ export async function login(email: string, password: string) {
 
   // Check verification
   if (!user.isVerified) {
-    throw ApiError.forbidden(
-      "Please verify your email address before logging in",
-    );
+    throw ApiError.forbidden("Please verify your email address before logging in");
   }
 
   // Generate JWT
@@ -105,9 +163,7 @@ export async function login(email: string, password: string) {
 export async function verifyEmail(token: string) {
   await connectDB();
 
-  const user = await User.findOne({ verificationToken: token }).select(
-    "+verificationToken",
-  );
+  const user = await User.findOne({ verificationToken: token }).select("+verificationToken");
   if (!user) {
     throw ApiError.badRequest("Invalid or expired verification token");
   }
@@ -135,10 +191,7 @@ export async function forgotPassword(email: string) {
   }
 
   const resetToken = crypto.randomBytes(32).toString("hex");
-  const resetTokenHash = crypto
-    .createHash("sha256")
-    .update(resetToken)
-    .digest("hex");
+  const resetTokenHash = crypto.createHash("sha256").update(resetToken).digest("hex");
 
   user.resetPasswordToken = resetTokenHash;
   user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
@@ -210,11 +263,7 @@ export async function updateProfile(userId: string, data: UpdateProfileInput) {
 /**
  * Change the authenticated user's password.
  */
-export async function changePassword(
-  userId: string,
-  currentPassword: string,
-  newPassword: string,
-) {
+export async function changePassword(userId: string, currentPassword: string, newPassword: string) {
   await connectDB();
 
   const user = await User.findById(userId).select("+password");

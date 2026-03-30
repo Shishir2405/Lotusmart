@@ -34,9 +34,9 @@ import { useCartStore } from "@/store/cart.store";
 import { useWishlistStore } from "@/store/wishlist.store";
 import { useAuthStore } from "@/store/auth.store";
 import { useAuth } from "@/hooks/useAuth";
-import { CATEGORIES } from "@/config/constants";
 import { useDebounce } from "@/hooks/useDebounce";
 import axios from "axios";
+import { CATEGORIES } from "@/config/constants";
 
 /* ─────────────────────────────────────────────
    TYPES
@@ -50,124 +50,120 @@ interface SearchResult {
 }
 
 /* ─────────────────────────────────────────────
-   NAV CATEGORIES — each with sub-links + featured card
+   NAV CATEGORIES — dynamic from API with color rotation
 ───────────────────────────────────────────── */
-const NAV_CATEGORIES = [
-  {
-    name: "Spices",
-    slug: "spices",
-    icon: RiLeafLine,
-    desc: "Pure farm-sourced spices",
-    color: "#E84672",
-    colorLight: "#FFF1F3",
-    sub: [
-      { label: "Whole Spices", slug: "whole-spices", badge: "Bestseller" },
-      { label: "Ground Spices", slug: "ground-spices", badge: null },
-      { label: "Spice Blends", slug: "spice-blends", badge: "New" },
-      { label: "Exotic Spices", slug: "exotic-spices", badge: null },
-      { label: "Pepper Range", slug: "pepper", badge: null },
-      { label: "Saffron & Premium", slug: "saffron", badge: "Premium" },
-    ],
-    featured: {
-      label: "Cardamom Collection",
-      desc: "Premium green & black cardamom",
-      href: "/categories/cardamom",
-      image:
-        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=260&h=160&fit=crop&q=80",
-    },
-  },
-  {
-    name: "Dry Fruits",
-    slug: "dry-fruits",
-    icon: RiGiftLine,
-    desc: "Sourced from Kashmir & Afghanistan",
-    color: "#7A6E42",
-    colorLight: "#F7F6F0",
-    sub: [
-      { label: "Almonds", slug: "almonds", badge: "Popular" },
-      { label: "Cashews", slug: "cashews", badge: null },
-      { label: "Walnuts", slug: "walnuts", badge: null },
-      { label: "Pistachios", slug: "pistachios", badge: "Premium" },
-      { label: "Raisins & Dates", slug: "raisins-dates", badge: null },
-      { label: "Mixed Packs", slug: "mixed-packs", badge: "Value" },
-    ],
-    featured: {
-      label: "Kashmir Dry Fruit Box",
-      desc: "Handpicked premium selection",
-      href: "/products/kashmir-box",
-      image:
-        "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=260&h=160&fit=crop&q=80",
-    },
-  },
-  {
-    name: "Nuts & Seeds",
-    slug: "nuts-seeds",
-    icon: RiLeafLine,
-    desc: "Organic & roasted varieties",
-    color: "#D97706",
-    colorLight: "#FFFBEB",
-    sub: [
-      { label: "Roasted Nuts", slug: "roasted-nuts", badge: "Trending" },
-      { label: "Seeds Mix", slug: "seeds", badge: null },
-      { label: "Peanuts", slug: "peanuts", badge: null },
-      { label: "Superseeds", slug: "superseeds", badge: "Organic" },
-      { label: "Trail Mix", slug: "trail-mix", badge: "New" },
-      { label: "Snack Packs", slug: "snack-packs", badge: null },
-    ],
-    featured: {
-      label: "Daily Nuts Hamper",
-      desc: "Your everyday wellness pack",
-      href: "/products/daily-nuts",
-      image:
-        "https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=260&h=160&fit=crop&q=80",
-    },
-  },
-  {
-    name: "Gift Boxes",
-    slug: "gift-boxes",
-    icon: RiGiftLine,
-    desc: "For every occasion",
-    color: "#E84672",
-    colorLight: "#FFF1F3",
-    sub: [
-      { label: "Festival Hampers", slug: "festival-hampers", badge: "Popular" },
-      { label: "Wedding Gifts", slug: "wedding", badge: null },
-      { label: "Corporate Boxes", slug: "corporate", badge: "Bulk" },
-      { label: "Custom Hampers", slug: "custom", badge: "New" },
-      { label: "Spice Gift Sets", slug: "spice-gift-sets", badge: null },
-      { label: "Premium Boxes", slug: "premium-boxes", badge: "Luxury" },
-    ],
-    featured: {
-      label: "Build Your Own Box",
-      desc: "Personalise from ₹799",
-      href: "/customize",
-      image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=260&h=160&fit=crop&q=80",
-    },
-  },
-  {
-    name: "Organic",
-    slug: "organic",
-    icon: RiLeafLine,
-    desc: "Certified 100% organic range",
-    color: "#16A34A",
-    colorLight: "#F0FDF4",
-    sub: [
-      { label: "Organic Spices", slug: "organic-spices", badge: "Certified" },
-      { label: "Organic Dry Fruits", slug: "organic-dry-fruits", badge: null },
-      { label: "Superfoods", slug: "superfoods", badge: "New" },
-      { label: "Herbal Range", slug: "herbal", badge: null },
-      { label: "Detox Packs", slug: "detox", badge: "Popular" },
-      { label: "Organic Bundles", slug: "organic-bundles", badge: "Value" },
-    ],
-    featured: {
-      label: "Organic Starter Kit",
-      desc: "Begin your clean eating journey",
-      href: "/products/organic-starter",
-      image:
-        "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=260&h=160&fit=crop&q=80",
-    },
-  },
+interface NavCategory {
+  name: string;
+  slug: string;
+  icon: typeof RiLeafLine;
+  desc: string;
+  color: string;
+  colorLight: string;
+  image?: string;
+  sub: { label: string; slug: string; badge: string | null }[];
+  featured: {
+    label: string;
+    desc: string;
+    href: string;
+    image: string;
+  };
+}
+
+const COLOR_ROTATION = [
+  { color: "#E84672", colorLight: "#FFF1F3" },
+  { color: "#7A6E42", colorLight: "#F7F6F0" },
+  { color: "#D97706", colorLight: "#FFFBEB" },
+  { color: "#16A34A", colorLight: "#F0FDF4" },
+  { color: "#7C3AED", colorLight: "#F5F3FF" },
+  { color: "#0891B2", colorLight: "#ECFEFF" },
 ];
+
+const ICON_ROTATION = [RiLeafLine, RiGiftLine, RiLeafLine, RiGiftLine, RiLeafLine, RiGiftLine];
+
+const FALLBACK_IMAGES = [
+  "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=260&h=160&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=260&h=160&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=260&h=160&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=260&h=160&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=260&h=160&fit=crop&q=80",
+];
+
+interface APICategory {
+  _id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  image?: string;
+  parent?: string | { _id: string } | null;
+  isActive: boolean;
+  sortOrder: number;
+}
+
+function fallbackAPICategories(): APICategory[] {
+  const result: APICategory[] = [];
+  CATEGORIES.forEach((cat, i) => {
+    const parentId = `fallback-${cat.slug}`;
+    result.push({
+      _id: parentId,
+      name: cat.name,
+      slug: cat.slug,
+      isActive: true,
+      sortOrder: i,
+      parent: null,
+    });
+    cat.subcategories.forEach((sub, j) => {
+      result.push({
+        _id: `fallback-${sub.slug}`,
+        name: sub.name,
+        slug: sub.slug,
+        isActive: true,
+        sortOrder: j,
+        parent: parentId,
+      });
+    });
+  });
+  return result;
+}
+
+function buildNavCategories(apiCats: APICategory[]): NavCategory[] {
+  const topLevel = apiCats
+    .filter((c) => !c.parent && c.isActive)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+
+  return topLevel.map((cat, i) => {
+    const children = apiCats
+      .filter((c) => {
+        const parentId = typeof c.parent === "object" && c.parent ? c.parent._id : c.parent;
+        return parentId === cat._id && c.isActive;
+      })
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+
+    const colors = COLOR_ROTATION[i % COLOR_ROTATION.length];
+    const Icon = ICON_ROTATION[i % ICON_ROTATION.length];
+    const fallbackImg = FALLBACK_IMAGES[i % FALLBACK_IMAGES.length];
+
+    return {
+      name: cat.name,
+      slug: cat.slug,
+      icon: Icon,
+      desc: cat.description || `Explore ${cat.name}`,
+      color: colors.color,
+      colorLight: colors.colorLight,
+      image: cat.image,
+      sub: children.map((child) => ({
+        label: child.name,
+        slug: child.slug,
+        badge: null,
+      })),
+      featured: {
+        label: `${cat.name} Collection`,
+        desc: `Explore our premium ${cat.name.toLowerCase()}`,
+        href: `/categories/${cat.slug}`,
+        image: cat.image || fallbackImg,
+      },
+    };
+  });
+}
 
 /* ─────────────────────────────────────────────
    PROFILE DROPDOWN SECTIONS
@@ -320,7 +316,7 @@ function CategoryMegaMenu({
   cat,
   onClose,
 }: {
-  cat: (typeof NAV_CATEGORIES)[0];
+  cat: NavCategory;
   onClose: () => void;
 }) {
   return (
@@ -650,6 +646,7 @@ export function Header() {
   const cartCount = useCartStore((s) => s.getItemCount());
   const wishlistCount = useWishlistStore((s) => s.items.length);
 
+  const [navCategories, setNavCategories] = useState<NavCategory[]>([]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileExpandedCat, setMobileExpandedCat] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -665,6 +662,23 @@ export function Header() {
   const navRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const debouncedSearch = useDebounce(searchQuery, 350);
+
+  /* ── Fetch categories from API ── */
+  useEffect(() => {
+    axios
+      .get<{ data: APICategory[] }>("/api/categories")
+      .then((r) => {
+        const cats = buildNavCategories(r.data.data ?? []);
+        if (cats.length > 0) {
+          setNavCategories(cats);
+        } else {
+          setNavCategories(buildNavCategories(fallbackAPICategories()));
+        }
+      })
+      .catch(() => {
+        setNavCategories(buildNavCategories(fallbackAPICategories()));
+      });
+  }, []);
 
   /* ── Scroll ── */
   useEffect(() => {
@@ -729,7 +743,7 @@ export function Header() {
     }
   };
 
-  const activeCatData = NAV_CATEGORIES.find((c) => c.slug === hoveredCat) ?? null;
+  const activeCatData = navCategories.find((c) => c.slug === hoveredCat) ?? null;
 
   return (
     <header
@@ -800,7 +814,7 @@ export function Header() {
             className="relative hidden items-center gap-0.5 lg:flex"
             onMouseLeave={() => handleCatHover(null)}
           >
-            {NAV_CATEGORIES.map((cat) => {
+            {navCategories.map((cat) => {
               const isActive = !!pathname?.includes(cat.slug);
               const isHovered = hoveredCat === cat.slug;
               return (
@@ -1132,7 +1146,7 @@ export function Header() {
             style={{ backgroundColor: "#FFFDF7", borderColor: "#EBE8D8" }}
           >
             <nav className="mx-auto flex w-full max-w-[1400px] flex-col gap-0.5 px-5 py-3">
-              {NAV_CATEGORIES.map((cat, i) => {
+              {navCategories.map((cat, i) => {
                 const expanded = mobileExpandedCat === cat.slug;
                 return (
                   <motion.div
@@ -1227,7 +1241,7 @@ export function Header() {
               <motion.div
                 initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: NAV_CATEGORIES.length * 0.04, duration: 0.22 }}
+                transition={{ delay: navCategories.length * 0.04, duration: 0.22 }}
               >
                 <Link href="/products" onClick={() => setMobileOpen(false)}>
                   <motion.span

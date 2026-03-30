@@ -79,16 +79,64 @@ const imageVariant: Variants = {
   exit: { opacity: 0, x: -24, transition: { duration: 0.3, ease: exitEase } },
 };
 
-export function HeroSection() {
+interface HeroBannerSlide {
+  image: string;
+  title: string;
+  subtitle: string;
+  ctaText: string;
+  ctaLink: string;
+}
+
+interface HeroSectionProps {
+  settings?: {
+    slides?: HeroBannerSlide[];
+    [key: string]: unknown;
+  };
+}
+
+function mapAPISlides(apiSlides: HeroBannerSlide[]) {
+  const colorRotation = [
+    { accentColor: "#E84672", bgFrom: "#FFF9E8", bgTo: "#FFE8C8" },
+    { accentColor: "#7A6E42", bgFrom: "#F7F6F0", bgTo: "#EBE8D8" },
+    { accentColor: "#E84672", bgFrom: "#FFF1F3", bgTo: "#FFE0E6" },
+    { accentColor: "#D97706", bgFrom: "#FFFBEB", bgTo: "#FFF3CD" },
+    { accentColor: "#16A34A", bgFrom: "#F0FDF4", bgTo: "#DCFCE7" },
+  ];
+
+  return apiSlides.map((s, i) => {
+    const colors = colorRotation[i % colorRotation.length];
+    const titleParts = s.title ? s.title.split("\n") : ["Welcome"];
+    return {
+      id: i,
+      tag: "",
+      headline: titleParts.length > 1 ? titleParts : [titleParts[0], ""],
+      subtext: s.subtitle || "",
+      cta: { label: s.ctaText || "Shop Now", href: s.ctaLink || "/products" },
+      secondaryCta: { label: "Explore All", href: "/products" },
+      image: s.image || "/images/hero/spices-hero.jpg",
+      accentColor: colors.accentColor,
+      bgFrom: colors.bgFrom,
+      bgTo: colors.bgTo,
+      highlight: "",
+    };
+  });
+}
+
+export function HeroSection({ settings }: HeroSectionProps = {}) {
+  const activeSlides =
+    settings?.slides && settings.slides.length > 0
+      ? mapAPISlides(settings.slides)
+      : slides;
+
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const slide = slides[current];
+  const slide = activeSlides[current];
 
   const startInterval = () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = setInterval(() => setCurrent((prev) => (prev + 1) % slides.length), 5500);
+    intervalRef.current = setInterval(() => setCurrent((prev) => (prev + 1) % activeSlides.length), 5500);
   };
 
   useEffect(() => {
@@ -399,7 +447,7 @@ export function HeroSection() {
           className="md:px-8 lg:px-12"
         >
           <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
-            {slides.map((_, i) => (
+            {activeSlides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
@@ -451,14 +499,14 @@ export function HeroSection() {
                 fontVariantNumeric: "tabular-nums",
               }}
             >
-              {String(current + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
+              {String(current + 1).padStart(2, "0")} / {String(activeSlides.length).padStart(2, "0")}
             </span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <motion.button
               whileHover={{ scale: 1.06 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => goTo((current - 1 + slides.length) % slides.length)}
+              onClick={() => goTo((current - 1 + activeSlides.length) % activeSlides.length)}
               style={{
                 display: "flex",
                 width: "36px",
@@ -477,7 +525,7 @@ export function HeroSection() {
             <motion.button
               whileHover={{ scale: 1.06 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => goTo((current + 1) % slides.length)}
+              onClick={() => goTo((current + 1) % activeSlides.length)}
               style={{
                 display: "flex",
                 width: "36px",
