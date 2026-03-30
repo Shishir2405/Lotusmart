@@ -55,7 +55,7 @@ export default async function HomePage() {
       {sections.map((section: any) => {
         switch (section.type) {
           case "hero_banners":
-            return <HeroSection key={section._id} />;
+            return <HeroSection key={section._id} settings={section.settings} />;
           case "category_grid":
             return <CategoryGrid key={section._id} />;
           case "featured_products":
@@ -77,9 +77,9 @@ export default async function HomePage() {
               </Suspense>
             );
           case "banner_strip":
-            return <BannerStrip key={section._id} />;
+            return <BannerStrip key={section._id} settings={section.settings} />;
           case "why_choose_us":
-            return <WhyChooseUs key={section._id} />;
+            return <WhyChooseUs key={section._id} settings={section.settings} />;
           case "faq":
             return <FAQSection key={section._id} />;
           case "newsletter":

@@ -235,16 +235,16 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
                       <motion.span
                         whileHover={{ x: 4 }}
                         className="inline-flex cursor-pointer items-center gap-2.5 rounded-2xl px-5 py-3 text-[0.85rem] font-black"
-                        style={{ backgroundColor: primary.accentColor, color: primary.textDark }}
+                        style={{ backgroundColor: activePrimary.accentColor, color: activePrimary.textDark }}
                       >
-                        {primary.cta.label}
+                        {activePrimary.cta.label}
                         <RiArrowRightLine size={15} />
                       </motion.span>
                       <span
                         className="text-[0.7rem] font-bold"
-                        style={{ color: `${primary.accentColor}60` }}
+                        style={{ color: `${activePrimary.accentColor}60` }}
                       >
-                        {primary.stat}
+                        {activePrimary.stat}
                       </span>
                     </div>
                   </div>

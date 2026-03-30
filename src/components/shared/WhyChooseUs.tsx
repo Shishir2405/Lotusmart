@@ -80,7 +80,63 @@ const stats = [
 
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-export function WhyChooseUs() {
+interface WhyChooseUsItem {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+interface WhyChooseUsProps {
+  settings?: {
+    items?: WhyChooseUsItem[];
+    [key: string]: unknown;
+  };
+}
+
+const ICON_MAP: Record<string, typeof RiLeafLine> = {
+  RiLeafLine,
+  RiTruckLine,
+  RiShieldCheckLine,
+  RiCustomerService2Line,
+  RiAwardLine,
+  RiHeartLine,
+  leaf: RiLeafLine,
+  truck: RiTruckLine,
+  shield: RiShieldCheckLine,
+  support: RiCustomerService2Line,
+  award: RiAwardLine,
+  heart: RiHeartLine,
+};
+
+const COLOR_ROTATION = [
+  { iconColor: "#16A34A", accentColor: "#16A34A", accentLight: "#F0FDF4", accentBorder: "#BBF7D0" },
+  { iconColor: "#2563EB", accentColor: "#2563EB", accentLight: "#EFF6FF", accentBorder: "#BFDBFE" },
+  { iconColor: "#D97706", accentColor: "#D97706", accentLight: "#FFFBEB", accentBorder: "#FDE68A" },
+  { iconColor: "#7C3AED", accentColor: "#7C3AED", accentLight: "#F5F3FF", accentBorder: "#DDD6FE" },
+  { iconColor: "#E84672", accentColor: "#E84672", accentLight: "#FFF1F3", accentBorder: "#FECDD3" },
+  { iconColor: "#7A6E42", accentColor: "#7A6E42", accentLight: "#F7F6F0", accentBorder: "#D4CFB3" },
+];
+
+function mapAPIItems(items: WhyChooseUsItem[]) {
+  return items.map((item, i) => {
+    const colors = COLOR_ROTATION[i % COLOR_ROTATION.length];
+    const resolvedIcon = ICON_MAP[item.icon] || RiLeafLine;
+    return {
+      icon: resolvedIcon,
+      index: String(i + 1).padStart(2, "0"),
+      title: item.title,
+      desc: item.description,
+      ...colors,
+    };
+  });
+}
+
+export function WhyChooseUs({ settings }: WhyChooseUsProps = {}) {
+  const activeFeatures =
+    settings?.items && settings.items.length > 0
+      ? mapAPIItems(settings.items)
+      : features;
+
   const [hovered, setHovered] = useState<number | null>(null);
 
   return (
@@ -176,7 +232,7 @@ export function WhyChooseUs() {
 
         {/* ── Feature rows ── */}
         <div style={{ borderTop: "1px solid #EBE8D8" }}>
-          {features.map((f, i) => (
+          {activeFeatures.map((f, i) => (
             <motion.div
               key={f.title}
               initial={{ opacity: 0, y: 14 }}
