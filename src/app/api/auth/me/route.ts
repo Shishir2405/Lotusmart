@@ -8,6 +8,7 @@ import { successResponse, errorResponse } from "@/lib/api-response";
 import { requireAuth } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import { getProfile, updateProfile } from "@/modules/auth/auth.service";
+import User from "@/modules/users/user.model";
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,7 +17,20 @@ export async function GET(request: NextRequest) {
     const authUser = await requireAuth(request);
     const user = await getProfile(authUser.userId);
 
-    return successResponse({ user }, "Profile retrieved successfully");
+    // Include RBAC permissions for admin users
+    let permissions: string[] | undefined;
+    if (authUser.role === "admin") {
+      const populated = await User.findById(authUser.userId).populate("adminRole");
+      if (populated?.adminRole && typeof populated.adminRole === "object" && "permissions" in populated.adminRole) {
+        permissions = (populated.adminRole as unknown as Record<string, unknown>).permissions as string[];
+      }
+      const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+      if (authUser.email === adminEmail) {
+        permissions = undefined; // super admin
+      }
+    }
+
+    return successResponse({ user: { ...user, permissions } }, "Profile retrieved successfully");
   } catch (error) {
     const apiError = ApiError.from(error);
     return errorResponse(apiError.message, apiError.statusCode, apiError.errors);

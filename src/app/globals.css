@@ -50,3 +50,33 @@ h1, h2, h3, h4, h5, h6 {
     filter: blur(6px);
   }
 }
+
+/* Hide Google Translate default UI */
+.goog-te-banner-frame,
+#goog-gt-tt,
+.goog-te-balloon-frame,
+div#goog-gt-,
+.goog-text-highlight {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
+}
+
+.goog-te-gadget {
+  display: none !important;
+}
+
+.skiptranslate {
+  display: none !important;
+}
+
+body > .skiptranslate {
+  display: none !important;
+}
+
+/* Prevent Google Translate from adding top bar */
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}

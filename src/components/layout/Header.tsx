@@ -37,6 +37,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDebounce } from "@/hooks/useDebounce";
 import axios from "axios";
 import { CATEGORIES } from "@/config/constants";
+import { LanguageToggler } from "@/components/shared/LanguageToggler";
 
 /* ─────────────────────────────────────────────
    TYPES
@@ -1037,6 +1038,9 @@ export function Header() {
               </AnimatePresence>
             </div>
 
+            {/* Language Toggler */}
+            <LanguageToggler />
+
             {/* Wishlist */}
             <IconBtn label="Wishlist" badge={wishlistCount} href="/wishlist">
               <RiHeartLine size={19} />
@@ -1236,6 +1240,16 @@ export function Header() {
                   </motion.div>
                 );
               })}
+
+              {/* Language Toggler */}
+              <motion.div
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: navCategories.length * 0.04, duration: 0.22 }}
+                className="px-3 py-2"
+              >
+                <LanguageToggler />
+              </motion.div>
 
               {/* All Products */}
               <motion.div

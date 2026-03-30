@@ -54,6 +54,7 @@ export interface IUser extends Timestamps {
   email: string;
   password: string;
   role: UserRole;
+  adminRole?: Ref<IAdminRole>;
   phone?: string;
   avatar?: string;
   addresses: IAddress[];
@@ -344,6 +345,7 @@ export interface ITokenPayload {
   email: string;
   role: UserRole;
   name?: string;
+  permissions?: AdminPermission[];
 }
 
 // ──────────────────────────────────────────────
@@ -391,4 +393,33 @@ export interface INotification extends Timestamps {
   type: "order" | "promo" | "system";
   isRead: boolean;
   link?: string;
+}
+
+// ──────────────────────────────────────────────
+// Admin Role (RBAC)
+// ──────────────────────────────────────────────
+export type AdminPermission =
+  | "dashboard"
+  | "analytics"
+  | "products"
+  | "categories"
+  | "coupons"
+  | "price_editor"
+  | "inventory"
+  | "orders"
+  | "customers"
+  | "landing_page"
+  | "banners"
+  | "site_settings"
+  | "settings"
+  | "roles";
+
+export interface IAdminRole extends Timestamps {
+  _id: ObjectId;
+  name: string;
+  description?: string;
+  permissions: AdminPermission[];
+  isDefault?: boolean;
+  isSystem?: boolean;
+  createdBy?: Ref<IUser>;
 }

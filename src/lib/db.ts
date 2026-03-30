@@ -4,10 +4,6 @@ import mongoose, { Connection } from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!MONGODB_URI) {
-  throw new Error("Please define the MONGODB_URI environment variable in .env.local");
-}
-
 /**
  * Global cache so we don't spin up new connections on every
  * serverless function invocation in development or production.
@@ -38,6 +34,10 @@ if (!global.mongooseCache) {
  * server processes).
  */
 async function connectDB(): Promise<Connection> {
+  if (!MONGODB_URI) {
+    throw new Error("Please define the MONGODB_URI environment variable in .env.local");
+  }
+
   // Already connected — return immediately
   if (cached.conn) {
     return cached.conn;

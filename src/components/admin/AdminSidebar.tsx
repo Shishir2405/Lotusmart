@@ -17,47 +17,50 @@ import {
   RiLayoutLine,
   RiPagesLine,
   RiStackLine,
+  RiShieldUserLine,
 } from "react-icons/ri";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthStore } from "@/store/auth.store";
 import { cn } from "@/utils/helpers";
 
 const navGroups = [
   {
     label: "Overview",
     items: [
-      { href: "/admin/dashboard", label: "Dashboard", icon: RiDashboardLine },
-      { href: "/admin/analytics", label: "Analytics", icon: RiBarChartLine },
+      { href: "/admin/dashboard", label: "Dashboard", icon: RiDashboardLine, permission: "dashboard" },
+      { href: "/admin/analytics", label: "Analytics", icon: RiBarChartLine, permission: "analytics" },
     ],
   },
   {
     label: "Catalog",
     items: [
-      { href: "/admin/products", label: "Products", icon: RiShoppingBag3Line },
-      { href: "/admin/categories", label: "Categories", icon: RiAppsLine },
-      { href: "/admin/coupons", label: "Coupons", icon: RiCoupon3Line },
-      { href: "/admin/price-editor", label: "Price Editor", icon: RiPriceTag3Line },
-      { href: "/admin/inventory", label: "Inventory", icon: RiStackLine },
+      { href: "/admin/products", label: "Products", icon: RiShoppingBag3Line, permission: "products" },
+      { href: "/admin/categories", label: "Categories", icon: RiAppsLine, permission: "categories" },
+      { href: "/admin/coupons", label: "Coupons", icon: RiCoupon3Line, permission: "coupons" },
+      { href: "/admin/price-editor", label: "Price Editor", icon: RiPriceTag3Line, permission: "price_editor" },
+      { href: "/admin/inventory", label: "Inventory", icon: RiStackLine, permission: "inventory" },
     ],
   },
   {
     label: "Sales",
     items: [
-      { href: "/admin/orders", label: "Orders", icon: RiListUnordered },
-      { href: "/admin/users", label: "Customers", icon: RiUserLine },
+      { href: "/admin/orders", label: "Orders", icon: RiListUnordered, permission: "orders" },
+      { href: "/admin/users", label: "Customers", icon: RiUserLine, permission: "customers" },
     ],
   },
   {
     label: "Content",
     items: [
-      { href: "/admin/landing", label: "Landing Page", icon: RiLayoutLine },
-      { href: "/admin/banners", label: "Banners", icon: RiImageLine },
-      { href: "/admin/site-settings", label: "Site Content", icon: RiPagesLine },
+      { href: "/admin/landing", label: "Landing Page", icon: RiLayoutLine, permission: "landing_page" },
+      { href: "/admin/banners", label: "Banners", icon: RiImageLine, permission: "banners" },
+      { href: "/admin/site-settings", label: "Site Content", icon: RiPagesLine, permission: "site_settings" },
     ],
   },
   {
     label: "System",
     items: [
-      { href: "/admin/settings", label: "Settings", icon: RiSettingsLine },
+      { href: "/admin/settings", label: "Settings", icon: RiSettingsLine, permission: "settings" },
+      { href: "/admin/roles", label: "Roles", icon: RiShieldUserLine, permission: "roles" },
     ],
   },
 ];
@@ -65,6 +68,13 @@ const navGroups = [
 export function AdminSidebar() {
   const pathname = usePathname();
   const { logout } = useAuth();
+  const { user } = useAuthStore();
+
+  function hasPermission(permission: string): boolean {
+    if (!user) return false;
+    if (!user.permissions) return true; // super admin = all access (permissions undefined)
+    return user.permissions.includes(permission);
+  }
 
   return (
     <aside className="w-60 shrink-0 min-h-screen bg-[#2A2518] flex flex-col sticky top-0 h-screen">
@@ -78,13 +88,17 @@ export function AdminSidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
-        {navGroups.map((group) => (
+        {navGroups
+          .filter((group) => group.items.some((item) => hasPermission(item.permission)))
+          .map((group) => (
           <div key={group.label}>
             <p className="px-3 mb-1.5 text-[0.6rem] font-bold uppercase tracking-[0.15em] text-[#7A6E42]">
               {group.label}
             </p>
             <div className="space-y-0.5">
-              {group.items.map(({ href, label, icon: Icon }) => (
+              {group.items
+                .filter((item) => hasPermission(item.permission))
+                .map(({ href, label, icon: Icon }) => (
                 <Link
                   key={href}
                   href={href}

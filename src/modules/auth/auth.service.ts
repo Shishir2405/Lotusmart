@@ -20,11 +20,12 @@ function toSafeUser(user: IUserDocument): SafeUser {
 }
 
 /** Build a JWT payload from a user document. */
-function buildTokenPayload(user: IUserDocument): ITokenPayload {
+function buildTokenPayload(user: IUserDocument, permissions?: string[]): ITokenPayload {
   return {
     userId: user._id.toString(),
     email: user.email,
     role: user.role,
+    permissions: permissions as ITokenPayload["permissions"],
   };
 }
 
@@ -151,10 +152,26 @@ export async function login(email: string, password: string) {
     throw ApiError.forbidden("Please verify your email address before logging in");
   }
 
-  // Generate JWT
-  const token = await signToken(buildTokenPayload(user));
+  // If admin user, load their role permissions
+  let permissions: string[] | undefined;
+  if (user.role === "admin") {
+    const populated = await User.findById(user._id).populate("adminRole");
+    if (populated?.adminRole && typeof populated.adminRole === "object" && "permissions" in populated.adminRole) {
+      permissions = (populated.adminRole as any).permissions;
+    }
+    // Super admin (from env) gets all permissions
+    const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+    if (user.email === adminEmail) {
+      permissions = undefined; // undefined means all permissions (super admin)
+    }
+  }
 
-  return { user: toSafeUser(user), token };
+  // Generate JWT
+  const token = await signToken(buildTokenPayload(user, permissions));
+
+  // Include permissions in the user object for client-side RBAC
+  const safeUser = toSafeUser(user);
+  return { user: { ...safeUser, permissions }, token };
 }
 
 /**

@@ -55,6 +55,7 @@ export async function verifyToken(token: string): Promise<ITokenPayload> {
       userId: payload.userId as string,
       email: payload.email as string,
       role: payload.role as ITokenPayload["role"],
+      permissions: payload.permissions as ITokenPayload["permissions"],
     };
   } catch (error) {
     throw new Error(
@@ -80,6 +81,7 @@ export function decodeToken(token: string): ITokenPayload | null {
       userId: payload.userId,
       email: payload.email,
       role: payload.role,
+      permissions: payload.permissions,
     };
   } catch {
     return null;

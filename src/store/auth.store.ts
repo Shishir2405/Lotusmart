@@ -16,6 +16,7 @@ export interface AuthUser {
   avatar?: string;
   phone?: string;
   isVerified: boolean;
+  permissions?: string[]; // RBAC permissions - undefined means super admin (all access)
 }
 
 interface AuthState {

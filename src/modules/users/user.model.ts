@@ -51,6 +51,7 @@ const UserSchema = new Schema<IUserDocument>(
       enum: ["admin", "customer"] satisfies UserRole[],
       default: "customer",
     },
+    adminRole: { type: Schema.Types.ObjectId, ref: "AdminRole" },
     phone: { type: String, trim: true },
     avatar: { type: String },
     addresses: { type: [AddressSchema], default: [] },
