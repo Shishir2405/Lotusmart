@@ -51,7 +51,7 @@ export default function AdminOrdersPage() {
     <div className="p-8">
       <h1 className="text-2xl font-bold text-neutral-900 mb-6">Orders</h1>
 
-      {/* Status filter tabs */}
+      
       <div className="flex items-center gap-2 flex-wrap mb-5">
         {STATUS_OPTIONS.map((s) => (
           <button
@@ -113,7 +113,7 @@ export default function AdminOrdersPage() {
         </table>
       </div>
 
-      {/* Pagination */}
+      
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-3 mt-6">
           <button disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="px-4 py-2 rounded-xl border border-neutral-200 text-sm disabled:opacity-40 hover:border-neutral-300 transition-colors">Previous</button>

@@ -3,9 +3,7 @@ import Product from "@/modules/products/product.model";
 import type { ProductCardData } from "./ProductCard";
 import { FeaturedProductsClient } from "./FeaturedProductsClient";
 
-/* ─────────────────────────────────────────────
-   DATA FETCH
-───────────────────────────────────────────── */
+
 async function getFeaturedProducts() {
   try {
     await connectDB();

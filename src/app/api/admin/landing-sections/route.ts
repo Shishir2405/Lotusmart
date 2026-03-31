@@ -1,5 +1,4 @@
-// GET /api/admin/landing-sections — List all sections (admin)
-// POST /api/admin/landing-sections — Create section
+
 
 import { NextRequest } from "next/server";
 import { ApiError } from "@/lib/api-error";
@@ -30,7 +29,7 @@ export async function POST(request: NextRequest) {
     await connectDB();
     const body = await request.json();
 
-    // Auto-set sortOrder to end
+    
     if (body.sortOrder === undefined) {
       const count = await LandingSection.countDocuments();
       body.sortOrder = count;

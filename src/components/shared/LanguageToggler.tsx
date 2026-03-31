@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { RiGlobalLine, RiArrowDownSLine } from "react-icons/ri";
 
-// Language options to show
+
 const LANGUAGES = [
   { code: "en", name: "English", flag: "🇬🇧" },
   { code: "hi", name: "हिन्दी", flag: "🇮🇳" },
@@ -24,15 +24,15 @@ export function LanguageToggler() {
   const [currentLang, setCurrentLang] = useState("en");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Load Google Translate script
+  
   useEffect(() => {
-    // Add the hidden Google Translate element
+    
     const div = document.createElement("div");
     div.id = "google_translate_element";
     div.style.display = "none";
     document.body.appendChild(div);
 
-    // Define the callback
+    
     (window as any).googleTranslateElementInit = () => {
       new (window as any).google.translate.TranslateElement(
         {
@@ -45,7 +45,7 @@ export function LanguageToggler() {
       );
     };
 
-    // Load the script
+    
     if (!document.getElementById("google-translate-script")) {
       const script = document.createElement("script");
       script.id = "google-translate-script";
@@ -55,13 +55,13 @@ export function LanguageToggler() {
     }
 
     return () => {
-      // Cleanup
+      
       const el = document.getElementById("google_translate_element");
       if (el) el.remove();
     };
   }, []);
 
-  // Click outside to close
+  
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -73,7 +73,7 @@ export function LanguageToggler() {
   }, []);
 
   const changeLanguage = (langCode: string) => {
-    // Use Google Translate's select element to change language
+    
     const select = document.querySelector(".goog-te-combo") as HTMLSelectElement;
     if (select) {
       select.value = langCode;

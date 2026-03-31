@@ -1,7 +1,4 @@
-/**
- * Wishlist Store — guest + authenticated.
- * Guest items persist in localStorage; merged into DB on login.
- */
+
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -22,11 +19,11 @@ interface WishlistState {
 
   addItem: (item: WishlistItem) => void;
   removeItem: (productId: string) => void;
-  toggleItem: (item: WishlistItem) => boolean; // returns true if added, false if removed
+  toggleItem: (item: WishlistItem) => boolean; 
   clearWishlist: () => void;
   isInWishlist: (productId: string) => boolean;
 
-  // Merge server wishlist after login
+  
   mergeServerWishlist: (serverItems: WishlistItem[]) => void;
 }
 

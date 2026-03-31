@@ -58,7 +58,7 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      {/* Filters */}
+      
       <div className="bg-white rounded-2xl border border-neutral-100 mb-5 p-4 flex items-center gap-4 flex-wrap">
         <div className="flex items-center gap-2 bg-[#F7F6F0] rounded-xl px-3 py-2 flex-1 min-w-48">
           <RiSearchLine className="text-neutral-400" size={16} />

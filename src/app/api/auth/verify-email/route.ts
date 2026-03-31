@@ -1,4 +1,4 @@
-// POST /api/auth/verify-email — Verify a user's email via token
+
 
 import { NextRequest } from "next/server";
 

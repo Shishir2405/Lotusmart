@@ -163,7 +163,7 @@ export default function AdminCategoriesPage() {
     }
   };
 
-  // Only top-level categories can be parents (prevent deep nesting)
+  
   const parentOptions = categories.filter((c) => !c.parent && (!editTarget || c._id !== editTarget._id));
 
   return (
@@ -178,7 +178,7 @@ export default function AdminCategoriesPage() {
         </Button>
       </div>
 
-      {/* Table */}
+      
       <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
         <table className="w-full">
           <thead>
@@ -290,7 +290,7 @@ export default function AdminCategoriesPage() {
         </table>
       </div>
 
-      {/* Create / Edit Category Modal */}
+      
       <Modal
         isOpen={showForm}
         onClose={closeForm}
@@ -330,7 +330,7 @@ export default function AdminCategoriesPage() {
             placeholder="Short category description..."
           />
 
-          {/* Image */}
+          
           <div>
             <label className="block text-sm font-medium text-neutral-700 mb-2">
               Category Image
@@ -394,7 +394,7 @@ export default function AdminCategoriesPage() {
         </form>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      
       <Modal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}

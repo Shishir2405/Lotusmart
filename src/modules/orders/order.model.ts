@@ -9,19 +9,15 @@ import type {
   AddressLabel,
 } from "@/types";
 
-// ──────────────────────────────────────────────
-// Document interface
-// ──────────────────────────────────────────────
+
 export interface IOrderDocument extends Omit<IOrder, "_id">, Document {
-  /** Virtual: true when orderStatus === "delivered" */
+  
   isDelivered: boolean;
-  /** Virtual: true when paymentStatus === "paid" */
+  
   isPaid: boolean;
 }
 
-// ──────────────────────────────────────────────
-// Sub-schemas
-// ──────────────────────────────────────────────
+
 const OrderItemSchema = new Schema<IOrderItem>(
   {
     product: {
@@ -57,9 +53,7 @@ const AddressSubSchema = new Schema<IAddress>(
   { _id: false },
 );
 
-// ──────────────────────────────────────────────
-// Main schema
-// ──────────────────────────────────────────────
+
 const OrderSchema = new Schema<IOrderDocument>(
   {
     orderNumber: { type: String, unique: true },
@@ -120,15 +114,11 @@ const OrderSchema = new Schema<IOrderDocument>(
   },
 );
 
-// ──────────────────────────────────────────────
-// Indexes
-// ──────────────────────────────────────────────
+
 OrderSchema.index({ createdAt: -1 });
 OrderSchema.index({ user: 1, createdAt: -1 });
 
-// ──────────────────────────────────────────────
-// Virtuals
-// ──────────────────────────────────────────────
+
 OrderSchema.virtual("isDelivered").get(function (this: IOrderDocument) {
   return this.orderStatus === "delivered";
 });
@@ -137,26 +127,22 @@ OrderSchema.virtual("isPaid").get(function (this: IOrderDocument) {
   return this.paymentStatus === "paid";
 });
 
-// ──────────────────────────────────────────────
-// Pre-save: generate orderNumber if missing
-// ──────────────────────────────────────────────
+
 OrderSchema.pre("save", async function () {
   if (!this.orderNumber) {
     const datePart = new Date()
       .toISOString()
       .slice(2, 10)
-      .replace(/-/g, ""); // e.g. "260320"
+      .replace(/-/g, ""); 
     const randomPart = Math.random()
       .toString(36)
       .substring(2, 8)
-      .toUpperCase(); // e.g. "A1B2C3"
+      .toUpperCase(); 
     this.orderNumber = `LM-${datePart}-${randomPart}`;
   }
 });
 
-// ──────────────────────────────────────────────
-// Export
-// ──────────────────────────────────────────────
+
 const Order: Model<IOrderDocument> =
   mongoose.models.Order ||
   mongoose.model<IOrderDocument>("Order", OrderSchema);

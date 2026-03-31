@@ -88,7 +88,7 @@ export default function CheckoutPage() {
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [placedOrderId, setPlacedOrderId] = useState<string | null>(null);
 
-  // Address state
+  
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
@@ -96,15 +96,15 @@ export default function CheckoutPage() {
   const [addressErrors, setAddressErrors] = useState<Partial<AddressForm>>({});
   const [savingAddress, setSavingAddress] = useState(false);
 
-  // Guest account
+  
   const [guestForm, setGuestForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
 
-  // Redirect if cart empty
+  
   useEffect(() => {
     if (items.length === 0 && !placedOrderId) router.replace("/cart");
   }, [items, placedOrderId, router]);
 
-  // Load Razorpay script
+  
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
@@ -115,7 +115,7 @@ export default function CheckoutPage() {
     };
   }, []);
 
-  // Fetch saved addresses when user is logged in
+  
   useEffect(() => {
     if (!user) return;
     axios
@@ -129,7 +129,7 @@ export default function CheckoutPage() {
       .catch(() => null);
   }, [user]);
 
-  // Pre-fill address form with user data
+  
   useEffect(() => {
     if (user && !address.fullName) {
       setAddress((a) => ({
@@ -160,7 +160,7 @@ export default function CheckoutPage() {
     return saved ?? address;
   };
 
-  // Step handlers
+  
   const handleCartNext = () => {
     if (items.length === 0) return;
     setStep("address");
@@ -170,7 +170,7 @@ export default function CheckoutPage() {
     if (showNewAddressForm || savedAddresses.length === 0) {
       if (!validateAddress(address)) return;
 
-      // If user is logged in, save the address
+      
       if (user) {
         setSavingAddress(true);
         try {
@@ -195,7 +195,7 @@ export default function CheckoutPage() {
       }
     }
 
-    // Skip account step if already logged in
+    
     setStep(user ? "payment" : "account");
   };
 
@@ -210,7 +210,7 @@ export default function CheckoutPage() {
         });
         setStep("payment");
       } catch {
-        // handled in useAuth
+        
       }
     } else {
       setStep("payment");
@@ -260,7 +260,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    // Razorpay flow
+    
     try {
       const shippingAddress = getSelectedAddress();
       const orderRes = await axios.post<{ data: { _id: string } }>(
@@ -340,13 +340,13 @@ export default function CheckoutPage() {
     const currentIdx = stepKeys.indexOf(step);
     if (currentIdx > 0) {
       let prevStep = stepKeys[currentIdx - 1];
-      // Skip account step when going back if user is logged in
+      
       if (prevStep === "account" && user) prevStep = "address";
       setStep(prevStep);
     }
   };
 
-  // Filter out account step for logged-in users
+  
   const visibleSteps = STEPS.filter((s) => !(s.key === "account" && user));
   const currentStepIndex = visibleSteps.findIndex((s) => s.key === step);
 
@@ -354,7 +354,7 @@ export default function CheckoutPage() {
     <div className="container-wide py-10 max-w-5xl">
       <h1 className="text-3xl font-bold text-neutral-900 mb-8">Checkout</h1>
 
-      {/* Stepper */}
+      
       <div className="flex items-center gap-2 mb-10 overflow-x-auto pb-2">
         {visibleSteps.map((s, i) => (
           <div key={s.key} className="flex items-center gap-2 shrink-0">
@@ -384,10 +384,10 @@ export default function CheckoutPage() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
-        {/* Step Content */}
+        
         <div className="lg:col-span-2">
           <AnimatePresence mode="wait">
-            {/* CART REVIEW STEP */}
+            
             {step === "cart" && (
               <motion.div
                 key="cart"
@@ -496,7 +496,7 @@ export default function CheckoutPage() {
               </motion.div>
             )}
 
-            {/* ADDRESS STEP */}
+            
             {step === "address" && (
               <motion.div
                 key="address"
@@ -516,7 +516,7 @@ export default function CheckoutPage() {
                     </button>
                   </div>
 
-                  {/* Saved addresses */}
+                  
                   {user && savedAddresses.length > 0 && !showNewAddressForm && (
                     <div className="space-y-3 mb-5">
                       {savedAddresses.map((addr) => (
@@ -579,7 +579,7 @@ export default function CheckoutPage() {
                     </div>
                   )}
 
-                  {/* New address form */}
+                  
                   {(showNewAddressForm ||
                     !user ||
                     savedAddresses.length === 0) && (
@@ -724,7 +724,7 @@ export default function CheckoutPage() {
               </motion.div>
             )}
 
-            {/* ACCOUNT STEP (guest only) */}
+            
             {step === "account" && !user && (
               <motion.div
                 key="account"
@@ -807,7 +807,7 @@ export default function CheckoutPage() {
               </motion.div>
             )}
 
-            {/* PAYMENT STEP */}
+            
             {step === "payment" && (
               <motion.div
                 key="payment"
@@ -827,7 +827,7 @@ export default function CheckoutPage() {
                     </button>
                   </div>
 
-                  {/* Delivery address summary */}
+                  
                   <div className="bg-[#F7F6F0] rounded-xl p-4 mb-5">
                     <div className="flex items-center gap-2 text-sm mb-2">
                       <RiMapPinLine className="text-[#E84672]" size={14} />
@@ -930,7 +930,7 @@ export default function CheckoutPage() {
               </motion.div>
             )}
 
-            {/* CONFIRMATION */}
+            
             {step === "confirm" && (
               <motion.div
                 key="confirm"
@@ -972,7 +972,7 @@ export default function CheckoutPage() {
           </AnimatePresence>
         </div>
 
-        {/* Order Summary Sidebar */}
+        
         {step !== "confirm" && (
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl p-5 border border-neutral-100 sticky top-24">

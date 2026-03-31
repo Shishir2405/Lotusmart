@@ -1,12 +1,4 @@
-/**
- * Cloudflare R2 Storage Service
- *
- * Two buckets:
- *   - ASSETS bucket   → products, banners, category images  (public CDN)
- *   - PROFILES bucket → user avatars                        (public CDN)
- *
- * R2 is S3-compatible — we use the AWS SDK v3 under the hood.
- */
+
 
 import {
   S3Client,
@@ -17,7 +9,6 @@ import { Upload } from "@aws-sdk/lib-storage";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { randomUUID } from "crypto";
 
-// ─── Env helpers ──────────────────────────────────────────────────────────────
 
 function requireEnv(key: string): string {
   const val = process.env[key];
@@ -25,7 +16,6 @@ function requireEnv(key: string): string {
   return val;
 }
 
-// ─── Bucket config ────────────────────────────────────────────────────────────
 
 const ASSETS_BUCKET = process.env.R2_ASSETS_BUCKET ?? "lotusmart-assets";
 const PROFILES_BUCKET = process.env.R2_PROFILES_BUCKET ?? "lotusmart-profiles";
@@ -33,7 +23,6 @@ const PROFILES_BUCKET = process.env.R2_PROFILES_BUCKET ?? "lotusmart-profiles";
 const ASSETS_PUBLIC_URL = (process.env.R2_ASSETS_PUBLIC_URL ?? "").replace(/\/$/, "");
 const PROFILES_PUBLIC_URL = (process.env.R2_PROFILES_PUBLIC_URL ?? "").replace(/\/$/, "");
 
-// ─── Bucket discriminator ─────────────────────────────────────────────────────
 
 type BucketAlias = "assets" | "profiles";
 
@@ -43,7 +32,6 @@ function resolveBucket(alias: BucketAlias): { name: string; publicUrl: string } 
     : { name: ASSETS_BUCKET, publicUrl: ASSETS_PUBLIC_URL };
 }
 
-// ─── S3Client instances (one per bucket, lazy-initialised) ────────────────────
 
 let _assetsClient: S3Client | null = null;
 let _profilesClient: S3Client | null = null;
@@ -73,7 +61,6 @@ function getClient(alias: BucketAlias): S3Client {
   return alias === "profiles" ? getProfilesClient() : getAssetsClient();
 }
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 export type UploadTarget = "products" | "banners" | "categories" | "profiles";
 
@@ -83,16 +70,11 @@ export interface UploadResult {
   bucket: string;
 }
 
-// ─── Key generator ────────────────────────────────────────────────────────────
 
-/**
- * Build a unique storage key.
- * Pattern: `<folder>/<timestamp>-<uuid>-<sanitised-filename>`
- */
 export function generateKey(folder: string, filename: string): string {
   const uuid = randomUUID();
   const timestamp = Date.now();
-  // Sanitise filename — lowercase, replace spaces/special chars with hyphens
+  
   const safe = filename
     .toLowerCase()
     .replace(/[^a-z0-9.\-_]/g, "-")
@@ -100,18 +82,13 @@ export function generateKey(folder: string, filename: string): string {
   return `${folder}/${timestamp}-${uuid}-${safe}`;
 }
 
-// ─── Public URL helper ────────────────────────────────────────────────────────
 
 function buildPublicUrl(baseUrl: string, key: string): string {
-  if (!baseUrl) return key; // Fallback: key only until CDN is configured
+  if (!baseUrl) return key; 
   return `${baseUrl}/${key}`;
 }
 
-// ─── Core upload ──────────────────────────────────────────────────────────────
 
-/**
- * Upload a Buffer to R2 and return the public URL.
- */
 export async function uploadToR2(
   file: Buffer,
   key: string,
@@ -128,7 +105,7 @@ export async function uploadToR2(
       Key: key,
       Body: file,
       ContentType: contentType,
-      // R2 does not support ACL — public access is managed at bucket level
+      
     },
   });
 
@@ -136,22 +113,14 @@ export async function uploadToR2(
   return buildPublicUrl(base, key);
 }
 
-// ─── Delete ───────────────────────────────────────────────────────────────────
 
-/**
- * Delete an object from R2.
- */
 export async function deleteFromR2(key: string, bucket: BucketAlias): Promise<void> {
   const { name: bucketName } = resolveBucket(bucket);
   const client = getClient(bucket);
   await client.send(new DeleteObjectCommand({ Bucket: bucketName, Key: key }));
 }
 
-// ─── Convenience upload functions ─────────────────────────────────────────────
 
-/**
- * Upload a product image to the assets bucket under `products/`.
- */
 export async function uploadProductImage(
   buffer: Buffer,
   filename: string,
@@ -162,9 +131,7 @@ export async function uploadProductImage(
   return { key, url, bucket: ASSETS_BUCKET };
 }
 
-/**
- * Upload a profile avatar to the profiles bucket under `avatars/`.
- */
+
 export async function uploadProfileImage(
   buffer: Buffer,
   filename: string,
@@ -175,9 +142,7 @@ export async function uploadProfileImage(
   return { key, url, bucket: PROFILES_BUCKET };
 }
 
-/**
- * Upload a banner image to the assets bucket under `banners/`.
- */
+
 export async function uploadBannerImage(
   buffer: Buffer,
   filename: string,
@@ -188,9 +153,7 @@ export async function uploadBannerImage(
   return { key, url, bucket: ASSETS_BUCKET };
 }
 
-/**
- * Upload a category image to the assets bucket under `categories/`.
- */
+
 export async function uploadCategoryImage(
   buffer: Buffer,
   filename: string,
@@ -201,18 +164,14 @@ export async function uploadCategoryImage(
   return { key, url, bucket: ASSETS_BUCKET };
 }
 
-// ─── Generic upload (used by the /api/upload route) ───────────────────────────
 
-/**
- * Route upload to the correct bucket & folder based on the target type.
- */
 export async function uploadFile(
   target: UploadTarget,
   file: Buffer | Blob,
   originalName: string,
   contentType: string,
 ): Promise<UploadResult> {
-  // Normalise Blob → Buffer
+  
   const buffer =
     file instanceof Blob ? Buffer.from(await file.arrayBuffer()) : file;
 
@@ -229,7 +188,6 @@ export async function uploadFile(
   }
 }
 
-// ─── Delete helpers (alias-aware) ─────────────────────────────────────────────
 
 export async function deleteAsset(key: string): Promise<void> {
   return deleteFromR2(key, "assets");
@@ -239,7 +197,6 @@ export async function deleteProfile(key: string): Promise<void> {
   return deleteFromR2(key, "profiles");
 }
 
-// ─── Presigned URL (for private / temporary access) ───────────────────────────
 
 export async function getPresignedUrl(
   bucket: BucketAlias,

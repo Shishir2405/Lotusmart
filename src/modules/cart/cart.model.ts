@@ -1,11 +1,9 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 import type { ICart, ICartItem } from "@/types";
 
-// ──────────────────────────────────────────────
-// Document interface
-// ──────────────────────────────────────────────
+
 export interface ICartDocument extends Omit<ICart, "_id">, Document {
-  /** Add a product (or increment its quantity if already in cart) */
+  
   addItem(item: {
     product: string;
     quantity: number;
@@ -13,23 +11,21 @@ export interface ICartDocument extends Omit<ICart, "_id">, Document {
     price: number;
   }): Promise<ICartDocument>;
 
-  /** Remove a product from the cart */
+  
   removeItem(productId: string, variant?: string): Promise<ICartDocument>;
 
-  /** Update the quantity of an existing cart item */
+  
   updateQuantity(
     productId: string,
     quantity: number,
     variant?: string,
   ): Promise<ICartDocument>;
 
-  /** Calculate the cart total (sum of price * quantity minus discount) */
+  
   getTotal(): number;
 }
 
-// ──────────────────────────────────────────────
-// Sub-schema
-// ──────────────────────────────────────────────
+
 const CartItemSchema = new Schema<ICartItem>(
   {
     product: {
@@ -44,9 +40,7 @@ const CartItemSchema = new Schema<ICartItem>(
   { _id: false },
 );
 
-// ──────────────────────────────────────────────
-// Main schema
-// ──────────────────────────────────────────────
+
 const CartSchema = new Schema<ICartDocument>(
   {
     user: {
@@ -69,20 +63,11 @@ const CartSchema = new Schema<ICartDocument>(
   },
 );
 
-// ──────────────────────────────────────────────
-// Indexes
-// ──────────────────────────────────────────────
+
 CartSchema.index({ user: 1 }, { unique: true, sparse: true });
 CartSchema.index({ deviceId: 1 }, { unique: true, sparse: true });
 
-// ──────────────────────────────────────────────
-// Instance methods
-// ──────────────────────────────────────────────
 
-/**
- * Add a product to the cart. If the same product + variant already exists,
- * increment the quantity instead of duplicating.
- */
 CartSchema.methods.addItem = async function (
   this: ICartDocument,
   item: { product: string; quantity: number; variant?: string; price: number },
@@ -93,7 +78,7 @@ CartSchema.methods.addItem = async function (
 
   if (existing) {
     existing.quantity += item.quantity;
-    existing.price = item.price; // update to latest price
+    existing.price = item.price; 
   } else {
     this.items.push({
       product: new mongoose.Types.ObjectId(item.product) as any,
@@ -106,9 +91,7 @@ CartSchema.methods.addItem = async function (
   return this.save();
 };
 
-/**
- * Remove a product (and optionally a specific variant) from the cart.
- */
+
 CartSchema.methods.removeItem = async function (
   this: ICartDocument,
   productId: string,
@@ -122,10 +105,7 @@ CartSchema.methods.removeItem = async function (
   return this.save();
 };
 
-/**
- * Update the quantity for an existing cart item.
- * Removes the item when quantity <= 0.
- */
+
 CartSchema.methods.updateQuantity = async function (
   this: ICartDocument,
   productId: string,
@@ -147,9 +127,7 @@ CartSchema.methods.updateQuantity = async function (
   return this.save();
 };
 
-/**
- * Calculate the cart total (subtotal minus discount).
- */
+
 CartSchema.methods.getTotal = function (this: ICartDocument): number {
   const subtotal = this.items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -158,9 +136,7 @@ CartSchema.methods.getTotal = function (this: ICartDocument): number {
   return Math.max(subtotal - this.discount, 0);
 };
 
-// ──────────────────────────────────────────────
-// Export
-// ──────────────────────────────────────────────
+
 const Cart: Model<ICartDocument> =
   mongoose.models.Cart || mongoose.model<ICartDocument>("Cart", CartSchema);
 

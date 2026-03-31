@@ -8,7 +8,7 @@ import Cart from "@/modules/cart/cart.model";
 import Product from "@/modules/products/product.model";
 import { sendOrderConfirmation, sendAdminNewOrderAlert } from "@/services/email";
 
-// GET /api/orders — list current user's orders
+
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/orders — place a new order (works for guest checkout too — user created before this)
+
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     if (!["cod", "razorpay"].includes(paymentMethod))
       throw ApiError.badRequest("Invalid payment method");
 
-    // Use client-sent items (for guest checkout) or fall back to server cart
+    
     let orderItems = clientItems;
 
     if (!orderItems || orderItems.length === 0) {
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       );
       if (!cart || cart.items.length === 0) throw ApiError.badRequest("Cart is empty");
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      
       orderItems = (cart.items as any[])
         .filter((i: { product: { isActive: boolean } }) => i.product?.isActive)
         .map((i: {
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     if (!orderItems || orderItems.length === 0)
       throw ApiError.badRequest("No valid items in order");
 
-    // Validate stock for each item
+    
     for (const item of orderItems) {
       const product = await Product.findById(item.product).select("stock name").lean();
       if (!product) throw ApiError.badRequest(`Product not found: ${item.name}`);
@@ -90,13 +90,13 @@ export async function POST(request: NextRequest) {
         throw ApiError.badRequest(`Insufficient stock for "${product.name}"`);
     }
 
-    // Calculate totals
+    
     const subtotal = orderItems.reduce(
       (sum: number, i: { price: number; quantity: number }) => sum + i.price * i.quantity,
       0,
     );
-    const shippingCost = subtotal >= 500 ? 0 : 60; // free shipping above ₹500
-    const tax = 0; // inclusive pricing for now
+    const shippingCost = subtotal >= 500 ? 0 : 60; 
+    const tax = 0; 
     const total = subtotal + shippingCost - (body.discount ?? 0);
 
     const order = await Order.create({
@@ -115,18 +115,18 @@ export async function POST(request: NextRequest) {
       notes,
     });
 
-    // Decrement stock
+    
     for (const item of orderItems) {
       await Product.findByIdAndUpdate(item.product, { $inc: { stock: -item.quantity } });
     }
 
-    // Clear server cart
+    
     await Cart.findOneAndUpdate(
       { user: authUser.userId },
       { $set: { items: [], discount: 0, couponCode: null } },
     );
 
-    // Send emails (non-blocking)
+    
     sendOrderConfirmation(authUser.email, authUser.name ?? "Customer", {
       orderNumber: order.orderNumber,
       items: orderItems.map((i: { name: string; quantity: number; price: number }) => ({

@@ -1,11 +1,11 @@
-// GET /api/landing-sections — Public: get active landing sections
+
 
 import { ApiError } from "@/lib/api-error";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import connectDB from "@/lib/db";
 import LandingSection from "@/modules/landing/landing-section.model";
 
-export const revalidate = 60; // ISR: revalidate every 60s
+export const revalidate = 60; 
 
 export async function GET() {
   try {

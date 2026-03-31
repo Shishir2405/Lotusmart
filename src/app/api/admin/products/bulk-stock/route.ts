@@ -1,4 +1,4 @@
-// POST /api/admin/products/bulk-stock — bulk update stock (admin only)
+
 
 import { NextRequest } from "next/server";
 import connectDB from "@/lib/db";
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // Mode 1: Direct updates array
+    
     if (body.updates && Array.isArray(body.updates)) {
       const bulkOps = body.updates.map(
         (u: { id: string; stock?: number; lowStockThreshold?: number }) => ({
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Mode 2: Operation-based (add / reduce / set)
+    
     if (body.operation && body.productIds && body.quantity !== undefined) {
       const { operation, productIds, quantity } = body as {
         operation: "add" | "reduce" | "set";
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
           break;
 
         case "reduce":
-          // Use aggregation pipeline update to prevent going below 0
+          
           bulkOps = objectIds.map((oid) => ({
             updateOne: {
               filter: { _id: oid },

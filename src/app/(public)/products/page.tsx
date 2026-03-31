@@ -82,7 +82,7 @@ function ProductsContent() {
 
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
-  // Reset page on filter change
+  
   useEffect(() => { setPage(1); }, [debouncedSearch, category, sortBy, minPrice, maxPrice, inStock]);
 
   const clearFilters = () => {
@@ -99,7 +99,7 @@ function ProductsContent() {
 
   return (
     <div className="container-wide py-8">
-      {/* Header */}
+      
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900">
@@ -126,7 +126,7 @@ function ProductsContent() {
       </div>
 
       <div className="flex gap-8">
-        {/* Sidebar Filters */}
+        
         <aside
           className={`shrink-0 w-64 ${filtersOpen ? "fixed inset-0 z-50 bg-white p-6 overflow-y-auto lg:static lg:z-auto lg:bg-transparent lg:p-0" : "hidden lg:block"}`}
         >
@@ -138,7 +138,7 @@ function ProductsContent() {
           )}
 
           <div className="space-y-6">
-            {/* Search */}
+            
             <Input
               label="Search"
               placeholder="Search products..."
@@ -147,7 +147,7 @@ function ProductsContent() {
               leftIcon={<RiSearchLine />}
             />
 
-            {/* Category */}
+            
             <div>
               <p className="text-sm font-semibold text-neutral-700 mb-3">Category</p>
               <div className="space-y-1.5">
@@ -167,7 +167,7 @@ function ProductsContent() {
               </div>
             </div>
 
-            {/* Price Range */}
+            
             <div>
               <p className="text-sm font-semibold text-neutral-700 mb-3">Price Range</p>
               <div className="flex items-center gap-2">
@@ -189,7 +189,7 @@ function ProductsContent() {
               </div>
             </div>
 
-            {/* In Stock */}
+            
             <label className="flex items-center gap-2.5 cursor-pointer">
               <input
                 type="checkbox"
@@ -202,9 +202,9 @@ function ProductsContent() {
           </div>
         </aside>
 
-        {/* Product Grid */}
+        
         <div className="flex-1 min-w-0">
-          {/* Sort bar */}
+          
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
               {SORT_OPTIONS.map((opt) => (
@@ -248,7 +248,7 @@ function ProductsContent() {
                 ))}
               </div>
 
-              {/* Pagination */}
+              
               {pagination.totalPages > 1 && (
                 <div className="flex items-center justify-center gap-2 mt-10">
                   <Button

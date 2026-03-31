@@ -1,10 +1,4 @@
-/**
- * usePostLoginMerge
- *
- * Called right after a successful login or registration.
- * Sends the guest localStorage cart + wishlist AND anonymous device cart/wishlist
- * to the server merge endpoints, then updates the local stores with the merged result.
- */
+
 
 import { useCallback } from "react";
 import axios from "axios";
@@ -25,7 +19,7 @@ export function usePostLoginMerge() {
     const deviceId = getDeviceId();
 
     try {
-      // Merge cart (local + anonymous device cart)
+      
       const cartRes = await axios.post<{ data: { items: CartItem[] } }>("/api/cart/merge", {
         localItems: cartItems,
         deviceId: deviceId || undefined,
@@ -34,11 +28,11 @@ export function usePostLoginMerge() {
         mergeServerCart(cartRes.data.data.items);
       }
     } catch {
-      // Non-fatal — local cart still works
+      
     }
 
     try {
-      // Merge wishlist (local + anonymous device wishlist)
+      
       const wlRes = await axios.post<{ data: { items: WishlistItem[] } }>(
         "/api/wishlist/merge",
         {
@@ -50,7 +44,7 @@ export function usePostLoginMerge() {
         mergeServerWishlist(wlRes.data.data.items);
       }
     } catch {
-      // Non-fatal
+      
     }
   }, [cartItems, wishlistItems, mergeServerCart, mergeServerWishlist]);
 

@@ -11,19 +11,15 @@ import type {
   ProductType,
 } from "@/types";
 
-// ──────────────────────────────────────────────
-// Document interface
-// ──────────────────────────────────────────────
+
 export interface IProductDocument extends Omit<IProduct, "_id">, Document {
-  /** Virtual: true when stock > 0 */
+  
   isInStock: boolean;
-  /** Virtual: percentage discount (0 when no compareAtPrice) */
+  
   discountPercentage: number;
 }
 
-// ──────────────────────────────────────────────
-// Sub-schemas
-// ──────────────────────────────────────────────
+
 const BulkPricingSchema = new Schema<IBulkPricing>(
   {
     minQty: { type: Number, required: true, min: 1 },
@@ -85,9 +81,7 @@ const VariantSchema = new Schema<IProductVariant>(
   { _id: false },
 );
 
-// ──────────────────────────────────────────────
-// Main schema
-// ──────────────────────────────────────────────
+
 const ProductSchema = new Schema<IProductDocument>(
   {
     name: { type: String, required: true, trim: true, maxlength: 200 },
@@ -124,7 +118,7 @@ const ProductSchema = new Schema<IProductDocument>(
       count: { type: Number, default: 0, min: 0 },
     },
 
-    // Enhanced fields
+    
     brand: { type: String, trim: true },
     manufacturer: { type: String, trim: true },
     countryOfOrigin: { type: String, trim: true, default: "India" },
@@ -167,24 +161,19 @@ const ProductSchema = new Schema<IProductDocument>(
   },
 );
 
-// ──────────────────────────────────────────────
-// Indexes
-// ──────────────────────────────────────────────
-// Text index for full-text search
+
 ProductSchema.index(
   { name: "text", description: "text", tags: "text" },
   { weights: { name: 10, tags: 5, description: 1 } },
 );
 
-// Compound indexes for common queries
+
 ProductSchema.index({ category: 1, isActive: 1 });
 ProductSchema.index({ price: 1 });
 ProductSchema.index({ isActive: 1, price: 1 });
 ProductSchema.index({ isFeatured: 1, isActive: 1 });
 
-// ──────────────────────────────────────────────
-// Virtuals
-// ──────────────────────────────────────────────
+
 ProductSchema.virtual("isInStock").get(function (this: IProductDocument) {
   return this.stock > 0;
 });
@@ -198,14 +187,12 @@ ProductSchema.virtual("discountPercentage").get(function (
   );
 });
 
-// ──────────────────────────────────────────────
-// Pre-save hook: auto-generate slug from name
-// ──────────────────────────────────────────────
+
 ProductSchema.pre("save", async function () {
   if (this.isModified("name") || !this.slug) {
     const base = slugify(this.name, { lower: true, strict: true });
 
-    // Ensure uniqueness by appending a short suffix when needed
+    
     let candidate = base;
     let attempt = 0;
     const ProductModel = this.constructor as Model<IProductDocument>;
@@ -224,9 +211,7 @@ ProductSchema.pre("save", async function () {
   }
 });
 
-// ──────────────────────────────────────────────
-// Export
-// ──────────────────────────────────────────────
+
 const Product: Model<IProductDocument> =
   mongoose.models.Product ||
   mongoose.model<IProductDocument>("Product", ProductSchema);

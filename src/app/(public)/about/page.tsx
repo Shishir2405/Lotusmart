@@ -101,7 +101,7 @@ export default async function AboutPage() {
 
   return (
     <section className="min-h-screen bg-[#FFFDF7]">
-      {/* Hero Banner */}
+      
       <div
         className="w-full py-12 md:py-16"
         style={{
@@ -110,7 +110,7 @@ export default async function AboutPage() {
         }}
       >
         <div className="max-w-4xl mx-auto px-6">
-          {/* Breadcrumb */}
+          
           <nav
             className="flex items-center gap-2 text-[0.78rem] font-medium mb-8"
             style={{ color: "#B8AE86" }}
@@ -126,7 +126,7 @@ export default async function AboutPage() {
             <span style={{ color: "#78716c" }}>About Us</span>
           </nav>
 
-          {/* Header */}
+          
           <div className="flex items-center gap-3 mb-3">
             <span className="h-px w-8" style={{ backgroundColor: "#E84672" }} />
             <span
@@ -172,7 +172,7 @@ export default async function AboutPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-6 py-10 md:py-14">
-        {/* Brand Story - from API or default */}
+        
         {content ? (
           <div
             className="rounded-2xl bg-white p-6 md:p-10 mb-14"
@@ -248,7 +248,7 @@ export default async function AboutPage() {
           </div>
         )}
 
-        {/* Stats */}
+        
         <div
           className="grid grid-cols-2 lg:grid-cols-4 rounded-2xl overflow-hidden mb-14"
           style={{ border: "1px solid #EBE8D8" }}
@@ -282,7 +282,7 @@ export default async function AboutPage() {
           ))}
         </div>
 
-        {/* Our Values */}
+        
         <div className="mb-14">
           <div className="flex items-center gap-3 mb-3">
             <span className="h-px w-8" style={{ backgroundColor: "#E84672" }} />
@@ -327,7 +327,7 @@ export default async function AboutPage() {
           </div>
         </div>
 
-        {/* Timeline */}
+        
         <div className="mb-14">
           <div className="flex items-center gap-3 mb-3">
             <span className="h-px w-8" style={{ backgroundColor: "#E84672" }} />
@@ -348,7 +348,7 @@ export default async function AboutPage() {
             style={{ border: "1px solid #EBE8D8" }}
           >
             <div className="relative">
-              {/* Vertical line */}
+              
               <div
                 className="absolute left-[22px] top-2 bottom-2 w-px"
                 style={{ backgroundColor: "#EBE8D8" }}
@@ -385,7 +385,7 @@ export default async function AboutPage() {
           </div>
         </div>
 
-        {/* CTA */}
+        
         <div
           className="rounded-2xl px-8 py-10 text-center"
           style={{

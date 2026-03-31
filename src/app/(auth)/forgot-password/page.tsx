@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-/* Floating spice emoji decorations */
+
 const floatingSpices = [
   { emoji: "\u{1F336}\u{FE0F}", top: "10%", left: "8%", size: "1.5rem", delay: 0, opacity: 0.08 },
   { emoji: "\u{1FAD0}", top: "15%", left: "85%", size: "1.2rem", delay: 0.5, opacity: 0.07 },
@@ -55,7 +55,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center px-4 py-12 overflow-hidden">
-      {/* Warm gradient background */}
+      
       <div
         className="absolute inset-0"
         style={{
@@ -64,7 +64,7 @@ export default function ForgotPasswordPage() {
         }}
       />
 
-      {/* Subtle decorative warm accents */}
+      
       <div
         className="absolute right-1/4 top-1/4 h-64 w-64 rounded-full opacity-[0.06] blur-3xl"
         style={{ background: "radial-gradient(circle, #F4A623 0%, transparent 70%)" }}
@@ -74,7 +74,7 @@ export default function ForgotPasswordPage() {
         style={{ background: "radial-gradient(circle, #D4A31E 0%, transparent 70%)" }}
       />
 
-      {/* Subtle dot pattern */}
+      
       <div
         className="absolute inset-0 opacity-[0.02]"
         style={{
@@ -84,7 +84,7 @@ export default function ForgotPasswordPage() {
         }}
       />
 
-      {/* SVG decorative corner vines */}
+      
       <svg
         className="absolute top-0 left-0 h-40 w-40 text-[#F4A623]/[0.05]"
         viewBox="0 0 120 120"
@@ -108,7 +108,7 @@ export default function ForgotPasswordPage() {
         <circle cx="35" cy="90" r="3.5" fill="currentColor" opacity="0.15" />
       </svg>
 
-      {/* Floating spice emoji decorations */}
+      
       {floatingSpices.map((spice, i) => (
         <motion.div
           key={i}
@@ -130,10 +130,10 @@ export default function ForgotPasswordPage() {
         </motion.div>
       ))}
 
-      {/* Top accent line */}
+      
       <div className="absolute top-0 left-0 right-0 h-1" style={{ background: "linear-gradient(90deg, #F4A623, #E84672, #D4A31E)" }} />
 
-      {/* Logo */}
+      
       <Link href="/" className="relative z-10 mb-10 inline-flex items-center gap-0.5">
         <span className="text-xl font-extrabold tracking-tight text-neutral-800">Lotus</span>
         <span className="text-xl font-extrabold tracking-tight text-[#E84672]">Mart</span>
@@ -148,7 +148,7 @@ export default function ForgotPasswordPage() {
         <div className="rounded-2xl border border-neutral-100 bg-white p-8 shadow-sm">
           <AnimatePresence mode="wait">
             {sent ? (
-              /* -- Success state -- */
+              
               <motion.div
                 key="success"
                 initial={{ opacity: 0, y: 12 }}
@@ -188,7 +188,7 @@ export default function ForgotPasswordPage() {
                 </div>
               </motion.div>
             ) : (
-              /* -- Form state -- */
+              
               <motion.div
                 key="form"
                 initial={{ opacity: 0, y: 12 }}
@@ -279,7 +279,7 @@ export default function ForgotPasswordPage() {
           </AnimatePresence>
         </div>
 
-        {/* Footer */}
+        
         <p className="mt-6 text-center text-[0.65rem] text-neutral-300">
           &copy; {new Date().getFullYear()} LotusMart. All rights reserved.
         </p>

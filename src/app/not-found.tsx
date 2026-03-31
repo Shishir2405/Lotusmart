@@ -12,7 +12,7 @@ import {
 
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-/* Floating spice dots */
+
 const particles = [
   { x: "12%", y: "18%", size: 6, delay: 0, duration: 4.2 },
   { x: "82%", y: "14%", size: 4, delay: 0.5, duration: 3.8 },
@@ -39,7 +39,7 @@ export default function NotFound() {
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden p-8 text-center"
       style={{ backgroundColor: "#FFFDF7" }}
     >
-      {/* Background dot grid */}
+      
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.022]"
         style={{
@@ -48,7 +48,7 @@ export default function NotFound() {
         }}
       />
 
-      {/* Radial glow */}
+      
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -57,7 +57,7 @@ export default function NotFound() {
         }}
       />
 
-      {/* Floating particles */}
+      
       {particles.map((p, i) => (
         <motion.div
           key={i}
@@ -75,7 +75,7 @@ export default function NotFound() {
         />
       ))}
 
-      {/* Top-left label */}
+      
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -87,7 +87,7 @@ export default function NotFound() {
         LotusMart
       </motion.div>
 
-      {/* Top-right breadcrumb */}
+      
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -98,14 +98,14 @@ export default function NotFound() {
         Home / <span style={{ color: "#E84672" }}>404</span>
       </motion.div>
 
-      {/* Main block */}
+      
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="show"
         className="flex max-w-lg flex-col items-center"
       >
-        {/* Giant 404 number — behind icon */}
+        
         <div className="relative mb-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.85 }}
@@ -126,7 +126,7 @@ export default function NotFound() {
             404
           </motion.div>
 
-          {/* Compass icon centered over the "0" */}
+          
           <motion.div
             initial={{ opacity: 0, scale: 0, rotate: -30 }}
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
@@ -144,7 +144,7 @@ export default function NotFound() {
           </motion.div>
         </div>
 
-        {/* Eyebrow */}
+        
         <motion.div variants={itemVariants} className="mb-2 flex items-center gap-3">
           <span className="h-px w-8" style={{ backgroundColor: "#D4CFB3" }} />
           <span
@@ -156,7 +156,7 @@ export default function NotFound() {
           <span className="h-px w-8" style={{ backgroundColor: "#D4CFB3" }} />
         </motion.div>
 
-        {/* Headline */}
+        
         <motion.h1
           variants={itemVariants}
           className="mb-4 text-[2rem] leading-tight font-black tracking-tight text-neutral-900"
@@ -176,7 +176,7 @@ export default function NotFound() {
           </span>
         </motion.h1>
 
-        {/* Sub */}
+        
         <motion.p
           variants={itemVariants}
           className="mb-8 max-w-sm text-[0.92rem] leading-[1.78] text-neutral-500"

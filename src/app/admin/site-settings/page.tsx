@@ -40,9 +40,6 @@ import toast from "react-hot-toast";
 
 const RichTextEditor = dynamic(() => import("@/components/ui/RichTextEditor").then(m => m.default), { ssr: false, loading: () => <div className="h-64 rounded-xl border border-neutral-200 bg-neutral-50 animate-pulse" /> });
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 
 interface FAQItem {
   id: string;
@@ -138,15 +135,12 @@ function generateId(): string {
   return `faq_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
 
 export default function AdminSiteSettingsPage() {
   const [activeTab, setActiveTab] = useState<TabId>("faq");
   const [loading, setLoading] = useState(true);
 
-  // FAQ state
+  
   const [faqItems, setFaqItems] = useState<FAQItem[]>([]);
   const [editingFaq, setEditingFaq] = useState<FAQItem | null>(null);
   const [faqForm, setFaqForm] = useState<Omit<FAQItem, "id" | "sortOrder">>(EMPTY_FAQ);
@@ -154,12 +148,12 @@ export default function AdminSiteSettingsPage() {
   const [savingFaq, setSavingFaq] = useState(false);
   const [faqDirty, setFaqDirty] = useState(false);
 
-  // Contact state
+  
   const [contact, setContact] = useState<ContactConfig>(EMPTY_CONTACT);
   const [contactSnapshot, setContactSnapshot] = useState<string>("");
   const [savingContact, setSavingContact] = useState(false);
 
-  // Pages state
+  
   const [pages, setPages] = useState<Record<PageKey, PageContent>>({
     terms: { ...EMPTY_PAGE },
     privacy: { ...EMPTY_PAGE },
@@ -176,13 +170,10 @@ export default function AdminSiteSettingsPage() {
   });
   const [savingPage, setSavingPage] = useState<PageKey | null>(null);
 
-  // Tab scroll container ref
+  
   const tabsRef = useRef<HTMLDivElement>(null);
 
-  // ---------------------------------------------------------------------------
-  // Unsaved changes helpers
-  // ---------------------------------------------------------------------------
-
+  
   const isContactDirty = JSON.stringify(contact) !== contactSnapshot;
 
   const isPageDirty = (key: PageKey) => JSON.stringify(pages[key]) !== pageSnapshots[key];
@@ -192,10 +183,7 @@ export default function AdminSiteSettingsPage() {
     (activeTab === "contact" && isContactDirty) ||
     (PAGE_TAB_IDS.includes(activeTab as PageKey) && isPageDirty(activeTab as PageKey));
 
-  // ---------------------------------------------------------------------------
-  // Data fetching
-  // ---------------------------------------------------------------------------
-
+  
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
@@ -240,10 +228,7 @@ export default function AdminSiteSettingsPage() {
     fetchAll();
   }, [fetchAll]);
 
-  // ---------------------------------------------------------------------------
-  // FAQ handlers
-  // ---------------------------------------------------------------------------
-
+  
   const openFaqCreate = () => {
     setEditingFaq(null);
     setFaqForm({ ...EMPTY_FAQ });
@@ -313,7 +298,7 @@ export default function AdminSiteSettingsPage() {
     closeFaqForm();
   };
 
-  // FAQ delete state
+  
   const [deleteFaqTarget, setDeleteFaqTarget] = useState<string | null>(null);
 
   const deleteFaqItem = async (id: string) => {
@@ -338,10 +323,7 @@ export default function AdminSiteSettingsPage() {
     await saveFaqItems(reordered);
   };
 
-  // ---------------------------------------------------------------------------
-  // Contact handlers
-  // ---------------------------------------------------------------------------
-
+  
   const handleSaveContact = async () => {
     setSavingContact(true);
     try {
@@ -358,10 +340,7 @@ export default function AdminSiteSettingsPage() {
     }
   };
 
-  // ---------------------------------------------------------------------------
-  // Page handlers
-  // ---------------------------------------------------------------------------
-
+  
   const handleSavePage = async (key: PageKey) => {
     const page = pages[key];
     if (!page.content.trim()) {
@@ -389,10 +368,7 @@ export default function AdminSiteSettingsPage() {
     }
   };
 
-  // ---------------------------------------------------------------------------
-  // Loading skeleton
-  // ---------------------------------------------------------------------------
-
+  
   if (loading) {
     return (
       <div className="p-8">
@@ -414,13 +390,10 @@ export default function AdminSiteSettingsPage() {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Render
-  // ---------------------------------------------------------------------------
-
+  
   return (
     <div className="p-8">
-      {/* Header */}
+      
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-neutral-900">Site Settings</h1>
         <p className="text-sm text-neutral-400 mt-0.5">
@@ -428,14 +401,14 @@ export default function AdminSiteSettingsPage() {
         </p>
       </div>
 
-      {/* Tabs */}
+      
       <div
         ref={tabsRef}
         className="flex gap-1 mb-6 border-b border-neutral-200 overflow-x-auto scrollbar-hide"
       >
         {TABS.map(({ id, label, icon: Icon }) => {
           const isActive = activeTab === id;
-          // Determine if this tab has unsaved changes
+          
           let dirty = false;
           if (id === "faq") dirty = faqDirty;
           else if (id === "contact") dirty = isContactDirty;
@@ -468,7 +441,7 @@ export default function AdminSiteSettingsPage() {
         })}
       </div>
 
-      {/* Unsaved changes banner */}
+      
       <AnimatePresence>
         {activeTabDirty && (
           <motion.div
@@ -485,7 +458,7 @@ export default function AdminSiteSettingsPage() {
         )}
       </AnimatePresence>
 
-      {/* Tab content */}
+      
       <AnimatePresence mode="wait">
         <motion.div
           key={activeTab}
@@ -535,9 +508,6 @@ export default function AdminSiteSettingsPage() {
   );
 }
 
-// ===========================================================================
-// FAQ Tab
-// ===========================================================================
 
 function FAQTab({
   items,
@@ -581,7 +551,7 @@ function FAQTab({
 
   return (
     <div>
-      {/* Header + Add button */}
+      
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-neutral-500">{items.length} FAQ items</p>
         <Button leftIcon={<RiAddLine />} size="sm" onClick={onOpenCreate}>
@@ -589,7 +559,7 @@ function FAQTab({
         </Button>
       </div>
 
-      {/* FAQ list */}
+      
       {items.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-2xl border border-neutral-100">
           <RiQuestionLine size={40} className="mx-auto text-neutral-300 mb-3" />
@@ -611,7 +581,7 @@ function FAQTab({
                 className="bg-white rounded-2xl border border-neutral-100 p-5"
               >
                 <div className="flex items-start gap-4">
-                  {/* Reorder buttons */}
+                  
                   <div className="flex flex-col gap-0.5 pt-0.5">
                     <button
                       onClick={() => onMove(item.id, "up")}
@@ -631,7 +601,7 @@ function FAQTab({
                     </button>
                   </div>
 
-                  {/* Content */}
+                  
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span
@@ -645,7 +615,7 @@ function FAQTab({
                     <p className="text-sm text-neutral-500 mt-1 line-clamp-2">{item.answer}</p>
                   </div>
 
-                  {/* Actions */}
+                  
                   <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       onClick={() => onOpenEdit(item)}
@@ -670,7 +640,7 @@ function FAQTab({
         </div>
       )}
 
-      {/* Create / Edit FAQ Modal */}
+      
       <Modal
         isOpen={showForm}
         onClose={onCloseForm}
@@ -727,7 +697,7 @@ function FAQTab({
         </form>
       </Modal>
 
-      {/* Delete FAQ Confirmation Modal */}
+      
       <Modal
         isOpen={!!deleteFaqTarget}
         onClose={() => setDeleteFaqTarget(null)}
@@ -761,9 +731,6 @@ function FAQTab({
   );
 }
 
-// ===========================================================================
-// Contact Tab
-// ===========================================================================
 
 function ContactTab({
   contact,
@@ -789,7 +756,7 @@ function ContactTab({
 
   return (
     <div className="space-y-6">
-      {/* Contact Information */}
+      
       <div className="bg-white rounded-2xl p-6 border border-neutral-100">
         <h2 className="font-semibold text-neutral-800 mb-5">Contact Information</h2>
         <div className="space-y-4">
@@ -843,7 +810,7 @@ function ContactTab({
         </div>
       </div>
 
-      {/* Social Links */}
+      
       <div className="bg-white rounded-2xl p-6 border border-neutral-100">
         <h2 className="font-semibold text-neutral-800 mb-5">Social Media Links</h2>
         <div className="space-y-4">
@@ -891,7 +858,7 @@ function ContactTab({
         </div>
       </div>
 
-      {/* Save */}
+      
       <div className="flex justify-end">
         <Button onClick={onSave} isLoading={saving} leftIcon={<RiSaveLine />}>
           Save Changes
@@ -901,9 +868,6 @@ function ContactTab({
   );
 }
 
-// ===========================================================================
-// Page Editor Tab (Terms, Privacy, Refund, Shipping, About)
-// ===========================================================================
 
 function PageEditorTab({
   pageKey,

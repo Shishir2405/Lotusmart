@@ -1,5 +1,4 @@
-// GET /api/admin/site-config — List all site configs
-// POST /api/admin/site-config — Create/update a config
+
 
 import { NextRequest } from "next/server";
 import { ApiError } from "@/lib/api-error";

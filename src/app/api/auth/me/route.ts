@@ -1,5 +1,4 @@
-// GET /api/auth/me — Return the currently authenticated user's profile
-// PATCH /api/auth/me — Update profile (name, phone, avatar)
+
 
 import { NextRequest } from "next/server";
 
@@ -17,7 +16,7 @@ export async function GET(request: NextRequest) {
     const authUser = await requireAuth(request);
     const user = await getProfile(authUser.userId);
 
-    // Include RBAC permissions for admin users
+    
     let permissions: string[] | undefined;
     if (authUser.role === "admin") {
       const populated = await User.findById(authUser.userId).populate("adminRole");
@@ -26,7 +25,7 @@ export async function GET(request: NextRequest) {
       }
       const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
       if (authUser.email === adminEmail) {
-        permissions = undefined; // super admin
+        permissions = undefined; 
       }
     }
 

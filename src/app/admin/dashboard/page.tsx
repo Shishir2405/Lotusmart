@@ -153,7 +153,7 @@ export default function AdminDashboard() {
 
   return (
     <div style={{ padding: "2rem" }}>
-      {/* ── Top Bar ── */}
+      
       <div
         style={{
           display: "flex",
@@ -181,7 +181,7 @@ export default function AdminDashboard() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          {/* Range selector */}
+          
           <div
             style={{
               display: "flex",
@@ -214,7 +214,7 @@ export default function AdminDashboard() {
             ))}
           </div>
 
-          {/* Refresh */}
+          
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -242,7 +242,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* ── Stat Cards ── */}
+      
       <div
         style={{
           display: "grid",
@@ -266,7 +266,7 @@ export default function AdminDashboard() {
               overflow: "hidden",
             }}
           >
-            {/* Top accent */}
+            
             <div
               style={{
                 position: "absolute",
@@ -346,7 +346,7 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* ── Revenue Chart + Order Status ── */}
+      
       <div
         style={{
           display: "grid",
@@ -356,7 +356,7 @@ export default function AdminDashboard() {
         }}
         className="lg:grid-cols-3"
       >
-        {/* Revenue Trend */}
+        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -437,7 +437,7 @@ export default function AdminDashboard() {
           </div>
         </motion.div>
 
-        {/* Order Status Breakdown */}
+        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -528,7 +528,7 @@ export default function AdminDashboard() {
         </motion.div>
       </div>
 
-      {/* ── Recent Orders + Top Products ── */}
+      
       <div
         style={{
           display: "grid",
@@ -537,7 +537,7 @@ export default function AdminDashboard() {
         }}
         className="lg:grid-cols-3"
       >
-        {/* Recent Orders */}
+        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -668,7 +668,7 @@ export default function AdminDashboard() {
           )}
         </motion.div>
 
-        {/* Top Products */}
+        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -793,7 +793,7 @@ export default function AdminDashboard() {
         </motion.div>
       </div>
 
-      {/* ── Quick Actions ── */}
+      
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -42,7 +42,7 @@ function SearchContent() {
 
   const debouncedQuery = useDebounce(query, 350);
 
-  // Autocomplete suggestions
+  
   useEffect(() => {
     if (debouncedQuery.trim().length < 2) { setSuggestions([]); return; }
     setSuggestLoading(true);
@@ -53,7 +53,7 @@ function SearchContent() {
       .finally(() => setSuggestLoading(false));
   }, [debouncedQuery]);
 
-  // Full search results
+  
   const fetchResults = useCallback(async (q: string, p: number) => {
     if (!q.trim()) { setProducts([]); setTotal(0); return; }
     setLoading(true);
@@ -72,7 +72,7 @@ function SearchContent() {
 
   useEffect(() => {
     if (initialQ) fetchResults(initialQ, 1);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); 
 
   const handleSearch = (q: string) => {
     setShowSuggestions(false);
@@ -97,7 +97,7 @@ function SearchContent() {
 
   return (
     <div className="container-wide py-8">
-      {/* Search bar */}
+      
       <div className="max-w-2xl mx-auto mb-10 relative">
         <form onSubmit={handleSubmit}>
           <div className="relative flex items-center">
@@ -124,7 +124,7 @@ function SearchContent() {
           </div>
         </form>
 
-        {/* Autocomplete dropdown */}
+        
         {showSuggestions && (query.length >= 2) && (
           <div className="absolute z-50 top-full mt-1.5 w-full bg-white rounded-2xl border border-neutral-100 shadow-xl overflow-hidden">
             {suggestLoading ? (
@@ -165,7 +165,7 @@ function SearchContent() {
         )}
       </div>
 
-      {/* Results */}
+      
       {!submittedQ ? (
         <div className="text-center py-16">
           <div className="text-neutral-300 mb-4 flex justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>

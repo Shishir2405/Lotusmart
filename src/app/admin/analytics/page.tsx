@@ -70,12 +70,12 @@ export default function AdminAnalyticsPage() {
     },
   ];
 
-  // Build simple bar chart from revenueByDay
+  
   const maxRevenue = Math.max(...(data?.revenueByDay.map((d) => d.revenue) ?? [1]));
 
   return (
     <div className="p-8">
-      {/* Header */}
+      
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900">Analytics</h1>
@@ -98,7 +98,7 @@ export default function AdminAnalyticsPage() {
         </div>
       </div>
 
-      {/* Stat cards */}
+      
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         {stats.map((stat, i) => (
           <motion.div
@@ -128,7 +128,7 @@ export default function AdminAnalyticsPage() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6 mb-6">
-        {/* Revenue chart */}
+        
         <div className="lg:col-span-2 bg-white rounded-2xl border border-neutral-100 p-6">
           <h2 className="font-semibold text-neutral-900 mb-5">Revenue by Day</h2>
           {loading ? (
@@ -165,7 +165,7 @@ export default function AdminAnalyticsPage() {
           )}
         </div>
 
-        {/* Orders by status */}
+        
         <div className="bg-white rounded-2xl border border-neutral-100 p-6">
           <h2 className="font-semibold text-neutral-900 mb-5">Orders by Status</h2>
           {loading ? (
@@ -193,7 +193,7 @@ export default function AdminAnalyticsPage() {
         </div>
       </div>
 
-      {/* Top products */}
+      
       <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
         <div className="px-6 py-4 border-b border-neutral-100">
           <h2 className="font-semibold text-neutral-900">Top Products by Revenue</h2>

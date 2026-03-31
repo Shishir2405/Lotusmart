@@ -1,19 +1,15 @@
-// LotusMart TypeScript Interfaces & Types
+
 
 import { Types } from "mongoose";
 
-// ──────────────────────────────────────────────
-// Common type aliases
-// ──────────────────────────────────────────────
+
 export type ObjectId = Types.ObjectId;
 export type Ref<T> = T | ObjectId | string;
 export type Timestamps = { createdAt: Date; updatedAt: Date };
 export type WithId<T> = T & { _id: ObjectId };
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
-// ──────────────────────────────────────────────
-// User roles, address labels, units, etc.
-// ──────────────────────────────────────────────
+
 export type UserRole = "admin" | "customer";
 export type AddressLabel = "home" | "work" | "other";
 export type ProductUnit = "kg" | "g" | "pieces" | "pack" | "ml" | "L" | "box";
@@ -29,9 +25,7 @@ export type OrderStatus =
   | "returned";
 export type BannerPosition = "hero" | "sidebar" | "category";
 
-// ──────────────────────────────────────────────
-// IAddress
-// ──────────────────────────────────────────────
+
 export interface IAddress {
   _id?: ObjectId | string;
   fullName: string;
@@ -45,9 +39,7 @@ export interface IAddress {
   label: AddressLabel;
 }
 
-// ──────────────────────────────────────────────
-// IUser
-// ──────────────────────────────────────────────
+
 export interface IUser extends Timestamps {
   _id: ObjectId;
   name: string;
@@ -64,15 +56,13 @@ export interface IUser extends Timestamps {
   resetPasswordExpires?: Date;
 }
 
-/** User object returned to the client (password stripped) */
+
 export type SafeUser = Omit<
   IUser,
   "password" | "verificationToken" | "resetPasswordToken" | "resetPasswordExpires"
 >;
 
-// ──────────────────────────────────────────────
-// IProductVariant
-// ──────────────────────────────────────────────
+
 export interface IProductVariantOption {
   name: string;
   value: string;
@@ -85,9 +75,7 @@ export interface IProductVariant {
   options: IProductVariantOption[];
 }
 
-// ──────────────────────────────────────────────
-// Product-related types & sub-interfaces
-// ──────────────────────────────────────────────
+
 export type ProductType = "spice" | "dry_fruit" | "gifting" | "herb" | "honey" | "superfood";
 
 export interface IBulkPricing {
@@ -120,9 +108,7 @@ export interface IProductDimensions {
   unit: "cm" | "in";
 }
 
-// ──────────────────────────────────────────────
-// IProduct
-// ──────────────────────────────────────────────
+
 export interface IProduct extends Timestamps {
   _id: ObjectId;
   name: string;
@@ -150,29 +136,29 @@ export interface IProduct extends Timestamps {
     count: number;
   };
 
-  // New enhanced fields
+  
   brand?: string;
   manufacturer?: string;
   countryOfOrigin?: string;
-  hsn?: string; // HSN code for GST
-  gstRate?: number; // GST percentage (5, 12, 18, 28)
+  hsn?: string; 
+  gstRate?: number; 
   pricePerKg?: number;
   pricePerGram?: number;
-  pricePerUnit?: number; // for pieces/packs
+  pricePerUnit?: number; 
   bulkPricing?: IBulkPricing[];
-  shelfLife?: string; // e.g. "12 months"
+  shelfLife?: string; 
   bestBefore?: Date;
   nutritionInfo?: INutritionInfo;
   ingredients?: string;
   allergens?: string[];
-  certifications?: string[]; // e.g. ["FSSAI", "Organic India", "ISO 22000"]
+  certifications?: string[]; 
   fssaiLicense?: string;
   isOrganic?: boolean;
   isVegan?: boolean;
   isGlutenFree?: boolean;
-  productType?: ProductType; // "spice" | "dry_fruit" | "gifting" | "herb" | "honey" | "superfood"
+  productType?: ProductType; 
   dimensions?: IProductDimensions;
-  shippingWeight?: number; // in grams, for shipping calculations
+  shippingWeight?: number; 
   minOrderQuantity?: number;
   maxOrderQuantity?: number;
   returnPolicy?: string;
@@ -183,9 +169,7 @@ export interface IProduct extends Timestamps {
   lastPriceUpdate?: Date;
 }
 
-// ──────────────────────────────────────────────
-// ICategory
-// ──────────────────────────────────────────────
+
 export interface ICategory extends Timestamps {
   _id: ObjectId;
   name: string;
@@ -197,9 +181,7 @@ export interface ICategory extends Timestamps {
   sortOrder: number;
 }
 
-// ──────────────────────────────────────────────
-// Cart
-// ──────────────────────────────────────────────
+
 export interface ICartItem {
   product: Ref<IProduct>;
   quantity: number;
@@ -216,9 +198,7 @@ export interface ICart extends Timestamps {
   discount: number;
 }
 
-// ──────────────────────────────────────────────
-// Wishlist
-// ──────────────────────────────────────────────
+
 export interface IWishlistItem {
   product: Ref<IProduct>;
   addedAt: Date;
@@ -231,9 +211,7 @@ export interface IWishlist extends Timestamps {
   items: IWishlistItem[];
 }
 
-// ──────────────────────────────────────────────
-// Order
-// ──────────────────────────────────────────────
+
 export interface IOrderItem {
   product: Ref<IProduct>;
   name: string;
@@ -271,9 +249,7 @@ export interface IOrder extends Timestamps {
   cancelReason?: string;
 }
 
-// ──────────────────────────────────────────────
-// Banner
-// ──────────────────────────────────────────────
+
 export interface IBanner extends Timestamps {
   _id: ObjectId;
   title: string;
@@ -285,9 +261,7 @@ export interface IBanner extends Timestamps {
   position: BannerPosition;
 }
 
-// ──────────────────────────────────────────────
-// API Response
-// ──────────────────────────────────────────────
+
 export interface IApiResponse<T = unknown> {
   success: boolean;
   message: string;
@@ -296,9 +270,7 @@ export interface IApiResponse<T = unknown> {
   statusCode: number;
 }
 
-// ──────────────────────────────────────────────
-// Pagination
-// ──────────────────────────────────────────────
+
 export interface IPagination {
   page: number;
   limit: number;
@@ -310,9 +282,7 @@ export interface IPaginatedResponse<T = unknown> extends IApiResponse<T> {
   pagination: IPagination;
 }
 
-// ──────────────────────────────────────────────
-// Filter / Query params
-// ──────────────────────────────────────────────
+
 export interface IFilterParams {
   category?: string;
   subcategory?: string;
@@ -327,9 +297,7 @@ export interface IFilterParams {
   tags?: string[];
 }
 
-// ──────────────────────────────────────────────
-// Auth
-// ──────────────────────────────────────────────
+
 export interface ILoginPayload {
   email: string;
   password: string;
@@ -350,9 +318,7 @@ export interface ITokenPayload {
   permissions?: AdminPermission[];
 }
 
-// ──────────────────────────────────────────────
-// Review (bonus)
-// ──────────────────────────────────────────────
+
 export interface IReview extends Timestamps {
   _id: ObjectId;
   product: Ref<IProduct>;
@@ -364,9 +330,7 @@ export interface IReview extends Timestamps {
   isVerifiedPurchase: boolean;
 }
 
-// ──────────────────────────────────────────────
-// Coupon (bonus)
-// ──────────────────────────────────────────────
+
 export interface ICoupon extends Timestamps {
   _id: ObjectId;
   code: string;
@@ -384,9 +348,7 @@ export interface ICoupon extends Timestamps {
   applicableProducts?: Ref<IProduct>[];
 }
 
-// ──────────────────────────────────────────────
-// Notification (bonus)
-// ──────────────────────────────────────────────
+
 export interface INotification extends Timestamps {
   _id: ObjectId;
   user: Ref<IUser>;
@@ -397,9 +359,7 @@ export interface INotification extends Timestamps {
   link?: string;
 }
 
-// ──────────────────────────────────────────────
-// Admin Role (RBAC)
-// ──────────────────────────────────────────────
+
 export type AdminPermission =
   | "dashboard"
   | "analytics"

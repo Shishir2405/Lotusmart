@@ -1,4 +1,4 @@
-// LotusMart Site Metadata Configuration for SEO
+
 
 import { SITE_NAME, SITE_TAGLINE, SITE_DOMAIN, SUPPORT_EMAIL } from "./constants";
 
@@ -66,7 +66,7 @@ export const siteConfig: SiteConfig = {
   manifest: "/site.webmanifest",
 };
 
-// Default metadata for Next.js App Router
+
 export const defaultMetadata = {
   title: {
     default: `${SITE_NAME} - ${SITE_TAGLINE}`,
@@ -119,7 +119,7 @@ export const defaultMetadata = {
   manifest: siteConfig.manifest,
 };
 
-// Structured data (JSON-LD) for the organization
+
 export function getOrganizationJsonLd() {
   return {
     "@context": "https://schema.org",
@@ -138,7 +138,7 @@ export function getOrganizationJsonLd() {
   };
 }
 
-// Structured data for a product page
+
 export function getProductJsonLd(product: {
   name: string;
   description: string;
@@ -184,7 +184,7 @@ export function getProductJsonLd(product: {
   };
 }
 
-// Breadcrumb structured data helper
+
 export function getBreadcrumbJsonLd(
   items: { name: string; url: string }[],
 ) {

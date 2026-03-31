@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     await requireAdmin(request);
 
     const { searchParams } = new URL(request.url);
-    const range = searchParams.get("range") ?? "30"; // days
+    const range = searchParams.get("range") ?? "30"; 
     const days = Math.min(365, Number(range));
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
@@ -27,25 +27,25 @@ export async function GET(request: NextRequest) {
       ordersByStatus,
       topProducts,
     ] = await Promise.all([
-      // Total revenue (paid orders)
+      
       Order.aggregate([
         { $match: { paymentStatus: "paid", createdAt: { $gte: since } } },
         { $group: { _id: null, total: { $sum: "$total" } } },
       ]),
 
-      // Total orders in range
+      
       Order.countDocuments({ createdAt: { $gte: since } }),
 
-      // Total users
+      
       User.countDocuments({ role: "customer" }),
 
-      // Total active products
+      
       Product.countDocuments({ isActive: true }),
 
-      // Recent 10 orders
+      
       Order.find().sort({ createdAt: -1 }).limit(10).lean(),
 
-      // Revenue by day
+      
       Order.aggregate([
         { $match: { paymentStatus: "paid", createdAt: { $gte: since } } },
         {
@@ -58,13 +58,13 @@ export async function GET(request: NextRequest) {
         { $sort: { _id: 1 } },
       ]),
 
-      // Orders by status
+      
       Order.aggregate([
         { $match: { createdAt: { $gte: since } } },
         { $group: { _id: "$orderStatus", count: { $sum: 1 } } },
       ]),
 
-      // Top products by revenue
+      
       Order.aggregate([
         { $match: { paymentStatus: "paid", createdAt: { $gte: since } } },
         { $unwind: "$items" },

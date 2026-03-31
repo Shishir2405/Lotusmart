@@ -1,8 +1,4 @@
-/**
- * POST /api/wishlist/move-to-cart
- * Moves an item from wishlist to cart (removes from wishlist, adds to cart).
- * Works for both authenticated and anonymous (deviceId) users.
- */
+
 
 import { NextRequest } from "next/server";
 import connectDB from "@/lib/db";
@@ -31,12 +27,12 @@ export async function POST(request: NextRequest) {
     const { productId, variant } = await request.json();
     if (!productId) throw ApiError.badRequest("productId is required");
 
-    // Validate product
+    
     const product = await Product.findById(productId).select("price stock isActive").lean();
     if (!product || !product.isActive) throw ApiError.notFound("Product not found");
     if (product.stock < 1) throw ApiError.badRequest("Product is out of stock");
 
-    // Remove from wishlist
+    
     const wishlist = await Wishlist.findOne(query);
     if (wishlist) {
       wishlist.items = wishlist.items.filter(
@@ -45,7 +41,7 @@ export async function POST(request: NextRequest) {
       await wishlist.save();
     }
 
-    // Add to cart
+    
     let cart = await Cart.findOne(query);
     if (!cart) {
       cart = await Cart.create({ ...query, items: [], discount: 0 });

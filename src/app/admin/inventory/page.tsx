@@ -25,9 +25,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-// ──────────────────────────────────────────────
-// Types
-// ──────────────────────────────────────────────
+
 interface Product {
   _id: string;
   name: string;
@@ -47,9 +45,7 @@ type BulkOperation = "set" | "add" | "reduce";
 
 const ITEMS_PER_PAGE = 20;
 
-// ──────────────────────────────────────────────
-// Helpers
-// ──────────────────────────────────────────────
+
 function getStockStatus(product: Product): "in_stock" | "low_stock" | "out_of_stock" {
   if (product.stock === 0) return "out_of_stock";
   if (product.stock <= product.lowStockThreshold) return "low_stock";
@@ -63,9 +59,7 @@ function getRowBg(product: Product): string {
   return "";
 }
 
-// ──────────────────────────────────────────────
-// Component
-// ──────────────────────────────────────────────
+
 export default function AdminInventoryPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,7 +75,7 @@ export default function AdminInventoryPage() {
   >({});
   const [savingIds, setSavingIds] = useState<Set<string>>(new Set());
 
-  // Bulk modal state
+  
   const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const [bulkOp, setBulkOp] = useState<BulkOperation>("set");
   const [bulkQty, setBulkQty] = useState<number>(0);
@@ -89,7 +83,7 @@ export default function AdminInventoryPage() {
 
   const debouncedSearch = useDebounce(search, 400);
 
-  // ── Fetch ──────────────────────────────────
+  
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
@@ -115,12 +109,12 @@ export default function AdminInventoryPage() {
     fetchProducts();
   }, [fetchProducts]);
 
-  // Reset page when search changes
+  
   useEffect(() => {
     setPage(1);
   }, [debouncedSearch]);
 
-  // ── Derived data ──────────────────────────
+  
   const categories = useMemo(() => {
     const map = new Map<string, string>();
     products.forEach((p) => {
@@ -132,17 +126,17 @@ export default function AdminInventoryPage() {
   const filteredProducts = useMemo(() => {
     let list = [...products];
 
-    // Status filter
+    
     if (statusFilter !== "all") {
       list = list.filter((p) => getStockStatus(p) === statusFilter);
     }
 
-    // Category filter
+    
     if (categoryFilter) {
       list = list.filter((p) => p.category?._id === categoryFilter);
     }
 
-    // Sort
+    
     switch (sortKey) {
       case "name":
         list.sort((a, b) => a.name.localeCompare(b.name));
@@ -164,7 +158,7 @@ export default function AdminInventoryPage() {
     return list;
   }, [products, statusFilter, categoryFilter, sortKey]);
 
-  // ── Stats ─────────────────────────────────
+  
   const stats = useMemo(() => {
     const totalProducts = products.length;
     let inStock = 0;
@@ -181,7 +175,7 @@ export default function AdminInventoryPage() {
 
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
-  // ── Inline edit ───────────────────────────
+  
   const startEdit = (p: Product) => {
     setEditingRows((prev) => ({
       ...prev,
@@ -234,7 +228,7 @@ export default function AdminInventoryPage() {
     }
   };
 
-  // ── Selection ─────────────────────────────
+  
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -252,7 +246,7 @@ export default function AdminInventoryPage() {
     }
   };
 
-  // ── Bulk operations ───────────────────────
+  
   const openBulkModal = (op: BulkOperation) => {
     setBulkOp(op);
     setBulkQty(0);
@@ -281,10 +275,10 @@ export default function AdminInventoryPage() {
     }
   };
 
-  // ── Render ────────────────────────────────
+  
   return (
     <div className="p-8">
-      {/* Header */}
+      
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-neutral-900">
           Inventory Management
@@ -294,7 +288,7 @@ export default function AdminInventoryPage() {
         </p>
       </div>
 
-      {/* Stats cards */}
+      
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -373,10 +367,10 @@ export default function AdminInventoryPage() {
         </motion.div>
       </div>
 
-      {/* Filters */}
+      
       <div className="bg-white rounded-2xl border border-neutral-100 mb-5 p-4">
         <div className="flex flex-wrap items-center gap-3">
-          {/* Search */}
+          
           <div className="flex items-center gap-2 bg-[#F7F6F0] rounded-xl px-3 py-2 min-w-[220px] flex-1 max-w-sm">
             <RiSearchLine className="text-neutral-400 shrink-0" size={16} />
             <input
@@ -387,7 +381,7 @@ export default function AdminInventoryPage() {
             />
           </div>
 
-          {/* Stock status */}
+          
           <div className="flex items-center gap-1 bg-[#F7F6F0] rounded-xl p-1">
             {(
               [
@@ -411,7 +405,7 @@ export default function AdminInventoryPage() {
             ))}
           </div>
 
-          {/* Category */}
+          
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
@@ -425,7 +419,7 @@ export default function AdminInventoryPage() {
             ))}
           </select>
 
-          {/* Sort */}
+          
           <div className="flex items-center gap-1.5">
             <RiEqualizerLine className="text-neutral-400" size={14} />
             <select
@@ -442,7 +436,7 @@ export default function AdminInventoryPage() {
         </div>
       </div>
 
-      {/* Bulk action bar */}
+      
       <AnimatePresence>
         {selectedIds.size > 0 && (
           <motion.div
@@ -493,7 +487,7 @@ export default function AdminInventoryPage() {
         )}
       </AnimatePresence>
 
-      {/* Table */}
+      
       <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -584,7 +578,7 @@ export default function AdminInventoryPage() {
                         animate={{ opacity: 1 }}
                         className={`hover:bg-[#FAFAF9] transition-colors ${getRowBg(product)}`}
                       >
-                        {/* Checkbox */}
+                        
                         <td className="px-4 py-3">
                           <input
                             type="checkbox"
@@ -594,7 +588,7 @@ export default function AdminInventoryPage() {
                           />
                         </td>
 
-                        {/* Product name + image */}
+                        
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-lg bg-[#F7F6F0] overflow-hidden shrink-0">
@@ -621,21 +615,21 @@ export default function AdminInventoryPage() {
                           </div>
                         </td>
 
-                        {/* SKU */}
+                        
                         <td className="px-4 py-3">
                           <span className="text-xs font-mono text-neutral-500">
                             {product.sku}
                           </span>
                         </td>
 
-                        {/* Category */}
+                        
                         <td className="px-4 py-3">
                           <span className="text-sm text-neutral-600">
                             {product.category?.name ?? "-"}
                           </span>
                         </td>
 
-                        {/* Stock (editable) */}
+                        
                         <td className="px-4 py-3">
                           {isEditing ? (
                             <input
@@ -667,7 +661,7 @@ export default function AdminInventoryPage() {
                           )}
                         </td>
 
-                        {/* Low stock threshold (editable) */}
+                        
                         <td className="px-4 py-3">
                           {isEditing ? (
                             <input
@@ -693,14 +687,14 @@ export default function AdminInventoryPage() {
                           )}
                         </td>
 
-                        {/* Unit */}
+                        
                         <td className="px-4 py-3">
                           <span className="text-sm text-neutral-600">
                             {product.unit}
                           </span>
                         </td>
 
-                        {/* Status badge */}
+                        
                         <td className="px-4 py-3">
                           <Badge
                             variant={
@@ -720,7 +714,7 @@ export default function AdminInventoryPage() {
                           </Badge>
                         </td>
 
-                        {/* Actions */}
+                        
                         <td className="px-6 py-3 text-right">
                           {isEditing ? (
                             <div className="flex items-center justify-end gap-1.5">
@@ -764,7 +758,7 @@ export default function AdminInventoryPage() {
           </table>
         </div>
 
-        {/* Empty state */}
+        
         {!loading && filteredProducts.length === 0 && (
           <div className="py-16 text-center">
             <RiInboxLine className="mx-auto text-neutral-300 mb-3" size={40} />
@@ -773,7 +767,7 @@ export default function AdminInventoryPage() {
         )}
       </div>
 
-      {/* Pagination */}
+      
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-5">
           <p className="text-sm text-neutral-400">
@@ -831,7 +825,7 @@ export default function AdminInventoryPage() {
         </div>
       )}
 
-      {/* Bulk operation modal */}
+      
       <AnimatePresence>
         {bulkModalOpen && (
           <motion.div

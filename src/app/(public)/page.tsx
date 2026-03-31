@@ -32,7 +32,7 @@ async function getLandingSections() {
 export default async function HomePage() {
   const sections = await getLandingSections();
 
-  // If no dynamic sections configured, render the default layout
+  
   if (!sections || sections.length === 0) {
     return (
       <>
@@ -48,10 +48,10 @@ export default async function HomePage() {
     );
   }
 
-  // Render dynamic sections in order
+  
   return (
     <>
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      
       {sections.map((section: any) => {
         switch (section.type) {
           case "hero_banners":

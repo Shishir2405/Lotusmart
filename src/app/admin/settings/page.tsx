@@ -24,7 +24,7 @@ export default function AdminSettingsPage() {
   const [activeSection, setActiveSection] = useState("store");
   const [saving, setSaving] = useState(false);
 
-  // Store settings state
+  
   const [store, setStore] = useState({
     name: "LotusMart",
     tagline: "Premium Spices & Dry Fruits",
@@ -35,7 +35,7 @@ export default function AdminSettingsPage() {
     gstNumber: "",
   });
 
-  // Shipping settings state
+  
   const [shipping, setShipping] = useState({
     freeShippingThreshold: "500",
     standardShippingCost: "60",
@@ -46,7 +46,7 @@ export default function AdminSettingsPage() {
 
   const handleSave = async () => {
     setSaving(true);
-    // Simulate save — wire to a real settings API when needed
+    
     await new Promise((r) => setTimeout(r, 800));
     setSaving(false);
     toast.success("Settings saved");
@@ -60,7 +60,7 @@ export default function AdminSettingsPage() {
       </div>
 
       <div className="flex gap-6">
-        {/* Sidebar nav */}
+        
         <div className="w-48 shrink-0">
           <nav className="space-y-1">
             {SECTIONS.map(({ id, label, icon: Icon }) => (
@@ -80,7 +80,7 @@ export default function AdminSettingsPage() {
           </nav>
         </div>
 
-        {/* Content */}
+        
         <div className="flex-1 max-w-2xl">
           <motion.div
             key={activeSection}

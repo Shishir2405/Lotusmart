@@ -1,6 +1,4 @@
-// GET    /api/admin/categories/[id] — get single category
-// PATCH  /api/admin/categories/[id] — update category
-// DELETE /api/admin/categories/[id] — delete category
+
 
 import { NextRequest } from "next/server";
 import { ApiError } from "@/lib/api-error";
@@ -42,7 +40,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     const category = await Category.findById(id);
     if (!category) throw ApiError.notFound("Category not found");
 
-    // Prevent circular parent
+    
     if (parent && String(parent) === String(id)) {
       throw ApiError.badRequest("Category cannot be its own parent");
     }
@@ -69,7 +67,7 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     await requireAdmin(request);
     const { id } = await params;
 
-    // Check for children
+    
     const childCount = await Category.countDocuments({ parent: id });
     if (childCount > 0) {
       throw ApiError.badRequest(

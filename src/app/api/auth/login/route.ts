@@ -1,4 +1,4 @@
-// POST /api/auth/login — Authenticate and return JWT
+
 
 import { NextRequest } from "next/server";
 
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // Validate request body
+    
     const parsed = loginSchema.safeParse(body);
     if (!parsed.success) {
       const fieldErrors = parsed.error.flatten().fieldErrors as Record<
@@ -25,10 +25,10 @@ export async function POST(request: NextRequest) {
       throw ApiError.validationError(fieldErrors);
     }
 
-    // Authenticate user
+    
     const { user, token } = await login(parsed.data.email, parsed.data.password);
 
-    // Build response with auth cookie
+    
     const response = successResponse(
       { user, token },
       "Logged in successfully",

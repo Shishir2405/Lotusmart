@@ -106,7 +106,7 @@ export default function AddressesPage() {
         )}
       </div>
 
-      {/* Form */}
+      
       <AnimatePresence>
         {showForm && (
           <motion.div
@@ -159,7 +159,7 @@ export default function AddressesPage() {
         )}
       </AnimatePresence>
 
-      {/* Address list */}
+      
       {loading ? (
         <div className="grid sm:grid-cols-2 gap-4">
           {[1, 2].map((i) => (

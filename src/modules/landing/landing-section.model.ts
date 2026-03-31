@@ -1,8 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
-// ──────────────────────────────────────────────
-// LandingSection — dynamic landing page sections
-// ──────────────────────────────────────────────
 
 export const SECTION_TYPES = [
   "hero_banners",

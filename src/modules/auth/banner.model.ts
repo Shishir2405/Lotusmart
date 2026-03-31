@@ -1,14 +1,10 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 import type { IBanner, BannerPosition } from "@/types";
 
-// ──────────────────────────────────────────────
-// Document interface
-// ──────────────────────────────────────────────
+
 export interface IBannerDocument extends Omit<IBanner, "_id">, Document {}
 
-// ──────────────────────────────────────────────
-// Schema
-// ──────────────────────────────────────────────
+
 const BannerSchema = new Schema<IBannerDocument>(
   {
     title: { type: String, required: true, trim: true, maxlength: 200 },
@@ -30,14 +26,10 @@ const BannerSchema = new Schema<IBannerDocument>(
   },
 );
 
-// ──────────────────────────────────────────────
-// Indexes
-// ──────────────────────────────────────────────
+
 BannerSchema.index({ position: 1, isActive: 1, sortOrder: 1 });
 
-// ──────────────────────────────────────────────
-// Export
-// ──────────────────────────────────────────────
+
 const Banner: Model<IBannerDocument> =
   mongoose.models.Banner ||
   mongoose.model<IBannerDocument>("Banner", BannerSchema);

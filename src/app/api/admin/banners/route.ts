@@ -5,7 +5,7 @@ import { ApiError } from "@/lib/api-error";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import Banner from "@/modules/auth/banner.model";
 
-// GET — public (used on homepage)
+
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const query: Record<string, unknown> = {};
     const authUser = await getAuthUser(request);
 
-    // Non-admins only see active banners
+    
     if (!authUser || authUser.role !== "admin") query.isActive = true;
     if (position) query.position = position;
 

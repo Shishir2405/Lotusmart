@@ -1,8 +1,4 @@
-/**
- * POST /api/wishlist/merge
- * Merges guest localStorage wishlist AND device-ID-based anonymous wishlist
- * into the authenticated user's DB wishlist.
- */
+
 
 import { NextRequest } from "next/server";
 import connectDB from "@/lib/db";
@@ -25,7 +21,7 @@ export async function POST(request: NextRequest) {
     let wishlist = await Wishlist.findOne({ user: authUser.userId });
     if (!wishlist) wishlist = await Wishlist.create({ user: authUser.userId, items: [] });
 
-    // If deviceId provided, merge the anonymous device wishlist first
+    
     if (deviceId) {
       const anonWishlist = await Wishlist.findOne({ deviceId });
       if (anonWishlist && anonWishlist.items.length > 0) {
@@ -41,12 +37,12 @@ export async function POST(request: NextRequest) {
 
           wishlist.items.push({ product: productId, addedAt: new Date() });
         }
-        // Delete the anonymous wishlist after merging
+        
         await Wishlist.deleteOne({ _id: anonWishlist._id });
       }
     }
 
-    // Merge local items
+    
     for (const local of localItems ?? []) {
       if (!local.productId) continue;
 
@@ -63,13 +59,13 @@ export async function POST(request: NextRequest) {
 
     await wishlist.save();
 
-    // Populate and return merged wishlist in WishlistItem shape
+    
     const populated = await Wishlist.findById(wishlist._id).populate(
       "items.product",
       "name slug images price compareAtPrice stock unit isActive",
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     const items: WishlistItem[] = ((populated?.items ?? []) as any[])
       .filter((i: { product: { isActive: boolean } }) => i.product?.isActive)
       .map((i: {

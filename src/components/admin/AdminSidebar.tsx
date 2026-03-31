@@ -72,13 +72,13 @@ export function AdminSidebar() {
 
   function hasPermission(permission: string): boolean {
     if (!user) return false;
-    if (!user.permissions) return true; // super admin = all access (permissions undefined)
+    if (!user.permissions) return true; 
     return user.permissions.includes(permission);
   }
 
   return (
     <aside className="w-60 shrink-0 min-h-screen bg-[#2A2518] flex flex-col sticky top-0 h-screen">
-      {/* Logo */}
+      
       <div className="px-6 py-5 border-b border-[#4D4529]">
         <Link href="/" className="text-2xl font-bold text-[#FFF9E8]">
           Lotus<span className="text-[#E84672]">Mart</span>
@@ -86,7 +86,7 @@ export function AdminSidebar() {
         <p className="text-xs text-[#9C8F62] mt-0.5">Admin Panel</p>
       </div>
 
-      {/* Nav */}
+      
       <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
         {navGroups
           .filter((group) => group.items.some((item) => hasPermission(item.permission)))
@@ -118,7 +118,7 @@ export function AdminSidebar() {
         ))}
       </nav>
 
-      {/* Logout */}
+      
       <div className="px-3 py-4 border-t border-[#4D4529]">
         <button
           onClick={logout}

@@ -1,4 +1,4 @@
-// Auth utility helpers for LotusMart API route handlers
+
 
 import { NextRequest, NextResponse } from "next/server";
 
@@ -8,14 +8,7 @@ import type { ITokenPayload } from "@/types";
 
 const COOKIE_NAME = "lotusmart-auth-token";
 
-// ──────────────────────────────────────────────
-// Extract & verify user from request
-// ──────────────────────────────────────────────
 
-/**
- * Extract and verify the JWT from the auth cookie.
- * Returns the decoded payload, or `null` if no valid token is present.
- */
 export async function getAuthUser(
   request: NextRequest,
 ): Promise<ITokenPayload | null> {
@@ -29,9 +22,7 @@ export async function getAuthUser(
   }
 }
 
-/**
- * Same as `getAuthUser` but throws 401 if not authenticated.
- */
+
 export async function requireAuth(
   request: NextRequest,
 ): Promise<ITokenPayload> {
@@ -42,9 +33,7 @@ export async function requireAuth(
   return user;
 }
 
-/**
- * Same as `requireAuth` but also verifies the user has the `admin` role.
- */
+
 export async function requireAdmin(
   request: NextRequest,
 ): Promise<ITokenPayload> {
@@ -57,26 +46,18 @@ export async function requireAdmin(
   return user;
 }
 
-// ──────────────────────────────────────────────
-// Cookie management
-// ──────────────────────────────────────────────
 
-/**
- * Set the auth JWT as an httpOnly, secure cookie on the response.
- */
 export function setAuthCookie(response: NextResponse, token: string): void {
   response.cookies.set(COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 7 * 24 * 60 * 60, // 7 days (matches JWT_EXPIRES_IN default)
+    maxAge: 7 * 24 * 60 * 60, 
   });
 }
 
-/**
- * Clear the auth cookie (used on logout).
- */
+
 export function clearAuthCookie(response: NextResponse): void {
   response.cookies.set(COOKIE_NAME, "", {
     httpOnly: true,

@@ -1,11 +1,8 @@
-// LotusMart utility / helper functions
+
 
 import { CURRENCY } from "@/config/constants";
 
-/**
- * Format a number as Indian Rupees.
- * e.g. 1499.5 → "₹1,499.50"
- */
+
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat(CURRENCY.locale, {
     style: "currency",
@@ -15,10 +12,7 @@ export function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-/**
- * Generate a unique order number.
- * Format: LM-YYYYMMDD-XXXXXX (6-char random alphanumeric)
- */
+
 export function generateOrderNumber(): string {
   const now = new Date();
   const datePart = [
@@ -36,17 +30,13 @@ export function generateOrderNumber(): string {
   return `LM-${datePart}-${randomPart}`;
 }
 
-/**
- * Truncate text to a given length and append an ellipsis.
- */
+
 export function truncateText(text: string, length: number): string {
   if (text.length <= length) return text;
   return text.slice(0, length).trimEnd() + "...";
 }
 
-/**
- * Debounce a function call.
- */
+
 export function debounce<T extends (...args: unknown[]) => unknown>(
   fn: T,
   delay: number,
@@ -64,10 +54,7 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
   };
 }
 
-/**
- * Get initials from a full name (max 2 chars).
- * e.g. "Shishir Shrivastava" → "SS"
- */
+
 export function getInitials(name: string): string {
   return name
     .trim()
@@ -77,10 +64,7 @@ export function getInitials(name: string): string {
     .join("");
 }
 
-/**
- * Format a Date into a human-readable string.
- * e.g. "20 Mar 2026"
- */
+
 export function formatDate(
   date: Date | string,
   options?: Intl.DateTimeFormatOptions,
@@ -94,10 +78,7 @@ export function formatDate(
   });
 }
 
-/**
- * Format a Date into a relative time string.
- * e.g. "2 hours ago", "3 days ago"
- */
+
 export function formatRelativeTime(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
   const now = new Date();
@@ -115,24 +96,18 @@ export function formatRelativeTime(date: Date | string): string {
   return formatDate(d);
 }
 
-/**
- * Create a URL-friendly slug from a string.
- * e.g. "Kashmiri Red Chilli Powder" → "kashmiri-red-chilli-powder"
- */
+
 export function slugify(text: string): string {
   return text
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, "") // remove non-word characters except spaces & hyphens
-    .replace(/[\s_]+/g, "-") // replace spaces & underscores with hyphens
-    .replace(/-+/g, "-") // collapse multiple hyphens
-    .replace(/^-|-$/g, ""); // trim leading/trailing hyphens
+    .replace(/[^\w\s-]/g, "") 
+    .replace(/[\s_]+/g, "-") 
+    .replace(/-+/g, "-") 
+    .replace(/^-|-$/g, ""); 
 }
 
-/**
- * Calculate discount percentage between a sale price and the original price.
- * Returns 0 when no discount is applicable.
- */
+
 export function calculateDiscount(
   price: number,
   compareAtPrice?: number,
@@ -141,28 +116,20 @@ export function calculateDiscount(
   return Math.round(((compareAtPrice - price) / compareAtPrice) * 100);
 }
 
-/**
- * Tailwind `cn` utility — merges class names, filtering out falsy values.
- * For a more robust solution use `clsx` + `tailwind-merge`, but this
- * zero-dependency version covers the vast majority of use cases.
- */
+
 export function classNames(...classes: (string | boolean | undefined | null)[]): string {
   return classes.filter(Boolean).join(" ");
 }
 
-/** Alias for classNames */
+
 export const cn = classNames;
 
-/**
- * Sleep for a given number of milliseconds (useful in dev/testing).
- */
+
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/**
- * Safely parse JSON. Returns `null` on failure instead of throwing.
- */
+
 export function safeJsonParse<T = unknown>(json: string): T | null {
   try {
     return JSON.parse(json) as T;
@@ -171,9 +138,7 @@ export function safeJsonParse<T = unknown>(json: string): T | null {
   }
 }
 
-/**
- * Convert a file size in bytes to a human-readable string.
- */
+
 export function formatFileSize(bytes: number): string {
   if (bytes === 0) return "0 B";
   const units = ["B", "KB", "MB", "GB"];
@@ -181,9 +146,7 @@ export function formatFileSize(bytes: number): string {
   return `${(bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
 }
 
-/**
- * Pick only the specified keys from an object.
- */
+
 export function pick<T extends Record<string, unknown>, K extends keyof T>(
   obj: T,
   keys: K[],
@@ -197,9 +160,7 @@ export function pick<T extends Record<string, unknown>, K extends keyof T>(
   return result;
 }
 
-/**
- * Omit the specified keys from an object.
- */
+
 export function omit<T extends Record<string, unknown>, K extends keyof T>(
   obj: T,
   keys: K[],

@@ -29,7 +29,6 @@ import { Modal } from "@/components/ui/Modal";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-/* ─── Types ─────────────────────────────────── */
 
 type SectionType =
   | "hero_banners"
@@ -100,7 +99,6 @@ interface SectionForm {
   whyItems: WhyChooseUsItem[];
 }
 
-/* ─── Constants ─────────────────────────────── */
 
 const SECTION_TYPE_META: Record<
   SectionType,
@@ -180,34 +178,32 @@ const EMPTY_FORM: SectionForm = {
   whyItems: [{ ...EMPTY_WHY_ITEM }],
 };
 
-/* ─── Component ─────────────────────────────── */
 
 export default function AdminLandingPage() {
   const [sections, setSections] = useState<LandingSection[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Modal
+  
   const [showForm, setShowForm] = useState(false);
   const [editTarget, setEditTarget] = useState<LandingSection | null>(null);
   const [form, setForm] = useState<SectionForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
 
-  // Delete
+  
   const [deleteTarget, setDeleteTarget] = useState<LandingSection | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  // Product search
+  
   const [productSearch, setProductSearch] = useState("");
   const [productResults, setProductResults] = useState<PopulatedProduct[]>([]);
   const [searchingProducts, setSearchingProducts] = useState(false);
   const productSearchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Category list
+  
   const [allCategories, setAllCategories] = useState<PopulatedCategory[]>([]);
   const [categoriesLoaded, setCategoriesLoaded] = useState(false);
 
-  /* ── Fetchers ────────────────────────────── */
-
+  
   const fetchSections = useCallback(() => {
     setLoading(true);
     axios
@@ -232,8 +228,7 @@ export default function AdminLandingPage() {
     fetchSections();
   }, [fetchSections]);
 
-  /* ── Product search with debounce ────────── */
-
+  
   const searchProducts = useCallback((query: string) => {
     if (!query.trim()) {
       setProductResults([]);
@@ -245,7 +240,7 @@ export default function AdminLandingPage() {
         `/api/products?limit=50&search=${encodeURIComponent(query)}`
       )
       .then((r) => {
-        // Handle both { data: Product[] } and { data: { products: Product[] } }
+        
         const raw = r.data.data;
         const products = Array.isArray(raw) ? raw : raw?.products ?? [];
         setProductResults(products);
@@ -264,8 +259,7 @@ export default function AdminLandingPage() {
     };
   }, [productSearch, searchProducts]);
 
-  /* ── Form helpers ────────────────────────── */
-
+  
   const buildPayload = () => {
     const base: Record<string, unknown> = {
       title: form.title.trim(),
@@ -353,8 +347,7 @@ export default function AdminLandingPage() {
     setForm(EMPTY_FORM);
   };
 
-  /* ── CRUD actions ────────────────────────── */
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim()) {
@@ -417,8 +410,7 @@ export default function AdminLandingPage() {
     }
   };
 
-  /* ── Reorder ─────────────────────────────── */
-
+  
   const moveSection = async (index: number, direction: "up" | "down") => {
     const swapIndex = direction === "up" ? index - 1 : index + 1;
     if (swapIndex < 0 || swapIndex >= sections.length) return;
@@ -427,7 +419,7 @@ export default function AdminLandingPage() {
     [updated[index], updated[swapIndex]] = [updated[swapIndex], updated[index]];
     const order = updated.map((s, i) => ({ id: s._id, sortOrder: i }));
 
-    // Optimistic update
+    
     setSections(updated.map((s, i) => ({ ...s, sortOrder: i })));
 
     try {
@@ -443,8 +435,7 @@ export default function AdminLandingPage() {
     }
   };
 
-  /* ── Product / Category selection helpers ── */
-
+  
   const addProduct = (product: PopulatedProduct) => {
     if (form.selectedProducts.some((p) => p._id === product._id)) return;
     setForm((f) => ({
@@ -472,8 +463,7 @@ export default function AdminLandingPage() {
     });
   };
 
-  /* ── Banner slides helpers ─────────────── */
-
+  
   const updateSlide = (
     idx: number,
     field: keyof HeroBannerSlide,
@@ -500,8 +490,7 @@ export default function AdminLandingPage() {
     }));
   };
 
-  /* ── Why-choose-us items helpers ────────── */
-
+  
   const updateWhyItem = (
     idx: number,
     field: keyof WhyChooseUsItem,
@@ -528,17 +517,13 @@ export default function AdminLandingPage() {
     }));
   };
 
-  /* ── Counts ──────────────────────────────── */
-
+  
   const activeSections = sections.filter((s) => s.isActive);
 
-  /* ═══════════════════════════════════════════ */
-  /* ── RENDER ─────────────────────────────── */
-  /* ═══════════════════════════════════════════ */
-
+  
   return (
     <div className="p-8">
-      {/* Header */}
+      
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900">
@@ -556,7 +541,7 @@ export default function AdminLandingPage() {
         </div>
       </div>
 
-      {/* ── Section List ──────────────────── */}
+      
       <div className="space-y-3">
         {loading
           ? Array.from({ length: 4 }).map((_, i) => (
@@ -613,14 +598,14 @@ export default function AdminLandingPage() {
                         }}
                         className="bg-white rounded-2xl border border-neutral-100 p-5 flex items-center gap-4 hover:shadow-sm transition-shadow"
                       >
-                        {/* Position number */}
+                        
                         <div className="flex flex-col items-center gap-0.5 min-w-[24px]">
                           <span className="text-xs font-bold text-neutral-300">
                             #{index + 1}
                           </span>
                         </div>
 
-                        {/* Type icon */}
+                        
                         <div
                           className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0"
                           style={{
@@ -631,7 +616,7 @@ export default function AdminLandingPage() {
                           {meta.icon}
                         </div>
 
-                        {/* Info */}
+                        
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-neutral-800 truncate">
                             {section.title}
@@ -654,7 +639,7 @@ export default function AdminLandingPage() {
                           </p>
                         </div>
 
-                        {/* Active toggle */}
+                        
                         <button
                           onClick={() => toggleActive(section)}
                           className={`p-2 rounded-lg transition-colors ${
@@ -675,7 +660,7 @@ export default function AdminLandingPage() {
                           )}
                         </button>
 
-                        {/* Reorder arrows */}
+                        
                         <div className="flex flex-col gap-0.5">
                           <button
                             onClick={() => moveSection(index, "up")}
@@ -695,7 +680,7 @@ export default function AdminLandingPage() {
                           </button>
                         </div>
 
-                        {/* Edit / Delete */}
+                        
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => openEdit(section)}
@@ -719,7 +704,7 @@ export default function AdminLandingPage() {
               )}
       </div>
 
-      {/* ── Add/Edit Section Modal ────────── */}
+      
       <Modal
         isOpen={showForm}
         onClose={closeForm}
@@ -727,7 +712,7 @@ export default function AdminLandingPage() {
         size="full"
       >
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          {/* Section type selector (only for create) */}
+          
           {!editTarget && (
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-2">
@@ -768,7 +753,7 @@ export default function AdminLandingPage() {
             </div>
           )}
 
-          {/* Show selected type badge when editing */}
+          
           {editTarget && (
             <div className="flex items-center gap-2">
               <span
@@ -787,7 +772,7 @@ export default function AdminLandingPage() {
             </div>
           )}
 
-          {/* Title & Subtitle */}
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="Title"
@@ -808,7 +793,7 @@ export default function AdminLandingPage() {
             />
           </div>
 
-          {/* Active toggle */}
+          
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -823,9 +808,7 @@ export default function AdminLandingPage() {
             </span>
           </label>
 
-          {/* ── Type-specific fields ──────── */}
-
-          {/* HERO BANNERS */}
+          
           {form.type === "hero_banners" && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -910,7 +893,7 @@ export default function AdminLandingPage() {
             </div>
           )}
 
-          {/* CATEGORY GRID */}
+          
           {form.type === "category_grid" && (
             <div className="space-y-3">
               <label className="text-sm font-medium text-neutral-700">
@@ -966,21 +949,21 @@ export default function AdminLandingPage() {
             </div>
           )}
 
-          {/* FEATURED PRODUCTS / PRODUCT CAROUSEL */}
+          
           {(form.type === "featured_products" ||
             form.type === "product_carousel") && (
             <div className="space-y-3">
               <label className="text-sm font-medium text-neutral-700">
                 Select Products
               </label>
-              {/* Search */}
+              
               <Input
                 placeholder="Search products..."
                 value={productSearch}
                 onChange={(e) => setProductSearch(e.target.value)}
                 leftIcon={<RiSearchLine />}
               />
-              {/* Search results dropdown */}
+              
               {productSearch.trim() && (
                 <div className="border border-neutral-100 rounded-xl max-h-48 overflow-y-auto divide-y divide-neutral-50">
                   {searchingProducts ? (
@@ -1030,7 +1013,7 @@ export default function AdminLandingPage() {
                   )}
                 </div>
               )}
-              {/* Selected products as removable chips */}
+              
               {form.selectedProducts.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {form.selectedProducts.map((p) => (
@@ -1066,7 +1049,7 @@ export default function AdminLandingPage() {
             </div>
           )}
 
-          {/* BANNER STRIP */}
+          
           {form.type === "banner_strip" && (
             <div className="space-y-3">
               <Input
@@ -1118,7 +1101,7 @@ export default function AdminLandingPage() {
             </div>
           )}
 
-          {/* WHY CHOOSE US */}
+          
           {form.type === "why_choose_us" && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -1186,7 +1169,7 @@ export default function AdminLandingPage() {
             </div>
           )}
 
-          {/* CUSTOM HTML */}
+          
           {form.type === "custom_html" && (
             <div>
               <Textarea
@@ -1208,7 +1191,7 @@ export default function AdminLandingPage() {
             </div>
           )}
 
-          {/* Actions */}
+          
           <div className="flex gap-3 pt-4 border-t border-neutral-100">
             <Button
               type="submit"
@@ -1224,7 +1207,7 @@ export default function AdminLandingPage() {
         </form>
       </Modal>
 
-      {/* ── Delete Confirmation Modal ─────── */}
+      
       <Modal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}

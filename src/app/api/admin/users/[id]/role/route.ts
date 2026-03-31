@@ -8,13 +8,13 @@ import AdminRole from "@/modules/roles/admin-role.model";
 import type { ITokenPayload, AdminPermission } from "@/types";
 
 function hasPermission(user: ITokenPayload, permission: AdminPermission): boolean {
-  if (!user.permissions) return true; // super admin
+  if (!user.permissions) return true; 
   return user.permissions.includes(permission);
 }
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-// PATCH — Assign or remove an admin role from a user
+
 export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
     await connectDB();
@@ -36,17 +36,17 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       throw ApiError.badRequest("Admin roles can only be assigned to admin users.");
     }
 
-    // Prevent modifying the super admin's role
+    
     const superAdminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
     if (user.email === superAdminEmail) {
       throw ApiError.forbidden("Cannot modify the super admin's role assignment.");
     }
 
     if (body.adminRole === null || body.adminRole === undefined) {
-      // Remove admin role
+      
       user.adminRole = undefined;
     } else {
-      // Validate the role exists
+      
       const role = await AdminRole.findById(body.adminRole);
       if (!role) {
         throw ApiError.notFound("Admin role not found.");

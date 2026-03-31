@@ -1,6 +1,4 @@
-/**
- * API client with automatic device ID header injection for anonymous users.
- */
+
 
 import axios from "axios";
 import { getDeviceId } from "@/utils/device-id";

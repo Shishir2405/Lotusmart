@@ -1,12 +1,10 @@
-// Standardised API response helpers for Next.js Route Handlers
+
 
 import { NextResponse } from "next/server";
 
 import type { IApiResponse, IPagination, IPaginatedResponse } from "@/types";
 
-/**
- * Return a success JSON response.
- */
+
 export function successResponse<T>(
   data: T,
   message = "Success",
@@ -23,9 +21,7 @@ export function successResponse<T>(
   );
 }
 
-/**
- * Return an error JSON response.
- */
+
 export function errorResponse(
   message = "Something went wrong",
   statusCode = 500,
@@ -43,9 +39,7 @@ export function errorResponse(
   );
 }
 
-/**
- * Return a paginated success response.
- */
+
 export function paginatedResponse<T>(
   data: T,
   pagination: IPagination,
@@ -64,9 +58,7 @@ export function paginatedResponse<T>(
   );
 }
 
-/**
- * Build an IPagination object from raw values.
- */
+
 export function buildPagination(
   page: number,
   limit: number,
@@ -80,9 +72,7 @@ export function buildPagination(
   };
 }
 
-/**
- * Return a 201 Created response (convenience wrapper).
- */
+
 export function createdResponse<T>(
   data: T,
   message = "Created successfully",
@@ -90,9 +80,7 @@ export function createdResponse<T>(
   return successResponse(data, message, 201);
 }
 
-/**
- * Return a 204 No Content response.
- */
+
 export function noContentResponse(): NextResponse {
   return new NextResponse(null, { status: 204 });
 }

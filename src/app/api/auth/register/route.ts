@@ -1,4 +1,4 @@
-// POST /api/auth/register — Create a new user account
+
 
 import { NextRequest, NextResponse } from "next/server";
 
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // Validate request body
+    
     const parsed = registerSchema.safeParse(body);
     if (!parsed.success) {
       const fieldErrors = parsed.error.flatten().fieldErrors as Record<
@@ -25,10 +25,10 @@ export async function POST(request: NextRequest) {
       throw ApiError.validationError(fieldErrors);
     }
 
-    // Register user
+    
     const { user, token } = await register(parsed.data);
 
-    // Build response with auth cookie
+    
     const response = createdResponse(
       { user },
       "Registration successful. Please verify your email.",

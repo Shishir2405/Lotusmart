@@ -1,4 +1,4 @@
-// GET /api/admin/orders — list ALL orders (admin only)
+
 
 import { NextRequest } from "next/server";
 import connectDB from "@/lib/db";
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search");
     const paymentStatus = searchParams.get("paymentStatus");
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     const query: Record<string, any> = {};
     if (status) query.orderStatus = status;
     if (paymentStatus) query.paymentStatus = paymentStatus;

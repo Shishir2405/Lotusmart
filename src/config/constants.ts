@@ -1,4 +1,4 @@
-// LotusMart Application Constants
+
 
 export const SITE_NAME = "LotusMart" as const;
 export const SITE_TAGLINE = "Premium Spices, Dry Fruits & Gifting" as const;
@@ -6,9 +6,7 @@ export const SITE_DOMAIN = "https://lotusmart.in" as const;
 export const SUPPORT_EMAIL = "support@lotusmart.in" as const;
 export const SUPPORT_PHONE = "+91-9876543210" as const;
 
-// ──────────────────────────────────────────────
-// Design tokens
-// ──────────────────────────────────────────────
+
 export const COLORS = {
   cream: "#FFF8F0",
   rose: "#E8567F",
@@ -29,9 +27,7 @@ export const FONT_FAMILY = {
   body: "'DM Sans', system-ui, sans-serif",
 } as const;
 
-// ──────────────────────────────────────────────
-// Categories
-// ──────────────────────────────────────────────
+
 export const CATEGORIES = [
   {
     name: "Spices",
@@ -89,9 +85,7 @@ export const CATEGORIES = [
   },
 ] as const;
 
-// ──────────────────────────────────────────────
-// Order statuses
-// ──────────────────────────────────────────────
+
 export const ORDER_STATUSES = [
   "placed",
   "confirmed",
@@ -124,9 +118,7 @@ export const ORDER_STATUS_COLORS: Record<OrderStatus, string> = {
   returned: "bg-gray-100 text-gray-800",
 };
 
-// ──────────────────────────────────────────────
-// Payment
-// ──────────────────────────────────────────────
+
 export const PAYMENT_METHODS = ["cod", "razorpay"] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
@@ -143,27 +135,19 @@ export const PAYMENT_STATUSES = [
 ] as const;
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
-// ──────────────────────────────────────────────
-// User roles
-// ──────────────────────────────────────────────
+
 export const USER_ROLES = ["admin", "customer"] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
-// ──────────────────────────────────────────────
-// Address labels
-// ──────────────────────────────────────────────
+
 export const ADDRESS_LABELS = ["home", "work", "other"] as const;
 export type AddressLabel = (typeof ADDRESS_LABELS)[number];
 
-// ──────────────────────────────────────────────
-// Product units
-// ──────────────────────────────────────────────
+
 export const PRODUCT_UNITS = ["kg", "g", "pieces", "pack", "ml", "L", "box"] as const;
 export type ProductUnit = (typeof PRODUCT_UNITS)[number];
 
-// ──────────────────────────────────────────────
-// Product types
-// ──────────────────────────────────────────────
+
 export const PRODUCT_TYPES = ["spice", "dry_fruit", "gifting", "herb", "honey", "superfood"] as const;
 export type ProductType = (typeof PRODUCT_TYPES)[number];
 
@@ -176,9 +160,7 @@ export const PRODUCT_TYPE_LABELS: Record<ProductType, string> = {
   superfood: "Superfood",
 };
 
-// ──────────────────────────────────────────────
-// GST & Certifications
-// ──────────────────────────────────────────────
+
 export const GST_RATES = [0, 5, 12, 18, 28] as const;
 
 export const CERTIFICATIONS = [
@@ -194,15 +176,11 @@ export const CERTIFICATIONS = [
   "Fair Trade",
 ] as const;
 
-// ──────────────────────────────────────────────
-// Banner positions
-// ──────────────────────────────────────────────
+
 export const BANNER_POSITIONS = ["hero", "sidebar", "category"] as const;
 export type BannerPosition = (typeof BANNER_POSITIONS)[number];
 
-// ──────────────────────────────────────────────
-// Pagination defaults
-// ──────────────────────────────────────────────
+
 export const PAGINATION = {
   DEFAULT_PAGE: 1,
   DEFAULT_LIMIT: 12,
@@ -210,9 +188,7 @@ export const PAGINATION = {
   ADMIN_DEFAULT_LIMIT: 20,
 } as const;
 
-// ──────────────────────────────────────────────
-// Sort options (for storefront)
-// ──────────────────────────────────────────────
+
 export const SORT_OPTIONS = [
   { label: "Relevance", value: "relevance" },
   { label: "Price: Low to High", value: "price_asc" },
@@ -222,19 +198,15 @@ export const SORT_OPTIONS = [
   { label: "Popularity", value: "popularity" },
 ] as const;
 
-// ──────────────────────────────────────────────
-// Shipping
-// ──────────────────────────────────────────────
+
 export const SHIPPING = {
-  FREE_SHIPPING_THRESHOLD: 499, // INR
-  DEFAULT_SHIPPING_COST: 49, // INR
-  EXPRESS_SHIPPING_COST: 99, // INR
+  FREE_SHIPPING_THRESHOLD: 499, 
+  DEFAULT_SHIPPING_COST: 49, 
+  EXPRESS_SHIPPING_COST: 99, 
   ESTIMATED_DELIVERY_DAYS: { standard: 5, express: 2 },
 } as const;
 
-// ──────────────────────────────────────────────
-// Misc
-// ──────────────────────────────────────────────
+
 export const MAX_CART_QUANTITY = 10;
 export const LOW_STOCK_THRESHOLD = 5;
 export const REVIEW_RATING_MIN = 1;

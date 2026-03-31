@@ -21,9 +21,6 @@ import { Modal } from "@/components/ui/Modal";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 
 type Permission =
   | "dashboard"
@@ -68,9 +65,6 @@ interface RoleForm {
   isDefault: boolean;
 }
 
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
 
 const ALL_PERMISSIONS: Permission[] = [
   "dashboard",
@@ -148,25 +142,22 @@ const EMPTY_FORM: RoleForm = {
   isDefault: false,
 };
 
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
 
 export default function AdminRolesPage() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Form states
+  
   const [showForm, setShowForm] = useState(false);
   const [editTarget, setEditTarget] = useState<Role | null>(null);
   const [form, setForm] = useState<RoleForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
 
-  // Delete states
+  
   const [deleteTarget, setDeleteTarget] = useState<Role | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  // User assignment
+  
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [usersLoading, setUsersLoading] = useState(true);
   const [userRoleChanges, setUserRoleChanges] = useState<
@@ -174,8 +165,7 @@ export default function AdminRolesPage() {
   >({});
   const [savingUserId, setSavingUserId] = useState<string | null>(null);
 
-  // ---- Data fetching ----
-
+  
   const fetchRoles = useCallback(() => {
     setLoading(true);
     axios
@@ -202,8 +192,7 @@ export default function AdminRolesPage() {
     fetchUsers();
   }, [fetchRoles, fetchUsers]);
 
-  // ---- Role CRUD helpers ----
-
+  
   const openCreate = () => {
     setEditTarget(null);
     setForm(EMPTY_FORM);
@@ -303,8 +292,7 @@ export default function AdminRolesPage() {
     }
   };
 
-  // ---- User role assignment ----
-
+  
   const handleUserRoleChange = (userId: string, roleId: string) => {
     setUserRoleChanges((prev) => ({ ...prev, [userId]: roleId }));
   };
@@ -334,11 +322,10 @@ export default function AdminRolesPage() {
     }
   };
 
-  // ---- Render ----
-
+  
   return (
     <div className="p-8">
-      {/* Header */}
+      
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900">
@@ -353,9 +340,7 @@ export default function AdminRolesPage() {
         </Button>
       </div>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Roles List                                                         */}
-      {/* ------------------------------------------------------------------ */}
+      
       <div className="space-y-4 mb-10">
         {loading
           ? Array.from({ length: 3 }).map((_, i) => (
@@ -407,7 +392,7 @@ export default function AdminRolesPage() {
                   animate={{ opacity: 1, y: 0 }}
                   className="bg-white rounded-2xl p-6 border border-neutral-100 hover:shadow-sm transition-shadow"
                 >
-                  {/* Role header */}
+                  
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -434,7 +419,7 @@ export default function AdminRolesPage() {
                       )}
                     </div>
 
-                    {/* Actions */}
+                    
                     <div className="flex items-center gap-1.5 ml-4 shrink-0">
                       <button
                         onClick={() => openEdit(role)}
@@ -455,7 +440,7 @@ export default function AdminRolesPage() {
                     </div>
                   </div>
 
-                  {/* Permission badges (color-coded by group) */}
+                  
                   <div className="flex flex-wrap gap-2">
                     {role.permissions.map((perm) => {
                       const groupLabel = getPermissionGroup(perm);
@@ -474,9 +459,7 @@ export default function AdminRolesPage() {
               ))}
       </div>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Assign Roles to Users                                              */}
-      {/* ------------------------------------------------------------------ */}
+      
       <div className="bg-white rounded-2xl p-6 border border-neutral-100">
         <div className="flex items-center gap-2 mb-6">
           <RiTeamLine size={20} className="text-neutral-400" />
@@ -619,9 +602,7 @@ export default function AdminRolesPage() {
         )}
       </div>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Create / Edit Role Modal                                           */}
-      {/* ------------------------------------------------------------------ */}
+      
       <Modal
         isOpen={showForm}
         onClose={closeForm}
@@ -631,7 +612,7 @@ export default function AdminRolesPage() {
         size="full"
       >
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          {/* Name */}
+          
           <Input
             label="Role Name"
             value={form.name}
@@ -642,7 +623,7 @@ export default function AdminRolesPage() {
             required
           />
 
-          {/* Description */}
+          
           <Textarea
             label="Description"
             value={form.description}
@@ -652,7 +633,7 @@ export default function AdminRolesPage() {
             placeholder="Briefly describe what this role can do..."
           />
 
-          {/* Permissions grid grouped by category */}
+          
           <div>
             <div className="flex items-center justify-between mb-3">
               <label className="text-sm font-medium text-neutral-700">
@@ -737,7 +718,7 @@ export default function AdminRolesPage() {
             </p>
           </div>
 
-          {/* Is Default toggle */}
+          
           <div className="flex items-center gap-2">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -755,7 +736,7 @@ export default function AdminRolesPage() {
             </span>
           </div>
 
-          {/* Actions */}
+          
           <div className="flex gap-3 pt-2 border-t border-neutral-100">
             <Button
               type="submit"
@@ -771,9 +752,7 @@ export default function AdminRolesPage() {
         </form>
       </Modal>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Delete Confirmation Modal                                          */}
-      {/* ------------------------------------------------------------------ */}
+      
       <Modal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}

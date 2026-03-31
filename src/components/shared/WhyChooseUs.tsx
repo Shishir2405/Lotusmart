@@ -142,7 +142,7 @@ export function WhyChooseUs({ settings }: WhyChooseUsProps = {}) {
   return (
     <section className="relative overflow-hidden py-16 lg:py-24" style={{ backgroundColor: "#FAFAF8" }}>
 
-      {/* Faint dot grid */}
+      
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.018]"
         style={{
@@ -153,7 +153,7 @@ export function WhyChooseUs({ settings }: WhyChooseUsProps = {}) {
 
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-8 lg:px-12">
 
-        {/* ── Header ── */}
+        
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-14">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
@@ -195,7 +195,7 @@ export function WhyChooseUs({ settings }: WhyChooseUsProps = {}) {
           </motion.p>
         </div>
 
-        {/* ── Stats strip ── */}
+        
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -230,7 +230,7 @@ export function WhyChooseUs({ settings }: WhyChooseUsProps = {}) {
           ))}
         </motion.div>
 
-        {/* ── Feature rows ── */}
+        
         <div style={{ borderTop: "1px solid #EBE8D8" }}>
           {activeFeatures.map((f, i) => (
             <motion.div
@@ -244,7 +244,7 @@ export function WhyChooseUs({ settings }: WhyChooseUsProps = {}) {
               className="relative cursor-default group"
               style={{ borderBottom: "1px solid #EBE8D8" }}
             >
-              {/* Hover tint */}
+              
               <motion.div
                 animate={{ opacity: hovered === i ? 1 : 0 }}
                 transition={{ duration: 0.18 }}
@@ -252,7 +252,7 @@ export function WhyChooseUs({ settings }: WhyChooseUsProps = {}) {
                 style={{ backgroundColor: `${f.accentColor}06` }}
               />
 
-              {/* Left accent bar */}
+              
               <motion.div
                 animate={{ scaleY: hovered === i ? 1 : 0, opacity: hovered === i ? 1 : 0 }}
                 transition={{ duration: 0.2 }}
@@ -262,7 +262,7 @@ export function WhyChooseUs({ settings }: WhyChooseUsProps = {}) {
 
               <div className="relative flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-0 py-4 px-3">
 
-                {/* Index number */}
+                
                 <span
                   className="text-[0.52rem] font-black tracking-[0.22em] w-10 flex-shrink-0 transition-colors duration-200"
                   style={{ color: hovered === i ? f.accentColor : "#D4CFB3" }}
@@ -270,7 +270,7 @@ export function WhyChooseUs({ settings }: WhyChooseUsProps = {}) {
                   {f.index}
                 </span>
 
-                {/* Icon */}
+                
                 <motion.div
                   animate={{
                     backgroundColor: hovered === i ? f.accentLight : "#F7F6F0",
@@ -283,7 +283,7 @@ export function WhyChooseUs({ settings }: WhyChooseUsProps = {}) {
                   <f.icon size={16} style={{ color: hovered === i ? f.iconColor : "#C8BF9A" }} />
                 </motion.div>
 
-                {/* Title */}
+                
                 <motion.span
                   animate={{ color: hovered === i ? f.accentColor : "#292524" }}
                   transition={{ duration: 0.18 }}
@@ -292,12 +292,12 @@ export function WhyChooseUs({ settings }: WhyChooseUsProps = {}) {
                   {f.title}
                 </motion.span>
 
-                {/* Desc */}
+                
                 <p className="flex-1 text-[0.78rem] leading-relaxed sm:pl-5 font-medium" style={{ color: "#a8a29e" }}>
                   {f.desc}
                 </p>
 
-                {/* Arrow */}
+                
                 <motion.span
                   animate={{ opacity: hovered === i ? 1 : 0, x: hovered === i ? 0 : -6 }}
                   transition={{ duration: 0.18 }}

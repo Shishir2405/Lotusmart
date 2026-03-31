@@ -35,7 +35,7 @@ const memberBenefits = [
   { icon: RiGiftLine, text: "Birthday rewards and surprises", emoji: "\u{1F381}" },
 ];
 
-/* Floating spice emoji decorations for register */
+
 const floatingSpices = [
   { emoji: "\u{1FAD0}", top: "6%", left: "80%", size: "1.4rem", delay: 0, opacity: 0.11 },
   { emoji: "\u{1F33F}", top: "20%", left: "90%", size: "1.1rem", delay: 0.6, opacity: 0.09 },
@@ -47,7 +47,7 @@ const floatingSpices = [
   { emoji: "\u{1FAD0}", top: "10%", left: "18%", size: "1.1rem", delay: 1.9, opacity: 0.08 },
 ];
 
-/* SVG decorative spice scatter pattern */
+
 function SpiceScatterDecoration({ className }: { className?: string }) {
   return (
     <svg
@@ -56,13 +56,13 @@ function SpiceScatterDecoration({ className }: { className?: string }) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Scattered spice seed shapes */}
+      
       <ellipse cx="20" cy="30" rx="6" ry="3" transform="rotate(30 20 30)" fill="currentColor" opacity="0.12" />
       <ellipse cx="65" cy="20" rx="5" ry="2.5" transform="rotate(-20 65 20)" fill="currentColor" opacity="0.1" />
       <ellipse cx="80" cy="60" rx="7" ry="3" transform="rotate(45 80 60)" fill="currentColor" opacity="0.08" />
       <ellipse cx="35" cy="75" rx="5" ry="2.5" transform="rotate(-15 35 75)" fill="currentColor" opacity="0.1" />
       <ellipse cx="50" cy="50" rx="4" ry="2" transform="rotate(60 50 50)" fill="currentColor" opacity="0.12" />
-      {/* Small dots like ground spice */}
+      
       <circle cx="15" cy="60" r="2" fill="currentColor" opacity="0.08" />
       <circle cx="45" cy="25" r="1.5" fill="currentColor" opacity="0.1" />
       <circle cx="75" cy="40" r="2.5" fill="currentColor" opacity="0.07" />
@@ -75,7 +75,7 @@ function SpiceScatterDecoration({ className }: { className?: string }) {
 function BrandPanel() {
   return (
     <div className="relative hidden h-full flex-col overflow-hidden lg:flex">
-      {/* Warm spice gradient background - slightly different hue from login */}
+      
       <div
         className="absolute inset-0"
         style={{
@@ -84,7 +84,7 @@ function BrandPanel() {
         }}
       />
 
-      {/* Decorative scattered spice patterns */}
+      
       <div className="absolute right-0 top-0 text-[#D4A31E]">
         <SpiceScatterDecoration className="h-48 w-48" />
       </div>
@@ -92,7 +92,7 @@ function BrandPanel() {
         <SpiceScatterDecoration className="h-40 w-40" />
       </div>
 
-      {/* Warm radial glows */}
+      
       <div
         className="absolute right-0 top-1/3 h-56 w-56 rounded-full opacity-15 blur-3xl"
         style={{ background: "radial-gradient(circle, #D4A31E 0%, transparent 70%)" }}
@@ -102,7 +102,7 @@ function BrandPanel() {
         style={{ background: "radial-gradient(circle, #8B4513 0%, transparent 70%)" }}
       />
 
-      {/* Subtle dot pattern */}
+      
       <div
         className="absolute inset-0 opacity-[0.03]"
         style={{
@@ -112,7 +112,7 @@ function BrandPanel() {
         }}
       />
 
-      {/* Warm bottom accent gradient */}
+      
       <div
         className="absolute bottom-0 left-0 right-0 h-32 opacity-25"
         style={{
@@ -120,7 +120,7 @@ function BrandPanel() {
         }}
       />
 
-      {/* SVG leaf vine decoration */}
+      
       <svg
         className="absolute bottom-0 left-0 right-0 h-24 w-full text-[#F4A623]/[0.06]"
         viewBox="0 0 400 80"
@@ -132,7 +132,7 @@ function BrandPanel() {
         <path d="M0 65 Q90 35 180 60 T360 45 T400 55" stroke="currentColor" strokeWidth="1" fill="none" />
       </svg>
 
-      {/* Floating spice emoji decorations */}
+      
       {floatingSpices.map((spice, i) => (
         <motion.div
           key={i}
@@ -155,13 +155,13 @@ function BrandPanel() {
       ))}
 
       <div className="relative z-10 flex h-full flex-col justify-between p-10 xl:p-14">
-        {/* Logo */}
+        
         <Link href="/" className="inline-flex w-fit items-center gap-0.5">
           <span className="text-xl font-extrabold tracking-tight text-white">Lotus</span>
           <span className="text-xl font-extrabold tracking-tight text-[#E84672]">Mart</span>
         </Link>
 
-        {/* Headline */}
+        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -180,7 +180,7 @@ function BrandPanel() {
             discover India&apos;s finest spices.
           </p>
 
-          {/* Member benefits */}
+          
           <div className="mt-5 space-y-2.5">
             {memberBenefits.map(({ icon: Icon, text, emoji }) => (
               <div key={text} className="flex items-center gap-2.5">
@@ -193,7 +193,7 @@ function BrandPanel() {
           </div>
         </motion.div>
 
-        {/* Perks grid */}
+        
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -250,7 +250,7 @@ function RegisterForm() {
     try {
       await register(form, callbackUrl);
     } catch {
-      /* handled in useAuth */
+      
     }
   };
 
@@ -262,7 +262,7 @@ function RegisterForm() {
 
   return (
     <div className="flex h-full w-full flex-col justify-center px-6 py-12 sm:px-10 lg:px-14 xl:px-20">
-      {/* Mobile logo */}
+      
       <div className="mb-8 flex items-center justify-between lg:hidden">
         <Link href="/" className="inline-flex items-center gap-0.5">
           <span className="text-xl font-extrabold tracking-tight text-neutral-800">Lotus</span>
@@ -279,7 +279,7 @@ function RegisterForm() {
         transition={{ duration: 0.45, ease }}
         className="mx-auto w-full max-w-[380px]"
       >
-        {/* Header */}
+        
         <div className="mb-7">
           <h1 className="text-[1.75rem] font-bold tracking-tight text-neutral-900">
             Create your account
@@ -289,9 +289,9 @@ function RegisterForm() {
           </p>
         </div>
 
-        {/* Form */}
+        
         <form onSubmit={handleSubmit} noValidate className="space-y-3.5">
-          {/* Name */}
+          
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
               Full Name
@@ -321,7 +321,7 @@ function RegisterForm() {
             </AnimatePresence>
           </div>
 
-          {/* Email */}
+          
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
               Email
@@ -351,7 +351,7 @@ function RegisterForm() {
             </AnimatePresence>
           </div>
 
-          {/* Password */}
+          
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
               Password
@@ -388,7 +388,7 @@ function RegisterForm() {
             </AnimatePresence>
           </div>
 
-          {/* Confirm Password */}
+          
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
               Confirm Password
@@ -417,7 +417,7 @@ function RegisterForm() {
             </AnimatePresence>
           </div>
 
-          {/* Terms */}
+          
           <p className="pt-1 text-xs text-neutral-400">
             By creating an account you agree to our{" "}
             <Link href="/terms" className="text-neutral-500 underline underline-offset-2 hover:text-neutral-600">
@@ -429,7 +429,7 @@ function RegisterForm() {
             </Link>.
           </p>
 
-          {/* Submit */}
+          
           <motion.button
             type="submit"
             disabled={isLoading}
@@ -455,7 +455,7 @@ function RegisterForm() {
           </motion.button>
         </form>
 
-        {/* Sign in link */}
+        
         <p className="mt-6 text-center text-sm text-neutral-400">
           Already have an account?{" "}
           <Link href="/login" className="font-semibold text-[#E84672] transition-colors hover:text-[#C9305A]">

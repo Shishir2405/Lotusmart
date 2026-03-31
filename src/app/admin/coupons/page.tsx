@@ -131,13 +131,13 @@ export default function AdminCouponsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Form states
+  
   const [showForm, setShowForm] = useState(false);
   const [editTarget, setEditTarget] = useState<Coupon | null>(null);
   const [form, setForm] = useState<CouponForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
 
-  // Delete states
+  
   const [deleteTarget, setDeleteTarget] = useState<Coupon | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -314,7 +314,7 @@ export default function AdminCouponsPage() {
 
   return (
     <div className="p-8">
-      {/* Header */}
+      
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900">Coupons</h1>
@@ -327,7 +327,7 @@ export default function AdminCouponsPage() {
         </Button>
       </div>
 
-      {/* Search bar */}
+      
       <div className="mb-6">
         <Input
           placeholder="Search coupons by code or description..."
@@ -338,7 +338,7 @@ export default function AdminCouponsPage() {
         />
       </div>
 
-      {/* Create / Edit Form Modal */}
+      
       <Modal
         isOpen={showForm}
         onClose={closeForm}
@@ -346,7 +346,7 @@ export default function AdminCouponsPage() {
         size="xl"
       >
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          {/* Code field with Generate button */}
+          
           <div className="flex gap-3 items-end">
             <div className="flex-1">
               <Input
@@ -377,7 +377,7 @@ export default function AdminCouponsPage() {
             )}
           </div>
 
-          {/* Description */}
+          
           <Input
             label="Description"
             value={form.description}
@@ -387,7 +387,7 @@ export default function AdminCouponsPage() {
             placeholder="e.g. Summer sale - 25% off all orders"
           />
 
-          {/* Discount type and value */}
+          
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-1.5">
@@ -431,7 +431,7 @@ export default function AdminCouponsPage() {
             />
           </div>
 
-          {/* Min order and max discount */}
+          
           <div className="grid grid-cols-2 gap-4">
             <Input
               label="Minimum Order Value"
@@ -461,7 +461,7 @@ export default function AdminCouponsPage() {
             />
           </div>
 
-          {/* Usage limit */}
+          
           <Input
             label="Usage Limit"
             type="number"
@@ -475,7 +475,7 @@ export default function AdminCouponsPage() {
             hint="Leave blank for unlimited uses"
           />
 
-          {/* Validity dates */}
+          
           <div className="grid grid-cols-2 gap-4">
             <Input
               label="Valid From"
@@ -497,7 +497,7 @@ export default function AdminCouponsPage() {
             />
           </div>
 
-          {/* Active toggle */}
+          
           <div className="flex items-center gap-2">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -512,7 +512,7 @@ export default function AdminCouponsPage() {
             </label>
           </div>
 
-          {/* Actions */}
+          
           <div className="flex gap-3 pt-2 border-t border-neutral-100">
             <Button
               type="submit"
@@ -528,7 +528,7 @@ export default function AdminCouponsPage() {
         </form>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      
       <Modal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
@@ -566,7 +566,7 @@ export default function AdminCouponsPage() {
         </div>
       </Modal>
 
-      {/* Coupons Table */}
+      
       <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -666,7 +666,7 @@ export default function AdminCouponsPage() {
                           animate={{ opacity: 1 }}
                           className="hover:bg-[#FAFAF9] transition-colors group"
                         >
-                          {/* Code */}
+                          
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-semibold font-mono text-neutral-800 tracking-wide">
@@ -687,7 +687,7 @@ export default function AdminCouponsPage() {
                             )}
                           </td>
 
-                          {/* Discount */}
+                          
                           <td className="px-4 py-4">
                             <div className="flex items-center gap-1.5">
                               <span className="text-sm font-semibold text-[#E84672]">
@@ -707,7 +707,7 @@ export default function AdminCouponsPage() {
                               )}
                           </td>
 
-                          {/* Min Order */}
+                          
                           <td className="px-4 py-4 text-sm text-neutral-600">
                             {coupon.minOrderValue > 0 ? (
                               `$${coupon.minOrderValue.toFixed(2)}`
@@ -716,7 +716,7 @@ export default function AdminCouponsPage() {
                             )}
                           </td>
 
-                          {/* Usage */}
+                          
                           <td className="px-4 py-4">
                             <span className="text-sm text-neutral-600">
                               {coupon.usedCount}
@@ -734,7 +734,7 @@ export default function AdminCouponsPage() {
                             )}
                           </td>
 
-                          {/* Valid Period */}
+                          
                           <td className="px-4 py-4">
                             <p className="text-sm text-neutral-600">
                               {formatDate(coupon.validFrom)}
@@ -744,7 +744,7 @@ export default function AdminCouponsPage() {
                             </p>
                           </td>
 
-                          {/* Status */}
+                          
                           <td className="px-4 py-4">
                             <button onClick={() => toggleActive(coupon)}>
                               <Badge variant={status.variant} dot>
@@ -753,7 +753,7 @@ export default function AdminCouponsPage() {
                             </button>
                           </td>
 
-                          {/* Actions */}
+                          
                           <td className="px-6 py-4 text-right">
                             <div className="flex items-center justify-end gap-1.5">
                               <button

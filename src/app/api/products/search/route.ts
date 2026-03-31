@@ -1,4 +1,4 @@
-// GET /api/products/search?q=... — fast autocomplete search (public)
+
 
 import { NextRequest } from "next/server";
 

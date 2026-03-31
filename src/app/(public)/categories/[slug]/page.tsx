@@ -34,11 +34,11 @@ export default async function CategoryPage({ params }: PageProps) {
 
   return (
     <div className="container-wide py-10">
-      {/* Category header */}
+      
       <div className="mb-8">
         {category.image && (
           <div className="relative h-40 md:h-56 rounded-2xl overflow-hidden mb-6">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            
             <img src={category.image} alt={category.name} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             <div className="absolute bottom-6 left-6">

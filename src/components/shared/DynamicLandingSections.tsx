@@ -13,7 +13,6 @@ import {
   RiCheckLine,
 } from "react-icons/ri";
 
-/* ─── Types ─── */
 
 interface Product {
   _id: string;
@@ -41,7 +40,6 @@ interface SectionProps {
   section: LandingSection;
 }
 
-/* ─── Product Card ─── */
 
 function ProductCard({ product }: { product: Product }) {
   const discount = product.compareAtPrice
@@ -102,7 +100,6 @@ function ProductCard({ product }: { product: Product }) {
   );
 }
 
-/* ─── Section Header ─── */
 
 function SectionHeader({
   title,
@@ -137,7 +134,6 @@ function SectionHeader({
   );
 }
 
-/* ─── Renderer: Product Carousel ─── */
 
 function ProductCarouselRenderer({ section }: SectionProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -228,7 +224,6 @@ function ProductCarouselRenderer({ section }: SectionProps) {
   );
 }
 
-/* ─── Renderer: Custom Products Grid ─── */
 
 function CustomProductsRenderer({ section }: SectionProps) {
   if (!section.products || section.products.length === 0) return null;
@@ -249,7 +244,6 @@ function CustomProductsRenderer({ section }: SectionProps) {
   );
 }
 
-/* ─── Renderer: Newsletter ─── */
 
 function NewsletterRenderer({ section }: SectionProps) {
   const [email, setEmail] = useState("");
@@ -291,7 +285,7 @@ function NewsletterRenderer({ section }: SectionProps) {
     <section style={{ backgroundColor: bgColor }}>
       <div className="mx-auto max-w-7xl px-6 py-16 sm:px-8 lg:px-12 lg:py-24">
         <div className="mx-auto max-w-2xl text-center">
-          {/* Decorative line */}
+          
           <div className="mb-5 flex items-center justify-center gap-3">
             <span
               className="h-px w-8"
@@ -409,7 +403,6 @@ function NewsletterRenderer({ section }: SectionProps) {
   );
 }
 
-/* ─── Renderer: Custom HTML ─── */
 
 function CustomHtmlRenderer({ section }: SectionProps) {
   const content = (section.settings?.html as string) || "";
@@ -423,7 +416,6 @@ function CustomHtmlRenderer({ section }: SectionProps) {
   );
 }
 
-/* ─── Fallback Renderer ─── */
 
 function FallbackRenderer({ section }: SectionProps) {
   return (
@@ -440,7 +432,6 @@ function FallbackRenderer({ section }: SectionProps) {
   );
 }
 
-/* ─── Main Component ─── */
 
 export function DynamicLandingSections({ section }: SectionProps) {
   switch (section.type) {
@@ -452,8 +443,8 @@ export function DynamicLandingSections({ section }: SectionProps) {
       return <NewsletterRenderer section={section} />;
     case "custom_html":
       return <CustomHtmlRenderer section={section} />;
-    // These types are handled by dedicated components in page.tsx but
-    // we provide a graceful fallback if they are ever routed here.
+    
+    
     case "hero_banners":
     case "category_grid":
     case "featured_products":

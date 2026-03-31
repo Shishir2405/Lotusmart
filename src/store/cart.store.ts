@@ -1,10 +1,4 @@
-/**
- * Cart Store — works for BOTH guests and authenticated users.
- *
- * Guest  → items persisted in localStorage.
- * Logged in → items synced to server; localStorage acts as the source of truth
- *             until the user logs in, at which point we merge via /api/cart/merge.
- */
+
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -32,7 +26,7 @@ interface CartState {
   couponCode: string | null;
   discount: number;
 
-  // Actions
+  
   addItem: (item: Omit<CartItem, "quantity"> & { quantity?: number }) => void;
   removeItem: (productId: string, variant?: CartVariant) => void;
   updateQuantity: (productId: string, quantity: number, variant?: CartVariant) => void;
@@ -40,10 +34,10 @@ interface CartState {
   applyCoupon: (code: string, discount: number) => void;
   removeCoupon: () => void;
 
-  // Merge server cart into local (used after login)
+  
   mergeServerCart: (serverItems: CartItem[]) => void;
 
-  // Computed helpers (called as functions, not selectors)
+  
   getItemCount: () => number;
   getSubtotal: () => number;
   getTotal: () => number;
@@ -128,7 +122,7 @@ export const useCartStore = create<CartState>()(
             if (!exists) {
               merged.push(local);
             } else {
-              // Take the higher quantity (capped at stock)
+              
               exists.quantity = Math.min(
                 Math.max(exists.quantity, local.quantity),
                 local.stock,

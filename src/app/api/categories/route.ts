@@ -1,5 +1,4 @@
-// GET  /api/categories — list all active categories (public)
-// POST /api/categories — create category (admin only)
+
 
 import { NextRequest } from "next/server";
 
@@ -9,9 +8,7 @@ import { requireAdmin } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import Category from "@/modules/products/category.model";
 
-// ──────────────────────────────────────────────
-// GET /api/categories
-// ──────────────────────────────────────────────
+
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
@@ -20,7 +17,7 @@ export async function GET(request: NextRequest) {
     const includeSubcategories =
       searchParams.get("includeSubcategories") === "true";
 
-    // Fetch top-level categories (no parent)
+    
     const query = Category.find({ isActive: true, parent: null }).sort({
       sortOrder: 1,
       name: 1,
@@ -43,9 +40,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// ──────────────────────────────────────────────
-// POST /api/categories  (admin only)
-// ──────────────────────────────────────────────
+
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
@@ -58,7 +53,7 @@ export async function POST(request: NextRequest) {
       throw ApiError.badRequest("Category name is required");
     }
 
-    // Verify parent exists if provided
+    
     if (parent) {
       const parentDoc = await Category.findById(parent).lean();
       if (!parentDoc) {

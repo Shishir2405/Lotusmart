@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-/* Animated broken-glass shards */
+
 const shards = [
   { x: -60, y: -40, rotate: -18, scale: 0.9, delay: 0 },
   { x: 30, y: -55, rotate: 12, scale: 0.75, delay: 0.05 },
@@ -20,7 +20,7 @@ const shards = [
 function BrokenCircle({ color }: { color: string }) {
   return (
     <div className="relative flex items-center justify-center">
-      {/* Central icon circle */}
+      
       <motion.div
         initial={{ scale: 0, rotate: -20 }}
         animate={{ scale: 1, rotate: 0 }}
@@ -31,7 +31,7 @@ function BrokenCircle({ color }: { color: string }) {
         <RiAlertLine size={42} color="#fff" />
       </motion.div>
 
-      {/* Orbiting broken fragments */}
+      
       {shards.map((s, i) => (
         <motion.div
           key={i}
@@ -43,7 +43,7 @@ function BrokenCircle({ color }: { color: string }) {
         />
       ))}
 
-      {/* Pulse ring */}
+      
       <motion.div
         animate={{ scale: [1, 1.35, 1], opacity: [0.15, 0, 0.15] }}
         transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
@@ -68,7 +68,7 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden p-8 text-center"
       style={{ backgroundColor: "#FFFDF7" }}
     >
-      {/* Background texture grid */}
+      
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.025]"
         style={{
@@ -78,7 +78,7 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
         }}
       />
 
-      {/* Top-left micro label */}
+      
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -90,7 +90,7 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
         LotusMart
       </motion.div>
 
-      {/* Top-right status pill */}
+      
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -107,19 +107,19 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
         Error Detected
       </motion.div>
 
-      {/* Main content */}
+      
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease }}
         className="flex max-w-md flex-col items-center"
       >
-        {/* Icon */}
+        
         <div className="mb-10">
           <BrokenCircle color="#E84672" />
         </div>
 
-        {/* Error code */}
+        
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -162,7 +162,7 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
           An unexpected error occurred. Our team has been notified and is working on a fix.
         </motion.p>
 
-        {/* Live "fixing" indicator */}
+        
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -173,7 +173,7 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
           Auto-diagnosing{dots}
         </motion.p>
 
-        {/* Error message toggle */}
+        
         <AnimatePresence>
           {error.message && (
             <motion.div
@@ -212,7 +212,7 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
           )}
         </AnimatePresence>
 
-        {/* Actions */}
+        
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -247,7 +247,7 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
         </motion.div>
       </motion.div>
 
-      {/* Bottom micro text */}
+      
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

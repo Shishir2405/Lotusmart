@@ -31,7 +31,7 @@ export default async function TermsPage() {
 
   return (
     <section className="min-h-screen bg-[#FFFDF7]">
-      {/* Hero Banner */}
+      
       <div
         className="w-full py-12 md:py-16"
         style={{
@@ -40,7 +40,7 @@ export default async function TermsPage() {
         }}
       >
         <div className="max-w-4xl mx-auto px-6">
-          {/* Breadcrumb */}
+          
           <nav
             className="flex items-center gap-2 text-[0.78rem] font-medium mb-8"
             style={{ color: "#B8AE86" }}
@@ -56,7 +56,7 @@ export default async function TermsPage() {
             <span style={{ color: "#78716c" }}>Terms & Conditions</span>
           </nav>
 
-          {/* Header */}
+          
           <div className="flex items-center gap-3 mb-3">
             <span className="h-px w-8" style={{ backgroundColor: "#E84672" }} />
             <span
@@ -95,7 +95,7 @@ export default async function TermsPage() {
         </div>
       </div>
 
-      {/* Content */}
+      
       <div className="max-w-4xl mx-auto px-6 py-10 md:py-14">
         <div
           className="rounded-2xl bg-white p-6 md:p-10"

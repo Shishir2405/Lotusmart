@@ -137,7 +137,7 @@ export default function ContactPage() {
 
   return (
     <section className="min-h-screen bg-[#FFFDF7]">
-      {/* Hero Banner */}
+      
       <div
         className="w-full py-12 md:py-16"
         style={{
@@ -146,7 +146,7 @@ export default function ContactPage() {
         }}
       >
         <div className="max-w-4xl mx-auto px-6">
-          {/* Breadcrumb */}
+          
           <motion.nav
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -165,7 +165,7 @@ export default function ContactPage() {
             <span style={{ color: "#78716c" }}>Contact Us</span>
           </motion.nav>
 
-          {/* Header */}
+          
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -196,7 +196,7 @@ export default function ContactPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-6 py-10 md:py-14">
-        {/* Contact Details Grid */}
+        
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
@@ -237,14 +237,14 @@ export default function ContactPage() {
           ))}
         </motion.div>
 
-        {/* Business Hours & Social Links */}
+        
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.5, ease }}
           className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12"
         >
-          {/* Business Hours */}
+          
           <div
             className="p-5 rounded-2xl bg-white"
             style={{ border: "1px solid #EBE8D8" }}
@@ -273,7 +273,7 @@ export default function ContactPage() {
             </p>
           </div>
 
-          {/* Social Links */}
+          
           <div
             className="p-5 rounded-2xl bg-white"
             style={{ border: "1px solid #EBE8D8" }}
@@ -321,7 +321,7 @@ export default function ContactPage() {
           </div>
         </motion.div>
 
-        {/* Contact Form */}
+        
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
@@ -346,7 +346,7 @@ export default function ContactPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {/* Name */}
+              
               <div>
                 <label
                   htmlFor="name"
@@ -371,7 +371,7 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              {/* Email */}
+              
               <div>
                 <label
                   htmlFor="email"
@@ -397,7 +397,7 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* Subject */}
+            
             <div>
               <label
                 htmlFor="subject"
@@ -423,7 +423,7 @@ export default function ContactPage() {
               </select>
             </div>
 
-            {/* Message */}
+            
             <div>
               <label
                 htmlFor="message"
@@ -443,7 +443,7 @@ export default function ContactPage() {
               />
             </div>
 
-            {/* Submit */}
+            
             <motion.button
               type="submit"
               disabled={submitting}
@@ -470,7 +470,7 @@ export default function ContactPage() {
           </form>
         </motion.div>
 
-        {/* Map Embed */}
+        
         {contact.mapEmbedUrl && (
           <motion.div
             id="map"
@@ -494,7 +494,7 @@ export default function ContactPage() {
           </motion.div>
         )}
 
-        {/* FAQ CTA */}
+        
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -1,4 +1,4 @@
-// POST /api/auth/logout — Clear auth cookie and end session
+
 
 import { ApiError } from "@/lib/api-error";
 import { successResponse, errorResponse } from "@/lib/api-response";

@@ -1,22 +1,22 @@
 @import "tailwindcss";
 
-/* ─── Font theme (Tailwind v4) ─── */
+
 @theme {
   --font-sans: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
   --font-serif: var(--font-playfair), "Playfair Display", Georgia, serif;
 }
 
-/* ─── Global heading font pairing ─── */
+
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-serif);
 }
 
-/* Utility class for heading font on non-heading elements */
+
 .font-heading {
   font-family: var(--font-serif);
 }
 
-/* ─── Toast animations ─── */
+
 .go2072408551 {
   animation: toast-slide-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
@@ -51,7 +51,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Hide Google Translate default UI */
+
 .goog-te-banner-frame,
 #goog-gt-tt,
 .goog-te-balloon-frame,
@@ -76,7 +76,7 @@ body > .skiptranslate {
   display: none !important;
 }
 
-/* Prevent Google Translate from adding top bar */
+
 .goog-te-banner-frame.skiptranslate {
   display: none !important;
 }

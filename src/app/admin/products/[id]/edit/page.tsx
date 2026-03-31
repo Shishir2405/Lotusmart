@@ -22,7 +22,7 @@ interface BulkPriceRow {
   unit: string;
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 interface ProductData {
   name: string;
   description: string;
@@ -71,7 +71,7 @@ interface ProductData {
   seo?: { metaTitle?: string; metaDescription?: string };
   videoUrl?: string;
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
+
 
 const PRODUCT_TYPES = [
   { value: "spice", label: "Spice" },
@@ -87,7 +87,7 @@ const DIMENSION_UNITS = ["cm", "in"];
 const CERTIFICATIONS = ["FSSAI", "Organic India", "ISO 22000", "HACCP", "GMP", "Halal", "Kosher", "USDA Organic", "India Organic", "Non-GMO"];
 
 const EMPTY_FORM = {
-  // Basic Information
+  
   name: "",
   description: "",
   shortDescription: "",
@@ -99,7 +99,7 @@ const EMPTY_FORM = {
   brand: "",
   manufacturer: "",
   tags: "",
-  // Pricing
+  
   price: "",
   compareAtPrice: "",
   costPrice: "",
@@ -108,7 +108,7 @@ const EMPTY_FORM = {
   pricePerUnit: "",
   gstRate: "0",
   hsnCode: "",
-  // Inventory
+  
   stock: "",
   lowStockThreshold: "",
   unit: "g",
@@ -116,7 +116,7 @@ const EMPTY_FORM = {
   shippingWeight: "",
   minOrderQuantity: "",
   maxOrderQuantity: "",
-  // Product Details
+  
   countryOfOrigin: "India",
   ingredients: "",
   shelfLife: "",
@@ -127,7 +127,7 @@ const EMPTY_FORM = {
   isOrganic: false,
   isVegan: false,
   isGlutenFree: false,
-  // Nutrition Information
+  
   servingSize: "",
   calories: "",
   totalFat: "",
@@ -139,18 +139,18 @@ const EMPTY_FORM = {
   dietaryFiber: "",
   sugars: "",
   protein: "",
-  // Dimensions & Shipping
+  
   length: "",
   width: "",
   height: "",
   dimensionUnit: "cm",
   returnPolicy: "",
   warranty: "",
-  // SEO & Media
+  
   metaTitle: "",
   metaDescription: "",
   videoUrl: "",
-  // Visibility
+  
   isActive: true,
   isFeatured: false,
 };
@@ -411,13 +411,13 @@ export default function EditProductPage() {
       <h1 className="text-2xl font-bold text-neutral-900 mb-6">Edit Product</h1>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* ── Product Images ── */}
+        
         <div className={sectionClass}>
           <h2 className="font-semibold text-neutral-800 mb-4">Product Images</h2>
           <div className="flex flex-wrap gap-3 mb-3">
             {images.map((url, i) => (
               <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border border-neutral-200 group">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+                
                 <img src={url} alt="" className="w-full h-full object-cover" />
                 <button
                   type="button"
@@ -438,7 +438,7 @@ export default function EditProductPage() {
           <p className="text-xs text-neutral-400">First image is used as the main product image.</p>
         </div>
 
-        {/* ── Basic Information ── */}
+        
         <div className={sectionClass}>
           <h2 className="font-semibold text-neutral-800">Basic Information</h2>
           <Input label="Product Name *" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required />
@@ -492,7 +492,7 @@ export default function EditProductPage() {
           <Input label="Tags (comma-separated)" value={form.tags} onChange={(e) => setForm((f) => ({ ...f, tags: e.target.value }))} placeholder="spice, organic, premium" />
         </div>
 
-        {/* ── Pricing ── */}
+        
         <div className={sectionClass}>
           <h2 className="font-semibold text-neutral-800">Pricing</h2>
           <div className="grid grid-cols-3 gap-4">
@@ -517,7 +517,7 @@ export default function EditProductPage() {
 
         </div>
 
-        {/* ── Inventory ── */}
+        
         <div className={sectionClass}>
           <h2 className="font-semibold text-neutral-800">Inventory</h2>
           <div className="grid grid-cols-2 gap-4">
@@ -540,7 +540,7 @@ export default function EditProductPage() {
           </div>
         </div>
 
-        {/* ── Bulk Pricing ── */}
+        
         <div className={sectionClass}>
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-neutral-800">Bulk Pricing</h2>
@@ -569,7 +569,7 @@ export default function EditProductPage() {
           ))}
         </div>
 
-        {/* ── Product Details ── */}
+        
         <div className={sectionClass}>
           <h2 className="font-semibold text-neutral-800">Product Details</h2>
           <div className="grid grid-cols-3 gap-4">
@@ -621,7 +621,7 @@ export default function EditProductPage() {
           </div>
         </div>
 
-        {/* ── Nutrition Information (collapsible) ── */}
+        
         <div className="bg-white rounded-2xl border border-neutral-100">
           <button
             type="button"
@@ -656,7 +656,7 @@ export default function EditProductPage() {
           )}
         </div>
 
-        {/* ── Dimensions & Shipping ── */}
+        
         <div className={sectionClass}>
           <h2 className="font-semibold text-neutral-800">Dimensions & Shipping</h2>
           <div className="grid grid-cols-4 gap-4">
@@ -683,7 +683,7 @@ export default function EditProductPage() {
           <Input label="Warranty" value={form.warranty} onChange={(e) => setForm((f) => ({ ...f, warranty: e.target.value }))} placeholder="e.g. 6 months" />
         </div>
 
-        {/* ── SEO & Media ── */}
+        
         <div className={sectionClass}>
           <h2 className="font-semibold text-neutral-800">SEO & Media</h2>
           <Input label="Meta Title" value={form.metaTitle} onChange={(e) => setForm((f) => ({ ...f, metaTitle: e.target.value }))} placeholder="Page title for search engines" />
@@ -700,7 +700,7 @@ export default function EditProductPage() {
           <Input label="Video URL" value={form.videoUrl} onChange={(e) => setForm((f) => ({ ...f, videoUrl: e.target.value }))} placeholder="https://youtube.com/..." />
         </div>
 
-        {/* ── Visibility ── */}
+        
         <div className="bg-white rounded-2xl p-5 border border-neutral-100 space-y-3">
           <h2 className="font-semibold text-neutral-800">Visibility</h2>
           <label className="flex items-center gap-3 cursor-pointer">

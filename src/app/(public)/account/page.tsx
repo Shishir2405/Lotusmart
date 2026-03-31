@@ -41,7 +41,7 @@ export default function AccountPage() {
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
 
-  // Fetch recent orders
+  
   useEffect(() => {
     axios
       .get<{ data: RecentOrder[] }>("/api/orders?limit=5")
@@ -71,7 +71,7 @@ export default function AccountPage() {
       <h1 className="text-2xl font-bold text-neutral-900 mb-8">My Account</h1>
 
       <div className="grid md:grid-cols-3 gap-6">
-        {/* Profile sidebar */}
+        
         <motion.div
           initial={{ opacity: 0, x: -16 }}
           animate={{ opacity: 1, x: 0 }}
@@ -111,13 +111,13 @@ export default function AccountPage() {
           </nav>
         </motion.div>
 
-        {/* Main content */}
+        
         <motion.div
           initial={{ opacity: 0, x: 16 }}
           animate={{ opacity: 1, x: 0 }}
           className="md:col-span-2 space-y-6"
         >
-          {/* Profile form */}
+          
           <div className="bg-white rounded-2xl p-6 border border-neutral-100">
             <h3 className="font-semibold text-neutral-900 mb-5">
               Personal Information
@@ -158,7 +158,7 @@ export default function AccountPage() {
             </form>
           </div>
 
-          {/* Recent orders */}
+          
           <div className="bg-white rounded-2xl p-6 border border-neutral-100">
             <div className="flex items-center justify-between mb-5">
               <h3 className="font-semibold text-neutral-900">Recent Orders</h3>

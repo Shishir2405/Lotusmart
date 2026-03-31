@@ -1,5 +1,4 @@
-// PATCH  /api/cart/[itemId] — update item quantity (0 = remove)
-// DELETE /api/cart/[itemId] — remove specific item from cart
+
 
 import mongoose from "mongoose";
 import { NextRequest } from "next/server";
@@ -12,9 +11,7 @@ import Cart from "@/modules/cart/cart.model";
 
 type RouteParams = { params: Promise<{ itemId: string }> };
 
-// ──────────────────────────────────────────────
-// PATCH /api/cart/[itemId]
-// ──────────────────────────────────────────────
+
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     await connectDB();
@@ -33,7 +30,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       throw ApiError.notFound("Cart not found");
     }
 
-    // Find the cart item by its product ObjectId (itemId is the productId here)
+    
     if (!mongoose.isValidObjectId(itemId)) {
       throw ApiError.badRequest("Invalid item id");
     }
@@ -43,7 +40,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       throw ApiError.notFound("Item not found in cart");
     }
 
-    // updateQuantity removes the item when quantity <= 0
+    
     await cart.updateQuantity(itemId, quantity, item.variant);
 
     const updatedCart = await Cart.findById(cart._id).populate(
@@ -63,9 +60,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-// ──────────────────────────────────────────────
-// DELETE /api/cart/[itemId]
-// ──────────────────────────────────────────────
+
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     await connectDB();

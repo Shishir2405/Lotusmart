@@ -1,4 +1,4 @@
-// POST /api/auth/reset-password — Reset password using a valid token
+
 
 import { NextRequest } from "next/server";
 
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // Validate
+    
     const parsed = resetPasswordSchema.safeParse(body);
     if (!parsed.success) {
       const fieldErrors = parsed.error.flatten().fieldErrors as Record<

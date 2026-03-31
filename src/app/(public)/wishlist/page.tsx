@@ -46,7 +46,7 @@ export default function WishlistPage() {
   const [removing, setRemoving] = useState<string | null>(null);
   const [movingToCart, setMovingToCart] = useState<string | null>(null);
 
-  // Fetch wishlist from server (works for both auth and anonymous via device ID)
+  
   useEffect(() => {
     setLoading(true);
     apiClient
@@ -56,7 +56,7 @@ export default function WishlistPage() {
         setServerItems(items.map((i) => i.product).filter(Boolean));
       })
       .catch(() => {
-        // If API fails (no device ID or auth), use local items
+        
         setServerItems([]);
       })
       .finally(() => setLoading(false));
@@ -109,7 +109,7 @@ export default function WishlistPage() {
       });
       toast.success("Moved to cart");
     } catch {
-      // Fallback to local add
+      
       handleAddToCart(product);
     }
     setMovingToCart(null);

@@ -1,6 +1,4 @@
-// GET   /api/products/[id] — get single product by id or slug (public)
-// PATCH /api/products/[id] — update product (admin only)
-// DELETE /api/products/[id] — soft-delete product (admin only)
+
 
 import mongoose from "mongoose";
 import { NextRequest } from "next/server";
@@ -13,15 +11,13 @@ import Product from "@/modules/products/product.model";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
-// ──────────────────────────────────────────────
-// GET /api/products/[id]
-// ──────────────────────────────────────────────
+
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
     await connectDB();
     const { id } = await params;
 
-    // Try ObjectId first, fall back to slug lookup
+    
     const isObjectId = mongoose.isValidObjectId(id);
     const product = isObjectId
       ? await Product.findById(id).populate("category", "name slug").lean()
@@ -40,9 +36,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
   }
 }
 
-// ──────────────────────────────────────────────
-// PATCH /api/products/[id]  (admin only)
-// ──────────────────────────────────────────────
+
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     await connectDB();
@@ -51,7 +45,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const { id } = await params;
     const body = await request.json();
 
-    // Prevent overwriting slug directly (it is auto-generated from name)
+    
     delete body.slug;
 
     const product = await Product.findByIdAndUpdate(
@@ -71,9 +65,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-// ──────────────────────────────────────────────
-// DELETE /api/products/[id]  (admin only — soft delete)
-// ──────────────────────────────────────────────
+
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     await connectDB();

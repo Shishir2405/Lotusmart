@@ -1,7 +1,4 @@
-/**
- * Shiprocket Shipping Service
- * Handles order creation, AWB generation, label generation, and tracking.
- */
+
 
 import axios, { AxiosInstance } from "axios";
 
@@ -19,7 +16,7 @@ async function getToken(): Promise<string> {
   });
 
   cachedToken = res.data.token as string;
-  tokenExpiry = Date.now() + 9 * 60 * 60 * 1000; // re-auth every 9 hours
+  tokenExpiry = Date.now() + 9 * 60 * 60 * 1000; 
   return cachedToken;
 }
 
@@ -31,11 +28,10 @@ async function client(): Promise<AxiosInstance> {
   });
 }
 
-// ─── Types ─────────────────────────────────────────────────────────────────────
 
 export interface ShiprocketOrderPayload {
   order_id: string;
-  order_date: string; // "YYYY-MM-DD HH:mm"
+  order_date: string; 
   pickup_location: string;
   channel_id?: string;
   billing_customer_name: string;
@@ -65,7 +61,6 @@ export interface ShiprocketOrderPayload {
   weight: number;
 }
 
-// ─── API calls ────────────────────────────────────────────────────────────────
 
 export async function createShiprocketOrder(payload: ShiprocketOrderPayload) {
   const api = await client();
@@ -105,7 +100,7 @@ export async function trackByAWB(awb: string) {
 export async function getShippingRates(params: {
   pickup_postcode: string;
   delivery_postcode: string;
-  weight: number; // kg
+  weight: number; 
   cod: 0 | 1;
   length?: number;
   breadth?: number;

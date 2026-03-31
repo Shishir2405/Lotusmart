@@ -44,7 +44,7 @@ export function Badge({ children, variant = "neutral", className, dot }: BadgePr
   );
 }
 
-// Order status badge mapping
+
 const orderStatusMap: Record<string, BadgeVariant> = {
   placed: "info",
   confirmed: "secondary",

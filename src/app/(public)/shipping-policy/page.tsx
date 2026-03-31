@@ -31,7 +31,7 @@ export default async function ShippingPolicyPage() {
 
   return (
     <section className="min-h-screen bg-[#FFFDF7]">
-      {/* Hero Banner */}
+      
       <div
         className="w-full py-12 md:py-16"
         style={{
@@ -40,7 +40,7 @@ export default async function ShippingPolicyPage() {
         }}
       >
         <div className="max-w-4xl mx-auto px-6">
-          {/* Breadcrumb */}
+          
           <nav
             className="flex items-center gap-2 text-[0.78rem] font-medium mb-8"
             style={{ color: "#B8AE86" }}
@@ -56,7 +56,7 @@ export default async function ShippingPolicyPage() {
             <span style={{ color: "#78716c" }}>Shipping Policy</span>
           </nav>
 
-          {/* Header */}
+          
           <div className="flex items-center gap-3 mb-3">
             <span className="h-px w-8" style={{ backgroundColor: "#E84672" }} />
             <span
@@ -103,9 +103,9 @@ export default async function ShippingPolicyPage() {
         </div>
       </div>
 
-      {/* Content */}
+      
       <div className="max-w-4xl mx-auto px-6 py-10 md:py-14">
-        {/* Shipping Highlights */}
+        
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
           {[
             { stat: "2-5 Days", label: "Standard delivery across India" },

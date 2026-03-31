@@ -109,7 +109,7 @@ export default function AdminBannersPage() {
         )}
       </div>
 
-      {/* Create form */}
+      
       <AnimatePresence>
         {showForm && (
           <motion.div
@@ -120,12 +120,12 @@ export default function AdminBannersPage() {
           >
             <h2 className="font-semibold text-neutral-800 mb-5">New Banner</h2>
             <form onSubmit={handleCreate} className="space-y-4">
-              {/* Image upload */}
+              
               <div>
                 <label className="block text-sm font-medium text-neutral-700 mb-2">Banner Image *</label>
                 {imageUrl ? (
                   <div className="relative w-full h-40 rounded-xl overflow-hidden border border-neutral-200 mb-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    
                     <img src={imageUrl} alt="Banner preview" className="w-full h-full object-cover" />
                     <button type="button" onClick={() => setImageUrl("")} className="absolute top-2 right-2 bg-red-500 text-white rounded-lg p-1.5 text-xs">Remove</button>
                   </div>
@@ -172,7 +172,7 @@ export default function AdminBannersPage() {
         )}
       </AnimatePresence>
 
-      {/* Banner list */}
+      
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => <div key={i} className="bg-white rounded-2xl h-28 border border-neutral-100 animate-pulse" />)}
@@ -198,7 +198,7 @@ export default function AdminBannersPage() {
                   <RiDraggable size={18} />
                 </div>
                 <div className="w-28 h-16 shrink-0 bg-[#F7F6F0] overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  
                   <img src={banner.image} alt={banner.title} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 px-4 py-3 min-w-0">

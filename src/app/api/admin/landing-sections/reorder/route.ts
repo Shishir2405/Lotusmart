@@ -1,4 +1,4 @@
-// PUT /api/admin/landing-sections/reorder — Bulk update sort order
+
 
 import { NextRequest } from "next/server";
 import { ApiError } from "@/lib/api-error";

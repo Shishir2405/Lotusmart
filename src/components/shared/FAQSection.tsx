@@ -89,7 +89,7 @@ function AccordionItem({
       style={{ borderBottom: "1px solid #F0EDE6" }}
       onClick={onToggle}
     >
-      {/* Row */}
+      
       <div className="flex items-start gap-3 py-4 pr-1">
         <p
           className="flex-1 text-[0.83rem] font-semibold leading-snug transition-colors duration-200"
@@ -113,7 +113,7 @@ function AccordionItem({
         </motion.div>
       </div>
 
-      {/* Answer */}
+      
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div
@@ -154,12 +154,12 @@ export function FAQSection() {
   return (
     <section className="relative overflow-hidden py-16 lg:py-24 bg-white">
 
-      {/* Subtle top border */}
+      
       <div className="absolute top-0 left-0 right-0 h-px" style={{ backgroundColor: "#EBE8D8" }} />
 
       <div className="w-full max-w-[1400px] mx-auto px-6 md:px-8 lg:px-12">
 
-        {/* ── Header ── */}
+        
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -192,10 +192,10 @@ export function FAQSection() {
           </motion.p>
         </div>
 
-        {/* ── Main grid ── */}
+        
         <div className="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-14">
 
-          {/* ── Tab rail ── */}
+          
           <motion.div
             initial={{ opacity: 0, x: -14 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -240,7 +240,7 @@ export function FAQSection() {
               );
             })}
 
-            {/* Support card */}
+            
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -268,7 +268,7 @@ export function FAQSection() {
             </motion.div>
           </motion.div>
 
-          {/* ── Accordion panel ── */}
+          
           <AnimatePresence mode="wait">
             <motion.div
               key={activeCategory}
@@ -277,7 +277,7 @@ export function FAQSection() {
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.26, ease }}
             >
-              {/* Panel header */}
+              
               <div
                 className="flex items-center gap-2.5 mb-5 pb-4"
                 style={{ borderBottom: "1px solid #F0EDE6" }}
@@ -299,7 +299,7 @@ export function FAQSection() {
                 </span>
               </div>
 
-              {/* Questions */}
+              
               <div>
                 {activeData.questions.map((item, qi) => (
                   <AccordionItem
@@ -315,7 +315,7 @@ export function FAQSection() {
                 ))}
               </div>
 
-              {/* Footer note */}
+              
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

@@ -103,11 +103,11 @@ export default function OrderDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  // Fetch tracking data if shipment exists
+  
   useEffect(() => {
     if (!order?.shiprocketShipmentId && !order?.trackingNumber) return;
     fetchTracking();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [order?.shiprocketShipmentId, order?.trackingNumber]);
 
   const fetchTracking = async () => {
@@ -120,10 +120,10 @@ export default function OrderDetailPage() {
       const res = await axios.get(`/api/shipping/track?${params}`);
       const data = res.data?.data;
 
-      // Parse Shiprocket tracking response
+      
       if (data?.tracking_data?.shipment_track_activities) {
         setTrackingData(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          
           data.tracking_data.shipment_track_activities.map((a: any) => ({
             date: a.date,
             status: a["sr-status-label"] ?? a.status,
@@ -133,7 +133,7 @@ export default function OrderDetailPage() {
         );
       }
     } catch {
-      // Tracking not available yet
+      
     } finally {
       setTrackingLoading(false);
     }
@@ -202,7 +202,7 @@ export default function OrderDetailPage() {
 
   return (
     <div className="container-narrow py-10">
-      {/* Back */}
+      
       <Link
         href="/orders"
         className="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-800 transition-colors mb-6"
@@ -235,7 +235,7 @@ export default function OrderDetailPage() {
         </div>
       </div>
 
-      {/* Progress tracker */}
+      
       {!isCancelled && !isReturned && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -300,7 +300,7 @@ export default function OrderDetailPage() {
         </motion.div>
       )}
 
-      {/* Cancelled/Returned banner */}
+      
       {(isCancelled || isReturned) && (
         <div
           className={`rounded-2xl p-5 mb-5 border ${isCancelled ? "bg-red-50 border-red-200" : "bg-amber-50 border-amber-200"}`}
@@ -324,7 +324,7 @@ export default function OrderDetailPage() {
       )}
 
       <div className="grid md:grid-cols-5 gap-5">
-        {/* Items with images */}
+        
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -376,7 +376,7 @@ export default function OrderDetailPage() {
               ))}
             </div>
 
-            {/* Totals */}
+            
             <div className="mt-4 pt-3 border-t border-[#EBE8D8] space-y-1.5">
               <div className="flex justify-between text-sm text-neutral-500">
                 <span>Subtotal</span>
@@ -411,7 +411,7 @@ export default function OrderDetailPage() {
             </div>
           </div>
 
-          {/* Shiprocket Tracking Timeline */}
+          
           {(trackingData.length > 0 || trackingLoading) && (
             <div className="bg-white rounded-2xl p-5 border border-neutral-100">
               <div className="flex items-center justify-between mb-4">
@@ -475,14 +475,14 @@ export default function OrderDetailPage() {
           )}
         </motion.div>
 
-        {/* Sidebar */}
+        
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="md:col-span-2 space-y-4"
         >
-          {/* Shipping address */}
+          
           <div className="bg-white rounded-2xl p-5 border border-neutral-100">
             <div className="flex items-center gap-2 mb-3">
               <RiMapPinLine className="text-[#E84672]" size={16} />
@@ -506,7 +506,7 @@ export default function OrderDetailPage() {
             </p>
           </div>
 
-          {/* Payment details */}
+          
           <div className="bg-white rounded-2xl p-5 border border-neutral-100">
             <div className="flex items-center gap-2 mb-3">
               <RiBankCardLine className="text-[#E84672]" size={16} />
@@ -558,7 +558,7 @@ export default function OrderDetailPage() {
             </div>
           </div>
 
-          {/* Order timeline */}
+          
           <div className="bg-white rounded-2xl p-5 border border-neutral-100">
             <div className="flex items-center gap-2 mb-3">
               <RiTimeLine className="text-[#E84672]" size={16} />
@@ -602,7 +602,7 @@ export default function OrderDetailPage() {
             </div>
           </div>
 
-          {/* Notes */}
+          
           {order.notes && (
             <div className="bg-white rounded-2xl p-5 border border-neutral-100">
               <h2 className="font-semibold text-neutral-900 text-sm mb-2">
@@ -612,7 +612,7 @@ export default function OrderDetailPage() {
             </div>
           )}
 
-          {/* Actions */}
+          
           <div className="space-y-2">
             {canCancel && (
               <Button

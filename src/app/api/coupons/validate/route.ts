@@ -1,6 +1,4 @@
-// POST /api/coupons/validate
-// Validates a coupon code and returns the discount amount.
-// Body: { code, orderTotal, categoryIds?, productIds? }
+
 
 import { NextRequest } from "next/server";
 import connectDB from "@/lib/db";
@@ -39,7 +37,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate discount
+    
     let discount =
       coupon.discountType === "percentage"
         ? (orderTotal * coupon.discountValue) / 100
@@ -49,7 +47,7 @@ export async function POST(request: NextRequest) {
       discount = Math.min(discount, coupon.maxDiscountAmount);
     }
 
-    discount = Math.min(discount, orderTotal); // never exceed total
+    discount = Math.min(discount, orderTotal); 
 
     return successResponse(
       {

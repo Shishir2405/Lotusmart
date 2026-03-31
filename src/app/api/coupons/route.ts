@@ -1,5 +1,4 @@
-// GET  /api/coupons        — list all coupons (admin only)
-// POST /api/coupons        — create coupon (admin only)
+
 
 import { NextRequest } from "next/server";
 import connectDB from "@/lib/db";

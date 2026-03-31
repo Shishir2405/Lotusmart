@@ -103,7 +103,7 @@ export default function AdminLoginPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-8">
-      {/* Dark premium background */}
+      
       <div
         className="absolute inset-0"
         style={{
@@ -112,7 +112,7 @@ export default function AdminLoginPage() {
         }}
       />
 
-      {/* Subtle grid pattern */}
+      
       <div
         className="absolute inset-0 opacity-[0.03]"
         style={{
@@ -122,7 +122,7 @@ export default function AdminLoginPage() {
         }}
       />
 
-      {/* Dark warm glow accents */}
+      
       <div
         className="absolute left-1/4 top-1/4 h-80 w-80 rounded-full opacity-[0.06] blur-3xl"
         style={{ background: "radial-gradient(circle, #E84672 0%, transparent 70%)" }}
@@ -132,7 +132,7 @@ export default function AdminLoginPage() {
         style={{ background: "radial-gradient(circle, #B59F6B 0%, transparent 70%)" }}
       />
 
-      {/* Top accent border */}
+      
       <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent, #E84672, transparent)" }} />
 
       <motion.div
@@ -142,9 +142,9 @@ export default function AdminLoginPage() {
         className="relative z-10 w-full max-w-[900px]"
       >
         <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-2xl backdrop-blur-sm lg:grid-cols-2">
-          {/* -- Left Panel -- Dark premium brand side -- */}
+          
           <div className="relative hidden overflow-hidden border-r border-white/[0.06] p-10 lg:flex lg:flex-col lg:justify-between">
-            {/* Inner gradient */}
+            
             <div
               className="absolute inset-0"
               style={{
@@ -153,13 +153,13 @@ export default function AdminLoginPage() {
               }}
             />
 
-            {/* Decorative rings */}
+            
             <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full border border-white/[0.03]" />
             <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full border border-white/[0.02]" />
             <div className="absolute -bottom-10 -left-10 h-36 w-36 rounded-full border border-[#E84672]/[0.04]" />
 
             <div className="relative z-10 flex h-full flex-col justify-between">
-              {/* Logo + badge */}
+              
               <div>
                 <Link href="/" className="inline-flex items-center gap-0.5">
                   <span className="text-xl font-extrabold tracking-tight text-white">
@@ -177,7 +177,7 @@ export default function AdminLoginPage() {
                 </div>
               </div>
 
-              {/* Hero text */}
+              
               <div>
                 <h2 className="text-xl font-bold tracking-tight text-white">
                   Manage your entire
@@ -190,7 +190,7 @@ export default function AdminLoginPage() {
                 </p>
               </div>
 
-              {/* Features grid */}
+              
               <div className="grid grid-cols-2 gap-2.5">
                 {features.map(({ icon: Icon, title, desc }) => (
                   <div
@@ -215,9 +215,9 @@ export default function AdminLoginPage() {
             </div>
           </div>
 
-          {/* -- Right Panel -- Login Form -- */}
+          
           <div className="flex flex-col justify-center bg-white p-8 sm:p-10">
-            {/* Mobile header */}
+            
             <div className="mb-8 flex items-center justify-between lg:hidden">
               <Link href="/" className="inline-flex items-center gap-0.5">
                 <span className="text-xl font-extrabold tracking-tight text-neutral-800">
@@ -232,7 +232,7 @@ export default function AdminLoginPage() {
               </Link>
             </div>
 
-            {/* Header */}
+            
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -253,7 +253,7 @@ export default function AdminLoginPage() {
               </p>
             </motion.div>
 
-            {/* General error */}
+            
             <AnimatePresence>
               {errors.general && (
                 <motion.div
@@ -267,7 +267,7 @@ export default function AdminLoginPage() {
               )}
             </AnimatePresence>
 
-            {/* Form */}
+            
             <motion.form
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -276,7 +276,7 @@ export default function AdminLoginPage() {
               noValidate
               className="space-y-4"
             >
-              {/* Email */}
+              
               <div className="space-y-1.5">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
                   Email
@@ -300,7 +300,7 @@ export default function AdminLoginPage() {
                 {errors.email && <p className="text-xs font-medium text-red-500">{errors.email}</p>}
               </div>
 
-              {/* Password */}
+              
               <div className="space-y-1.5">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
                   Password
@@ -332,7 +332,7 @@ export default function AdminLoginPage() {
                 {errors.password && <p className="text-xs font-medium text-red-500">{errors.password}</p>}
               </div>
 
-              {/* Submit */}
+              
               <motion.button
                 type="submit"
                 disabled={isLoading}
@@ -358,7 +358,7 @@ export default function AdminLoginPage() {
               </motion.button>
             </motion.form>
 
-            {/* Separator */}
+            
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

@@ -1,8 +1,4 @@
-/**
- * Auth Store
- * Tracks the currently logged-in user client-side.
- * On login/register success → triggers cart + wishlist merge.
- */
+
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -16,7 +12,7 @@ export interface AuthUser {
   avatar?: string;
   phone?: string;
   isVerified: boolean;
-  permissions?: string[]; // RBAC permissions - undefined means super admin (all access)
+  permissions?: string[]; 
 }
 
 interface AuthState {
@@ -45,7 +41,7 @@ export const useAuthStore = create<AuthState>()(
       logout: async () => {
         await axios.post("/api/auth/logout").catch(() => null);
         set({ user: null });
-        // Clear persisted cart + wishlist on logout
+        
         localStorage.removeItem("lotusmart-cart");
         localStorage.removeItem("lotusmart-wishlist");
       },
@@ -65,7 +61,7 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "lotusmart-auth",
       version: 1,
-      // Only persist the user object, not loading states
+      
       partialize: (state) => ({ user: state.user }),
     },
   ),

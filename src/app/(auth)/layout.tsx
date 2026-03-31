@@ -7,7 +7,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           "linear-gradient(135deg, #FAFAF9 0%, #FFF8F0 30%, #FEF3E2 50%, #FFF8F0 70%, #FAFAF9 100%)",
       }}
     >
-      {/* Warm spice-toned radial accents */}
+      
       <div
         className="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full opacity-[0.045] blur-3xl"
         style={{ background: "radial-gradient(circle, #F4A623 0%, transparent 70%)" }}
@@ -21,7 +21,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         style={{ background: "radial-gradient(circle, #E8891C 0%, transparent 70%)" }}
       />
 
-      {/* Subtle spice dot pattern overlay */}
+      
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.018]"
         style={{

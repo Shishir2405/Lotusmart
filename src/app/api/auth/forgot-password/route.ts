@@ -1,4 +1,4 @@
-// POST /api/auth/forgot-password — Initiate password reset flow
+
 
 import { NextRequest } from "next/server";
 
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // Validate
+    
     const parsed = forgotPasswordSchema.safeParse(body);
     if (!parsed.success) {
       const fieldErrors = parsed.error.flatten().fieldErrors as Record<
@@ -24,10 +24,10 @@ export async function POST(request: NextRequest) {
       throw ApiError.validationError(fieldErrors);
     }
 
-    // Generate reset token (email dispatch would happen here)
+    
     await forgotPassword(parsed.data.email);
 
-    // Always return the same generic message to prevent email enumeration
+    
     return successResponse(
       null,
       "If an account with that email exists, a password reset link has been sent.",

@@ -1,6 +1,4 @@
-// GET    /api/cart — get cart for authenticated user OR anonymous user (via x-device-id header)
-// POST   /api/cart — add / update item in cart
-// DELETE /api/cart — clear entire cart
+
 
 import { NextRequest } from "next/server";
 
@@ -11,9 +9,7 @@ import connectDB from "@/lib/db";
 import Cart from "@/modules/cart/cart.model";
 import Product from "@/modules/products/product.model";
 
-// ──────────────────────────────────────────────
-// Helper — resolve cart query (user or deviceId)
-// ──────────────────────────────────────────────
+
 async function resolveCartQuery(request: NextRequest) {
   const authUser = await getAuthUser(request);
   if (authUser) return { user: authUser.userId };
@@ -24,9 +20,7 @@ async function resolveCartQuery(request: NextRequest) {
   throw ApiError.unauthorized("Authentication or device ID required");
 }
 
-// ──────────────────────────────────────────────
-// Helper — find-or-create cart and populate items
-// ──────────────────────────────────────────────
+
 async function getOrCreateCart(query: { user?: string; deviceId?: string }) {
   let cart = await Cart.findOne(query).populate(
     "items.product",
@@ -40,9 +34,7 @@ async function getOrCreateCart(query: { user?: string; deviceId?: string }) {
   return cart;
 }
 
-// ──────────────────────────────────────────────
-// GET /api/cart
-// ──────────────────────────────────────────────
+
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
@@ -57,9 +49,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// ──────────────────────────────────────────────
-// POST /api/cart
-// ──────────────────────────────────────────────
+
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
@@ -77,7 +67,7 @@ export async function POST(request: NextRequest) {
       throw ApiError.badRequest("Quantity must be at least 1");
     }
 
-    // Validate product exists and has sufficient stock
+    
     const product = await Product.findById(productId).lean();
     if (!product || !product.isActive) {
       throw ApiError.notFound("Product not found or is no longer available");
@@ -104,7 +94,7 @@ export async function POST(request: NextRequest) {
       price: product.price,
     });
 
-    // Re-fetch with populated product details
+    
     const updatedCart = await Cart.findById(cart._id).populate(
       "items.product",
       "name slug images price stock isActive",
@@ -122,9 +112,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// ──────────────────────────────────────────────
-// DELETE /api/cart
-// ──────────────────────────────────────────────
+
 export async function DELETE(request: NextRequest) {
   try {
     await connectDB();

@@ -16,7 +16,7 @@ const ReviewSchema = new Schema<IReviewDocument>(
   { timestamps: true }
 );
 
-// One review per user per product
+
 ReviewSchema.index({ product: 1, user: 1 }, { unique: true });
 ReviewSchema.index({ product: 1, createdAt: -1 });
 

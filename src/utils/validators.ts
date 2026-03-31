@@ -1,10 +1,8 @@
-// Zod validation schemas for LotusMart
+
 
 import { z } from "zod";
 
-// ──────────────────────────────────────────────
-// Reusable field schemas
-// ──────────────────────────────────────────────
+
 const emailField = z
   .string()
   .min(1, "Email is required")
@@ -46,9 +44,7 @@ const slugField = z
     "Slug must be lowercase, alphanumeric, and may contain hyphens",
   );
 
-// ──────────────────────────────────────────────
-// Auth schemas
-// ──────────────────────────────────────────────
+
 export const registerSchema = z
   .object({
     name: nameField,
@@ -89,9 +85,7 @@ export const resetPasswordSchema = z
 
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 
-// ──────────────────────────────────────────────
-// Profile
-// ──────────────────────────────────────────────
+
 export const updateProfileSchema = z.object({
   name: nameField.optional(),
   phone: phoneField.optional().or(z.literal("")),
@@ -117,9 +111,7 @@ export const changePasswordSchema = z
 
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 
-// ──────────────────────────────────────────────
-// Address
-// ──────────────────────────────────────────────
+
 export const addressSchema = z.object({
   fullName: nameField,
   phone: phoneField,
@@ -146,9 +138,7 @@ export const addressSchema = z.object({
 
 export type AddressInput = z.infer<typeof addressSchema>;
 
-// ──────────────────────────────────────────────
-// Product variant option
-// ──────────────────────────────────────────────
+
 const variantOptionSchema = z.object({
   name: z.string().min(1, "Option name is required").max(100),
   value: z.string().min(1, "Option value is required").max(100),
@@ -163,9 +153,7 @@ const productVariantSchema = z.object({
     .min(1, "At least one option is required"),
 });
 
-// ──────────────────────────────────────────────
-// Product
-// ──────────────────────────────────────────────
+
 export const productSchema = z.object({
   name: z
     .string()
@@ -218,9 +206,7 @@ export const productSchema = z.object({
 
 export type ProductInput = z.infer<typeof productSchema>;
 
-// ──────────────────────────────────────────────
-// Category
-// ──────────────────────────────────────────────
+
 export const categorySchema = z.object({
   name: nameField,
   slug: slugField,
@@ -233,9 +219,7 @@ export const categorySchema = z.object({
 
 export type CategoryInput = z.infer<typeof categorySchema>;
 
-// ──────────────────────────────────────────────
-// Order
-// ──────────────────────────────────────────────
+
 const orderItemSchema = z.object({
   product: z.string().min(1, "Product ID is required"),
   name: z.string().min(1),
@@ -258,9 +242,7 @@ export const orderSchema = z.object({
 
 export type OrderInput = z.infer<typeof orderSchema>;
 
-// ──────────────────────────────────────────────
-// Banner
-// ──────────────────────────────────────────────
+
 export const bannerSchema = z.object({
   title: z.string().min(1, "Title is required").max(200).trim(),
   subtitle: z.string().max(300).optional().or(z.literal("")),
@@ -273,9 +255,7 @@ export const bannerSchema = z.object({
 
 export type BannerInput = z.infer<typeof bannerSchema>;
 
-// ──────────────────────────────────────────────
-// Review
-// ──────────────────────────────────────────────
+
 export const reviewSchema = z.object({
   product: z.string().min(1, "Product ID is required"),
   rating: z.number().int().min(1, "Rating must be at least 1").max(5, "Rating must be at most 5"),
@@ -290,9 +270,7 @@ export const reviewSchema = z.object({
 
 export type ReviewInput = z.infer<typeof reviewSchema>;
 
-// ──────────────────────────────────────────────
-// Coupon
-// ──────────────────────────────────────────────
+
 export const couponSchema = z
   .object({
     code: z
@@ -332,9 +310,7 @@ export const couponSchema = z
 
 export type CouponInput = z.infer<typeof couponSchema>;
 
-// ──────────────────────────────────────────────
-// Query / filter params (for API validation)
-// ──────────────────────────────────────────────
+
 export const filterParamsSchema = z.object({
   category: z.string().optional(),
   subcategory: z.string().optional(),
@@ -356,9 +332,7 @@ export const filterParamsSchema = z.object({
 
 export type FilterParamsInput = z.infer<typeof filterParamsSchema>;
 
-// ──────────────────────────────────────────────
-// Contact form
-// ──────────────────────────────────────────────
+
 export const contactFormSchema = z.object({
   name: nameField,
   email: emailField,

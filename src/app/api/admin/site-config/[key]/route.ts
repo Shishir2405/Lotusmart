@@ -1,6 +1,4 @@
-// GET /api/admin/site-config/[key] — Get single config
-// PUT /api/admin/site-config/[key] — Update config
-// DELETE /api/admin/site-config/[key] — Delete config
+
 
 import { NextRequest } from "next/server";
 import { ApiError } from "@/lib/api-error";

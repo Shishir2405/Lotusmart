@@ -80,7 +80,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
     >
       <Link href={`/products/${product.slug}`} className="block">
         <div className="bg-white rounded-2xl overflow-hidden border border-neutral-100 hover:border-neutral-200 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-300">
-          {/* Image */}
+          
           <div className="relative aspect-square overflow-hidden bg-[#F7F6F0]">
             {!imgError && product.images?.[0] ? (
               <Image
@@ -95,10 +95,10 @@ export function ProductCard({ product, className }: ProductCardProps) {
               <div className="w-full h-full flex items-center justify-center text-neutral-300 text-sm font-bold">No Image</div>
             )}
 
-            {/* Overlay actions */}
+            
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
 
-            {/* Wishlist button */}
+            
             <button
               onClick={handleWishlist}
               className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
@@ -111,7 +111,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
               )}
             </button>
 
-            {/* Badges */}
+            
             <div className="absolute top-3 left-3 flex flex-col gap-1.5">
               {discount > 0 && (
                 <span className="px-2 py-0.5 rounded-full bg-[#E84672] text-white text-xs font-bold">
@@ -131,7 +131,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
             </div>
           </div>
 
-          {/* Details */}
+          
           <div className="p-4">
             {product.category && (
               <p className="text-xs text-[#7A6E42] font-medium mb-1">{product.category.name}</p>
@@ -140,7 +140,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
               {product.name}
             </h3>
 
-            {/* Rating */}
+            
             {product.ratings && product.ratings.count > 0 && (
               <div className="flex items-center gap-1 mb-2">
                 <RiStarFill size={12} className="text-amber-400" />
@@ -150,7 +150,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
               </div>
             )}
 
-            {/* Price & CTA */}
+            
             <div className="flex items-center justify-between mt-3">
               <div>
                 <span className="text-base font-bold text-neutral-900">

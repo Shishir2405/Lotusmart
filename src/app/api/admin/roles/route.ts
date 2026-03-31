@@ -7,11 +7,11 @@ import AdminRole, { ADMIN_PERMISSIONS } from "@/modules/roles/admin-role.model";
 import type { ITokenPayload, AdminPermission } from "@/types";
 
 function hasPermission(user: ITokenPayload, permission: AdminPermission): boolean {
-  if (!user.permissions) return true; // super admin
+  if (!user.permissions) return true; 
   return user.permissions.includes(permission);
 }
 
-// GET — List all admin roles
+
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST — Create a new admin role
+
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
       throw ApiError.badRequest("At least one permission is required.");
     }
 
-    // Validate permissions
+    
     const invalidPerms = body.permissions.filter(
       (p: string) => !ADMIN_PERMISSIONS.includes(p as any)
     );

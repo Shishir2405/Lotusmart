@@ -11,9 +11,7 @@ import {
   RiFlashlightLine,
 } from "react-icons/ri";
 
-/* ─────────────────────────────────────────────
-   DATA
-───────────────────────────────────────────── */
+
 const primary = {
   id: "spice-bundle",
   eyebrow: "Limited Time",
@@ -56,9 +54,7 @@ const secondaries = [
 
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-/* ─────────────────────────────────────────────
-   COMPONENT
-───────────────────────────────────────────── */
+
 interface BannerStripProps {
   settings?: {
     image?: string;
@@ -70,7 +66,7 @@ interface BannerStripProps {
 }
 
 export function BannerStrip({ settings }: BannerStripProps = {}) {
-  // If admin provided custom banner settings, override the primary card data
+  
   const activePrimary = settings?.image
     ? {
         ...primary,
@@ -86,7 +82,7 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
   return (
     <section className="py-16 lg:py-24" style={{ backgroundColor: "#FAFAF9" }}>
       <div className="mx-auto w-full max-w-[1400px] px-6 md:px-8 lg:px-12">
-        {/* ── Header ── */}
+        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -120,9 +116,9 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
           </Link>
         </motion.div>
 
-        {/* ── Asymmetric grid ── */}
+        
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[3fr_2fr]">
-          {/* ── PRIMARY — tall left card ── */}
+          
           <motion.div
             initial={{ opacity: 0, x: -24 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -136,7 +132,7 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
                 transition={{ duration: 0.3, ease }}
                 className="relative h-[420px] cursor-pointer overflow-hidden rounded-3xl lg:h-[560px]"
               >
-                {/* Image */}
+                
                 <Image
                   src={activePrimary.image}
                   alt={activePrimary.headline}
@@ -146,7 +142,7 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
                   priority
                 />
 
-                {/* Rich gradient overlay */}
+                
                 <div
                   className="absolute inset-0"
                   style={{
@@ -158,9 +154,9 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
                   style={{ background: activePrimary.bg, opacity: 0.75 }}
                 />
 
-                {/* Content */}
+                
                 <div className="absolute inset-0 z-10 flex flex-col justify-between p-8">
-                  {/* Top */}
+                  
                   <div className="flex items-start justify-between">
                     <motion.span
                       initial={{ opacity: 0, y: -8 }}
@@ -178,7 +174,7 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
                       {activePrimary.eyebrow}
                     </motion.span>
 
-                    {/* Big discount badge */}
+                    
                     <motion.div
                       initial={{ scale: 0, rotate: -12 }}
                       whileInView={{ scale: 1, rotate: 0 }}
@@ -202,9 +198,9 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
                     </motion.div>
                   </div>
 
-                  {/* Bottom */}
+                  
                   <div>
-                    {/* Micro label */}
+                    
                     <p
                       className="mb-2 text-[0.62rem] font-black tracking-[0.2em] uppercase"
                       style={{ color: `${activePrimary.accentColor}80` }}
@@ -212,7 +208,7 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
                       {activePrimary.tag}
                     </p>
 
-                    {/* Headline */}
+                    
                     <h3
                       className="mb-4 leading-[0.92] font-black tracking-[-0.04em] whitespace-pre-line"
                       style={{
@@ -230,7 +226,7 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
                       {activePrimary.body}
                     </p>
 
-                    {/* CTA */}
+                    
                     <div className="flex items-center gap-4">
                       <motion.span
                         whileHover={{ x: 4 }}
@@ -250,7 +246,7 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
                   </div>
                 </div>
 
-                {/* Shine */}
+                
                 <motion.div
                   initial={{ x: "-100%", opacity: 0 }}
                   whileHover={{ x: "200%", opacity: 1 }}
@@ -261,7 +257,7 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
             </Link>
           </motion.div>
 
-          {/* ── SECONDARY — two stacked cards ── */}
+          
           <div className="flex flex-col gap-4">
             {secondaries.map((b, i) => (
               <motion.div
@@ -289,7 +285,7 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
                     <div className="absolute inset-0" style={{ background: b.bg, opacity: 0.82 }} />
 
                     <div className="absolute inset-0 z-10 flex flex-col justify-between p-6">
-                      {/* Top */}
+                      
                       <div className="flex items-center justify-between">
                         <span
                           className="inline-flex items-center gap-1.5 text-[0.6rem] font-black tracking-[0.18em] uppercase"
@@ -307,7 +303,7 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
                         </motion.span>
                       </div>
 
-                      {/* Bottom */}
+                      
                       <div>
                         <h3
                           className="mb-2 leading-[0.9] font-black tracking-[-0.03em] whitespace-pre-line"
@@ -324,7 +320,7 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
                       </div>
                     </div>
 
-                    {/* Shine */}
+                    
                     <motion.div
                       initial={{ x: "-100%", opacity: 0 }}
                       whileHover={{ x: "200%", opacity: 1 }}
@@ -338,7 +334,7 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
           </div>
         </div>
 
-        {/* ── Bottom micro strip ── */}
+        
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}

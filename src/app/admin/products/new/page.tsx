@@ -44,13 +44,13 @@ interface BulkPriceRow {
   unit: string;
 }
 
-// Filter out note-only entries from SKU data
+
 const SKU_OPTIONS = (skuCodesData as Record<string, unknown>[]).filter(
   (s): s is Record<string, unknown> & { sku: string; product_name: string; category: string } =>
     "sku" in s && typeof s.sku === "string" && !!s.sku,
 );
 
-// Filter out note-only entries from HSN data and normalize fields
+
 const HSN_OPTIONS = (hsnCodesData as Record<string, unknown>[]).filter(
   (h): h is Record<string, unknown> & { hsn: string; product_name: string; gst_pct: number } =>
     "hsn" in h && typeof h.hsn === "string" && !!h.hsn,
@@ -269,7 +269,7 @@ export default function NewProductPage() {
       </Link>
       <h1 className="text-2xl font-bold text-neutral-900 mb-6">Add New Product</h1>
 
-      {/* Step indicator */}
+      
       <div className="flex items-center gap-2 mb-8">
         {STEPS.map((s) => (
           <button key={s.id} type="button" onClick={() => s.id < step && setStep(s.id)}
@@ -287,14 +287,14 @@ export default function NewProductPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
 
-        {/* ── Step 1: Basic Info ── */}
+        
         {step === 1 && (<>
           <div className={sec}>
             <h2 className="font-semibold text-neutral-800 mb-4">Product Images</h2>
             <div className="flex flex-wrap gap-3 mb-3">
               {images.map((url, i) => (
                 <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border border-neutral-200 group">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  
                   <img src={url} alt="" className="w-full h-full object-cover" />
                   <button type="button" onClick={() => setImages((p) => p.filter((_, idx) => idx !== i))} className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <RiDeleteBinLine className="text-white" size={16} />
@@ -364,7 +364,7 @@ export default function NewProductPage() {
           </div>
         </>)}
 
-        {/* ── Step 2: Pricing & Inventory ── */}
+        
         {step === 2 && (<>
           <div className={sec}>
             <h2 className="font-semibold text-neutral-800">Pricing</h2>
@@ -446,7 +446,7 @@ export default function NewProductPage() {
           </div>
         </>)}
 
-        {/* ── Step 3: Details & Nutrition ── */}
+        
         {step === 3 && (<>
           <div className={sec}>
             <h2 className="font-semibold text-neutral-800">Product Details</h2>
@@ -511,7 +511,7 @@ export default function NewProductPage() {
           </div>
         </>)}
 
-        {/* ── Step 4: Shipping, SEO & Visibility ── */}
+        
         {step === 4 && (<>
           <div className={sec}>
             <h2 className="font-semibold text-neutral-800">Dimensions & Shipping</h2>
@@ -545,7 +545,7 @@ export default function NewProductPage() {
           </div>
         </>)}
 
-        {/* Navigation */}
+        
         <div className="flex items-center justify-between pt-2">
           <div>{step > 1 && <Button type="button" variant="outline" onClick={goPrev} leftIcon={<RiArrowLeftLine />}>Previous</Button>}</div>
           <div className="flex gap-3">

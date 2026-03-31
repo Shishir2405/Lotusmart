@@ -1,4 +1,4 @@
-// POST /api/orders/[id]/cancel — customer cancels their own order
+
 
 import { NextRequest } from "next/server";
 import connectDB from "@/lib/db";
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest, { params }: Params) {
     const order = await Order.findById(id);
     if (!order) throw ApiError.notFound("Order not found");
 
-    // Only owner can cancel (admin can cancel via PATCH /api/orders/[id])
+    
     if (order.user.toString() !== authUser.userId) {
       throw ApiError.forbidden("Access denied");
     }
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest, { params }: Params) {
     order.cancelReason = cancelReason;
     await order.save();
 
-    // Restore stock
+    
     for (const item of order.items) {
       await Product.findByIdAndUpdate(item.product, {
         $inc: { stock: item.quantity },

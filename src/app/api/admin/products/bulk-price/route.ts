@@ -1,4 +1,4 @@
-// POST /api/admin/products/bulk-price — Bulk update product prices (admin only)
+
 
 import { NextRequest } from "next/server";
 import mongoose from "mongoose";
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       throw ApiError.badRequest("Maximum 200 updates per request");
     }
 
-    // Validate each update
+    
     for (const update of updates) {
       if (!update.id || !mongoose.isValidObjectId(update.id)) {
         throw ApiError.badRequest(`Invalid product ID: ${update.id}`);

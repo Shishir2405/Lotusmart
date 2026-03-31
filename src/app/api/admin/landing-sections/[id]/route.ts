@@ -1,6 +1,4 @@
-// GET /api/admin/landing-sections/[id] — Get section
-// PUT /api/admin/landing-sections/[id] — Update section
-// DELETE /api/admin/landing-sections/[id] — Delete section
+
 
 import { NextRequest } from "next/server";
 import { ApiError } from "@/lib/api-error";

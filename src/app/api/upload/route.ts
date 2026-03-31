@@ -5,7 +5,7 @@ import { successResponse, errorResponse } from "@/lib/api-response";
 import { ApiError } from "@/lib/api-error";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
-const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+const MAX_SIZE_BYTES = 5 * 1024 * 1024; 
 const VALID_TARGETS: UploadTarget[] = ["products", "banners", "categories", "profiles"];
 
 export async function POST(req: NextRequest) {

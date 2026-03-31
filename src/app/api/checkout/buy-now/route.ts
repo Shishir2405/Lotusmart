@@ -1,6 +1,4 @@
-// POST /api/checkout/buy-now
-// Direct single-product checkout — bypasses cart entirely.
-// Body: { productId, quantity, variantName?, variantValue?, shippingAddress, paymentMethod, notes? }
+
 
 import { NextRequest } from "next/server";
 import connectDB from "@/lib/db";
@@ -35,14 +33,14 @@ export async function POST(request: NextRequest) {
 
     const qty = Math.max(1, Number(quantity));
 
-    // Fetch and validate product
+    
     const product = await Product.findById(productId).lean();
     if (!product || !product.isActive)
       throw ApiError.notFound("Product not found or unavailable");
     if (product.stock < qty)
       throw ApiError.badRequest(`Only ${product.stock} unit(s) in stock`);
 
-    // Resolve variant price adjustment
+    
     let unitPrice = product.price;
     let variantLabel: string | undefined;
 
@@ -88,10 +86,10 @@ export async function POST(request: NextRequest) {
       notes,
     });
 
-    // Decrement stock
+    
     await Product.findByIdAndUpdate(productId, { $inc: { stock: -qty } });
 
-    // Emails (non-blocking)
+    
     sendOrderConfirmation(authUser.email, authUser.name ?? "Customer", {
       orderNumber: order.orderNumber,
       items: [{ name: product.name, quantity: qty, price: unitPrice, image: product.images?.[0] ?? "" }],

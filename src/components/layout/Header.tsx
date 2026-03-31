@@ -39,9 +39,7 @@ import axios from "axios";
 import { CATEGORIES } from "@/config/constants";
 import { LanguageToggler } from "@/components/shared/LanguageToggler";
 
-/* ─────────────────────────────────────────────
-   TYPES
-───────────────────────────────────────────── */
+
 interface SearchResult {
   _id: string;
   name: string;
@@ -50,9 +48,7 @@ interface SearchResult {
   images: string[];
 }
 
-/* ─────────────────────────────────────────────
-   NAV CATEGORIES — dynamic from API with color rotation
-───────────────────────────────────────────── */
+
 interface NavCategory {
   name: string;
   slug: string;
@@ -166,9 +162,7 @@ function buildNavCategories(apiCats: APICategory[]): NavCategory[] {
   });
 }
 
-/* ─────────────────────────────────────────────
-   PROFILE DROPDOWN SECTIONS
-───────────────────────────────────────────── */
+
 const PROFILE_SECTIONS = [
   {
     title: "My Activity",
@@ -259,9 +253,7 @@ const PROFILE_SECTIONS = [
   },
 ];
 
-/* ─────────────────────────────────────────────
-   ICON BUTTON
-───────────────────────────────────────────── */
+
 function IconBtn({
   children,
   label,
@@ -310,9 +302,7 @@ function IconBtn({
   );
 }
 
-/* ─────────────────────────────────────────────
-   CATEGORY MEGA DROPDOWN
-───────────────────────────────────────────── */
+
 function CategoryMegaMenu({
   cat,
   onClose,
@@ -337,9 +327,9 @@ function CategoryMegaMenu({
       }}
     >
       <div className="grid grid-cols-[1fr_220px]">
-        {/* Left: sub-links */}
+        
         <div className="p-5">
-          {/* Header row */}
+          
           <div
             className="mb-4 flex items-center gap-2.5 border-b pb-3.5"
             style={{ borderColor: "#EBE8D8" }}
@@ -369,7 +359,7 @@ function CategoryMegaMenu({
             </Link>
           </div>
 
-          {/* Sub-links 2 col grid */}
+          
           <div className="grid grid-cols-2 gap-0.5">
             {cat.sub.map((sub, i) => (
               <motion.div
@@ -402,7 +392,7 @@ function CategoryMegaMenu({
           </div>
         </div>
 
-        {/* Right: featured card */}
+        
         <div
           className="border-l p-4"
           style={{ borderColor: "#EBE8D8", backgroundColor: "#FAFAF8" }}
@@ -451,9 +441,7 @@ function CategoryMegaMenu({
   );
 }
 
-/* ─────────────────────────────────────────────
-   PROFILE DROPDOWN
-───────────────────────────────────────────── */
+
 function ProfileDropdown({
   user,
   wishlistCount,
@@ -478,12 +466,12 @@ function ProfileDropdown({
         boxShadow: "0 28px 80px rgba(0,0,0,0.14)",
       }}
     >
-      {/* ── User header ── */}
+      
       <div
         className="relative overflow-hidden px-5 py-4"
         style={{ background: "linear-gradient(135deg, #1c1914 0%, #4D4529 100%)" }}
       >
-        {/* Decorative rings */}
+        
         <div
           className="pointer-events-none absolute -top-8 -right-8 h-28 w-28 rounded-full"
           style={{ border: "1.5px solid rgba(255,224,138,0.2)" }}
@@ -524,7 +512,7 @@ function ProfileDropdown({
           )}
         </div>
 
-        {/* Quick stats row */}
+        
         <div className="relative z-10 mt-4 grid grid-cols-3 gap-1.5">
           {[
             { label: "Orders", value: "12", icon: RiHeartPulseLine },
@@ -548,7 +536,7 @@ function ProfileDropdown({
         </div>
       </div>
 
-      {/* ── Sections ── */}
+      
       <div className="max-h-[320px] overflow-y-auto py-1.5" style={{ scrollbarWidth: "none" }}>
         {PROFILE_SECTIONS.map((section, si) => (
           <div key={section.title}>
@@ -612,7 +600,7 @@ function ProfileDropdown({
         ))}
       </div>
 
-      {/* ── Logout ── */}
+      
       <div className="border-t px-3 pt-1 pb-3" style={{ borderColor: "#EBE8D8" }}>
         <motion.button
           whileHover={{ backgroundColor: "#FEF2F2" }}
@@ -636,9 +624,7 @@ function ProfileDropdown({
   );
 }
 
-/* ─────────────────────────────────────────────
-   MAIN HEADER
-───────────────────────────────────────────── */
+
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
@@ -664,7 +650,7 @@ export function Header() {
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const debouncedSearch = useDebounce(searchQuery, 350);
 
-  /* ── Fetch categories from API ── */
+  
   useEffect(() => {
     axios
       .get<{ data: APICategory[] }>("/api/categories")
@@ -681,14 +667,14 @@ export function Header() {
       });
   }, []);
 
-  /* ── Scroll ── */
+  
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", h, { passive: true });
     return () => window.removeEventListener("scroll", h);
   }, []);
 
-  /* ── Search fetch ── */
+  
   useEffect(() => {
     if (!debouncedSearch || debouncedSearch.length < 2) {
       setSearchResults([]);
@@ -704,7 +690,7 @@ export function Header() {
       .finally(() => setSearchLoading(false));
   }, [debouncedSearch]);
 
-  /* ── Click outside ── */
+  
   useEffect(() => {
     const h = (e: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
@@ -755,7 +741,7 @@ export function Header() {
         backdropFilter: scrolled ? "blur(14px)" : "none",
       }}
     >
-      {/* ── Announcement bar ── */}
+      
       <motion.div
         initial={{ height: 0, opacity: 0 }}
         animate={{ height: "auto", opacity: 1 }}
@@ -784,10 +770,10 @@ export function Header() {
         </div>
       </motion.div>
 
-      {/* ── Main row ── */}
+      
       <div className="mx-auto w-full max-w-[1400px] px-6 md:px-8 lg:px-12">
         <div className="flex h-16 items-center justify-between gap-4">
-          {/* Logo */}
+          
           <Link href="/" className="flex-shrink-0">
             <motion.span
               whileHover={{ scale: 1.02 }}
@@ -809,7 +795,7 @@ export function Header() {
             </motion.span>
           </Link>
 
-          {/* ── Desktop nav ── */}
+          
           <nav
             ref={navRef}
             className="relative hidden items-center gap-0.5 lg:flex"
@@ -860,12 +846,12 @@ export function Header() {
               </motion.span>
             </Link>
 
-            {/* ── Mega dropdown portal ── */}
+            
             <AnimatePresence>
               {activeCatData && (
                 <div
                   className="absolute top-full left-0 z-50 pt-2"
-                  style={{ width: "1px" }} /* anchor — dropdown is self-positioned */
+                  style={{ width: "1px" }} 
                   onMouseEnter={() => handleCatHover(activeCatData.slug)}
                   onMouseLeave={() => handleCatHover(null)}
                 >
@@ -875,9 +861,9 @@ export function Header() {
             </AnimatePresence>
           </nav>
 
-          {/* ── Right actions ── */}
+          
           <div className="flex items-center gap-0.5">
-            {/* Search — hidden on mobile, shown in bottom nav */}
+            
             <div ref={searchRef} className="relative hidden lg:block">
               <IconBtn label="Search" onClick={() => setSearchOpen((v) => !v)}>
                 <RiSearchLine size={19} />
@@ -1038,26 +1024,26 @@ export function Header() {
               </AnimatePresence>
             </div>
 
-            {/* Language Toggler — hidden on mobile */}
+            
             <span className="hidden lg:block">
               <LanguageToggler />
             </span>
 
-            {/* Wishlist — hidden on mobile, shown in bottom nav */}
+            
             <span className="hidden lg:block">
               <IconBtn label="Wishlist" badge={wishlistCount} href="/wishlist">
                 <RiHeartLine size={19} />
               </IconBtn>
             </span>
 
-            {/* Cart — hidden on mobile, shown in bottom nav */}
+            
             <span className="hidden lg:block">
               <IconBtn label="Cart" badge={cartCount} href="/cart">
                 <RiShoppingCartLine size={19} />
               </IconBtn>
             </span>
 
-            {/* Profile */}
+            
             {user ? (
               <div ref={userMenuRef} className="relative">
                 <motion.button
@@ -1109,7 +1095,7 @@ export function Header() {
               </Link>
             )}
 
-            {/* Hamburger */}
+            
             <motion.button
               whileTap={{ scale: 0.92 }}
               onClick={() => setMobileOpen((v) => !v)}
@@ -1144,7 +1130,7 @@ export function Header() {
         </div>
       </div>
 
-      {/* ── Mobile Side Drawer Overlay ── */}
+      
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -1159,7 +1145,7 @@ export function Header() {
         )}
       </AnimatePresence>
 
-      {/* ── Mobile Side Drawer ── */}
+      
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -1170,7 +1156,7 @@ export function Header() {
             className="fixed top-0 right-0 z-50 flex h-full w-[280px] flex-col lg:hidden"
             style={{ backgroundColor: "#FFFDF7", boxShadow: "-8px 0 30px rgba(0,0,0,0.12)" }}
           >
-            {/* Drawer Header */}
+            
             <div
               className="flex items-center justify-between px-5 py-4"
               style={{ borderBottom: "1px solid #EBE8D8" }}
@@ -1188,7 +1174,7 @@ export function Header() {
               </motion.button>
             </div>
 
-            {/* Drawer Body — Categories Only */}
+            
             <nav className="flex-1 overflow-y-auto px-3 py-3" style={{ scrollbarWidth: "none" }}>
               {navCategories.map((cat, i) => {
                 const expanded = mobileExpandedCat === cat.slug;
@@ -1234,7 +1220,7 @@ export function Header() {
                           transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                           className="overflow-hidden"
                         >
-                          {/* View all for this category */}
+                          
                           <Link
                             href={`/categories/${cat.slug}`}
                             onClick={() => setMobileOpen(false)}
@@ -1289,7 +1275,7 @@ export function Header() {
                 );
               })}
 
-              {/* All Products link */}
+              
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -1309,7 +1295,7 @@ export function Header() {
               </motion.div>
             </nav>
 
-            {/* Drawer Footer */}
+            
             <div className="px-4 pb-5 pt-2" style={{ borderTop: "1px solid #EBE8D8" }}>
               <LanguageToggler />
               {!user && (

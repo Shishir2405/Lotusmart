@@ -2,14 +2,10 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 import slugify from "slugify";
 import type { ICategory } from "@/types";
 
-// ──────────────────────────────────────────────
-// Document interface
-// ──────────────────────────────────────────────
+
 export interface ICategoryDocument extends Omit<ICategory, "_id">, Document {}
 
-// ──────────────────────────────────────────────
-// Schema
-// ──────────────────────────────────────────────
+
 const CategorySchema = new Schema<ICategoryDocument>(
   {
     name: { type: String, required: true, trim: true, maxlength: 100 },
@@ -31,24 +27,18 @@ const CategorySchema = new Schema<ICategoryDocument>(
   },
 );
 
-// ──────────────────────────────────────────────
-// Indexes
-// ──────────────────────────────────────────────
+
 CategorySchema.index({ parent: 1 });
 CategorySchema.index({ isActive: 1, sortOrder: 1 });
 
-// ──────────────────────────────────────────────
-// Virtual: children (populated on-demand)
-// ──────────────────────────────────────────────
+
 CategorySchema.virtual("children", {
   ref: "Category",
   localField: "_id",
   foreignField: "parent",
 });
 
-// ──────────────────────────────────────────────
-// Pre-save: auto-generate slug from name
-// ──────────────────────────────────────────────
+
 CategorySchema.pre("save", async function () {
   if (this.isModified("name") || !this.slug) {
     const base = slugify(this.name, { lower: true, strict: true });
@@ -71,9 +61,7 @@ CategorySchema.pre("save", async function () {
   }
 });
 
-// ──────────────────────────────────────────────
-// Export
-// ──────────────────────────────────────────────
+
 const Category: Model<ICategoryDocument> =
   mongoose.models.Category ||
   mongoose.model<ICategoryDocument>("Category", CategorySchema);

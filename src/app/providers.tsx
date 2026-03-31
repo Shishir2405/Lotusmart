@@ -8,7 +8,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const setHydrated = useAuthStore((s) => s.setHydrated);
 
   useEffect(() => {
-    // Hydrate auth state from cookie on first load
+    
     fetchMe().finally(() => setHydrated(true));
   }, [fetchMe, setHydrated]);
 

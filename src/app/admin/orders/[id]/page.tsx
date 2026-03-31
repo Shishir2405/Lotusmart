@@ -159,7 +159,7 @@ export default function AdminOrderDetailPage() {
 
   return (
     <div className="p-8">
-      {/* Header */}
+      
       <Link
         href="/admin/orders"
         className="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-800 transition-colors mb-5"
@@ -180,9 +180,9 @@ export default function AdminOrderDetailPage() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-5">
-        {/* Left column */}
+        
         <div className="lg:col-span-2 space-y-5">
-          {/* Progress tracker */}
+          
           {!isCancelled && (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
@@ -228,7 +228,7 @@ export default function AdminOrderDetailPage() {
             </motion.div>
           )}
 
-          {/* Items */}
+          
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -275,7 +275,7 @@ export default function AdminOrderDetailPage() {
             </div>
           </motion.div>
 
-          {/* Shipment tracking */}
+          
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -333,9 +333,9 @@ export default function AdminOrderDetailPage() {
           </motion.div>
         </div>
 
-        {/* Right column */}
+        
         <div className="space-y-5">
-          {/* Update status */}
+          
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -364,7 +364,7 @@ export default function AdminOrderDetailPage() {
             )}
           </motion.div>
 
-          {/* Customer info */}
+          
           {order.user && (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
@@ -395,7 +395,7 @@ export default function AdminOrderDetailPage() {
             </motion.div>
           )}
 
-          {/* Shipping address */}
+          
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -416,7 +416,7 @@ export default function AdminOrderDetailPage() {
             <p className="text-xs text-neutral-400 mt-1">{order.shippingAddress.phone}</p>
           </motion.div>
 
-          {/* Payment info */}
+          
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}

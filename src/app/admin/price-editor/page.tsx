@@ -22,9 +22,6 @@ import { useDebounce } from "@/hooks/useDebounce";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-// ──────────────────────────────────────────────
-// Types
-// ──────────────────────────────────────────────
 
 interface Product {
   _id: string;
@@ -52,9 +49,6 @@ interface EditableRow {
 type SortOption = "name" | "price-asc" | "price-desc" | "updated";
 type CategoryFilter = "all" | "spice" | "dry_fruit";
 
-// ──────────────────────────────────────────────
-// Component
-// ──────────────────────────────────────────────
 
 export default function QuickPriceEditorPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -65,24 +59,23 @@ export default function QuickPriceEditorPage() {
   const [sortBy, setSortBy] = useState<SortOption>("name");
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
-  // Track original values and edits
+  
   const [originalValues, setOriginalValues] = useState<Record<string, EditableRow>>({});
   const [editedValues, setEditedValues] = useState<Record<string, EditableRow>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  // Bulk adjustment
+  
   const [showBulkPanel, setShowBulkPanel] = useState(false);
   const [bulkPercentage, setBulkPercentage] = useState<string>("0");
   const [bulkDirection, setBulkDirection] = useState<"increase" | "decrease">("increase");
 
-  // Row-level saving state
+  
   const [savingRows, setSavingRows] = useState<Set<string>>(new Set());
 
   const debouncedSearch = useDebounce(search, 300);
 
-  // ── Fetch products ────────────────────────────
-
+  
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
@@ -99,7 +92,7 @@ export default function QuickPriceEditorPage() {
       const data = res.data.data;
       setProducts(data);
 
-      // Store original values
+      
       const originals: Record<string, EditableRow> = {};
       for (const p of data) {
         originals[p._id] = {
@@ -125,12 +118,11 @@ export default function QuickPriceEditorPage() {
     fetchProducts();
   }, [fetchProducts]);
 
-  // ── Derived: filtered & sorted products ───────
-
+  
   const filteredProducts = useMemo(() => {
     let list = [...products];
 
-    // Search filter
+    
     if (debouncedSearch) {
       const q = debouncedSearch.toLowerCase();
       list = list.filter(
@@ -140,7 +132,7 @@ export default function QuickPriceEditorPage() {
       );
     }
 
-    // Sort
+    
     switch (sortBy) {
       case "name":
         list.sort((a, b) => a.name.localeCompare(b.name));
@@ -163,8 +155,7 @@ export default function QuickPriceEditorPage() {
     return list;
   }, [products, debouncedSearch, sortBy]);
 
-  // ── Helpers ───────────────────────────────────
-
+  
   const getRowValues = (id: string): EditableRow => {
     return editedValues[id] ?? originalValues[id] ?? { price: 0, pricePerKg: 0, pricePerGram: 0, compareAtPrice: 0 };
   };
@@ -183,13 +174,12 @@ export default function QuickPriceEditorPage() {
 
   const modifiedProductIds = useMemo(() => {
     return Object.keys(editedValues).filter(isRowModified);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [editedValues, originalValues]);
 
   const hasChanges = modifiedProductIds.length > 0;
 
-  // ── Edit handlers ─────────────────────────────
-
+  
   const updateField = (
     id: string,
     field: keyof EditableRow,
@@ -209,7 +199,7 @@ export default function QuickPriceEditorPage() {
     const current = getRowValues(id);
     const updated = { ...current, [field]: numValue };
 
-    // Auto-calculate: pricePerKg <-> pricePerGram
+    
     if (field === "pricePerKg" && numValue > 0) {
       updated.pricePerGram = parseFloat((numValue / 1000).toFixed(2));
     } else if (field === "pricePerGram" && numValue > 0) {
@@ -232,8 +222,7 @@ export default function QuickPriceEditorPage() {
     });
   };
 
-  // ── Save single row ───────────────────────────
-
+  
   const saveRow = async (id: string) => {
     if (!isRowModified(id)) return;
     const values = getRowValues(id);
@@ -248,7 +237,7 @@ export default function QuickPriceEditorPage() {
         lastPriceUpdate: new Date().toISOString(),
       });
 
-      // Update originals
+      
       setOriginalValues((prev) => ({ ...prev, [id]: { ...values } }));
       setEditedValues((prev) => {
         const next = { ...prev };
@@ -268,8 +257,7 @@ export default function QuickPriceEditorPage() {
     }
   };
 
-  // ── Save all changes ──────────────────────────
-
+  
   const saveAllChanges = async () => {
     if (!hasChanges) return;
 
@@ -288,7 +276,7 @@ export default function QuickPriceEditorPage() {
     try {
       await axios.post("/api/admin/products/bulk-price", { updates });
 
-      // Update originals for all saved rows
+      
       const newOriginals = { ...originalValues };
       for (const id of modifiedProductIds) {
         newOriginals[id] = { ...getRowValues(id) };
@@ -304,8 +292,7 @@ export default function QuickPriceEditorPage() {
     }
   };
 
-  // ── Bulk percentage adjustment ────────────────
-
+  
   const applyBulkAdjustment = () => {
     const pct = parseFloat(bulkPercentage);
     if (isNaN(pct) || pct === 0) {
@@ -345,8 +332,7 @@ export default function QuickPriceEditorPage() {
     );
   };
 
-  // ── Selection ─────────────────────────────────
-
+  
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -364,19 +350,17 @@ export default function QuickPriceEditorPage() {
     }
   };
 
-  // ── Row background class ──────────────────────
-
+  
   const rowBgClass = (id: string): string => {
     if (errors[id]) return "bg-red-50/60";
     if (isRowModified(id)) return "bg-amber-50/60";
     return "hover:bg-[#FAFAF9]";
   };
 
-  // ── Render ────────────────────────────────────
-
+  
   return (
     <div className="p-8">
-      {/* Header */}
+      
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900">
@@ -421,7 +405,7 @@ export default function QuickPriceEditorPage() {
         </div>
       </div>
 
-      {/* Bulk Adjustment Panel */}
+      
       <AnimatePresence>
         {showBulkPanel && (
           <motion.div
@@ -498,10 +482,10 @@ export default function QuickPriceEditorPage() {
         )}
       </AnimatePresence>
 
-      {/* Filters */}
+      
       <div className="bg-white rounded-2xl border border-neutral-100 mb-5 p-4">
         <div className="flex items-center gap-4 flex-wrap">
-          {/* Search */}
+          
           <div className="flex items-center gap-2 bg-[#F7F6F0] rounded-xl px-3 py-2 flex-1 min-w-[200px] max-w-sm">
             <RiSearchLine className="text-neutral-400 shrink-0" size={16} />
             <input
@@ -512,7 +496,7 @@ export default function QuickPriceEditorPage() {
             />
           </div>
 
-          {/* Category Filter */}
+          
           <div className="flex items-center gap-2">
             <RiFilterLine className="text-neutral-400" size={16} />
             <select
@@ -526,7 +510,7 @@ export default function QuickPriceEditorPage() {
             </select>
           </div>
 
-          {/* Sort */}
+          
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortOption)}
@@ -538,14 +522,14 @@ export default function QuickPriceEditorPage() {
             <option value="updated">Sort: Last Updated</option>
           </select>
 
-          {/* Product count */}
+          
           <span className="text-xs text-neutral-400 ml-auto">
             {filteredProducts.length} product{filteredProducts.length !== 1 ? "s" : ""}
           </span>
         </div>
       </div>
 
-      {/* Product Table */}
+      
       <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -643,7 +627,7 @@ export default function QuickPriceEditorPage() {
                         animate={{ opacity: 1 }}
                         className={`transition-colors ${rowBgClass(product._id)}`}
                       >
-                        {/* Checkbox */}
+                        
                         <td className="px-4 py-3">
                           <input
                             type="checkbox"
@@ -653,7 +637,7 @@ export default function QuickPriceEditorPage() {
                           />
                         </td>
 
-                        {/* Product */}
+                        
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-[#F7F6F0] overflow-hidden shrink-0">
@@ -677,7 +661,7 @@ export default function QuickPriceEditorPage() {
                           </div>
                         </td>
 
-                        {/* Category */}
+                        
                         <td className="px-3 py-3">
                           <Badge
                             variant={product.productType === "spice" ? "primary" : "secondary"}
@@ -690,7 +674,7 @@ export default function QuickPriceEditorPage() {
                           </Badge>
                         </td>
 
-                        {/* Price */}
+                        
                         <td className="px-3 py-3">
                           <div className="relative">
                             <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-neutral-400">
@@ -715,7 +699,7 @@ export default function QuickPriceEditorPage() {
                           </div>
                         </td>
 
-                        {/* Price/KG */}
+                        
                         <td className="px-3 py-3">
                           <div className="relative">
                             <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-neutral-400">
@@ -737,7 +721,7 @@ export default function QuickPriceEditorPage() {
                           </div>
                         </td>
 
-                        {/* Price/Gram */}
+                        
                         <td className="px-3 py-3">
                           <div className="relative">
                             <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-neutral-400">
@@ -759,7 +743,7 @@ export default function QuickPriceEditorPage() {
                           </div>
                         </td>
 
-                        {/* Compare Price */}
+                        
                         <td className="px-3 py-3">
                           <div className="relative">
                             <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-neutral-400">
@@ -781,7 +765,7 @@ export default function QuickPriceEditorPage() {
                           </div>
                         </td>
 
-                        {/* Stock */}
+                        
                         <td className="px-3 py-3">
                           <span
                             className={`text-sm font-medium ${
@@ -796,7 +780,7 @@ export default function QuickPriceEditorPage() {
                           </span>
                         </td>
 
-                        {/* Last Updated */}
+                        
                         <td className="px-3 py-3">
                           <span className="text-xs text-neutral-400">
                             {product.lastPriceUpdate
@@ -805,7 +789,7 @@ export default function QuickPriceEditorPage() {
                           </span>
                         </td>
 
-                        {/* Actions */}
+                        
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             {modified && (
@@ -849,7 +833,7 @@ export default function QuickPriceEditorPage() {
           </table>
         </div>
 
-        {/* Empty state */}
+        
         {!loading && filteredProducts.length === 0 && (
           <div className="py-16 text-center">
             <p className="text-neutral-400 text-sm">
@@ -859,7 +843,7 @@ export default function QuickPriceEditorPage() {
         )}
       </div>
 
-      {/* Color legend */}
+      
       <div className="flex items-center gap-6 mt-4 text-xs text-neutral-400">
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-sm bg-white border border-neutral-200" />

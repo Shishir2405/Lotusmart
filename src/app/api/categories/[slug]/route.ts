@@ -1,4 +1,4 @@
-// GET /api/categories/[slug] — get category with subcategories and product count (public)
+
 
 import { NextRequest } from "next/server";
 
@@ -27,7 +27,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       throw ApiError.notFound(`Category "${slug}" not found`);
     }
 
-    // Count products in this category
+    
     const productCount = await Product.countDocuments({
       category: category._id,
       isActive: true,

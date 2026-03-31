@@ -2,16 +2,12 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 import bcrypt from "bcryptjs";
 import type { IUser, IAddress, UserRole, AddressLabel } from "@/types";
 
-// ──────────────────────────────────────────────
-// Document interface (adds Mongoose + instance helpers)
-// ──────────────────────────────────────────────
+
 export interface IUserDocument extends Omit<IUser, "_id">, Document {
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-// ──────────────────────────────────────────────
-// Sub-schemas
-// ──────────────────────────────────────────────
+
 const AddressSchema = new Schema<IAddress>(
   {
     fullName: { type: String, required: true, trim: true },
@@ -31,9 +27,7 @@ const AddressSchema = new Schema<IAddress>(
   { _id: true },
 );
 
-// ──────────────────────────────────────────────
-// Main schema
-// ──────────────────────────────────────────────
+
 const UserSchema = new Schema<IUserDocument>(
   {
     name: { type: String, required: true, trim: true, maxlength: 100 },
@@ -77,14 +71,10 @@ const UserSchema = new Schema<IUserDocument>(
   },
 );
 
-// ──────────────────────────────────────────────
-// Indexes
-// ──────────────────────────────────────────────
+
 UserSchema.index({ role: 1 });
 
-// ──────────────────────────────────────────────
-// Pre-save hook: hash password when modified
-// ──────────────────────────────────────────────
+
 UserSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
 
@@ -92,19 +82,15 @@ UserSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// ──────────────────────────────────────────────
-// Instance methods
-// ──────────────────────────────────────────────
+
 UserSchema.methods.comparePassword = async function (
   candidatePassword: string,
 ): Promise<boolean> {
-  // password has select:false, so it must have been explicitly selected
+  
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// ──────────────────────────────────────────────
-// Export (guard against model recompilation in dev)
-// ──────────────────────────────────────────────
+
 const User: Model<IUserDocument> =
   mongoose.models.User || mongoose.model<IUserDocument>("User", UserSchema);
 

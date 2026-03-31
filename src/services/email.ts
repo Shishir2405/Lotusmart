@@ -1,14 +1,8 @@
-/**
- * Email Service — Brevo (Sendinblue) transactional email
- *
- * Uses the Brevo REST API v3 via axios.
- * All templates use inline CSS with DM Sans + Playfair Display fonts, cream background, rose accent.
- */
+
 
 import axios from "axios";
 import type { IAddress, IOrderItem } from "@/types";
 
-// ─── Config ───────────────────────────────────────────────────────────────────
 
 const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 const API_KEY = process.env.BREVO_API_KEY ?? "";
@@ -16,7 +10,6 @@ const SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL ?? "noreply@lotusmart.com";
 const SENDER_NAME = process.env.BREVO_SENDER_NAME ?? "LotusMart";
 const APP_URL = (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
 
-// ─── Design tokens (inline CSS strings) ──────────────────────────────────────
 
 const COLOR = {
   cream: "#FFFDF7",
@@ -47,7 +40,6 @@ const btnStyle = [
 const labelStyle = `font-size:12px;color:${COLOR.textMuted};text-transform:uppercase;letter-spacing:0.8px;margin:0 0 4px;`;
 const valueStyle = `font-size:15px;font-weight:600;color:${COLOR.textDark};margin:0;`;
 
-// ─── Email wrapper / shell ────────────────────────────────────────────────────
 
 function emailWrapper(content: string): string {
   return `<!DOCTYPE html>
@@ -113,16 +105,13 @@ function emailWrapper(content: string): string {
 </html>`;
 }
 
-// ─── Base sender ──────────────────────────────────────────────────────────────
 
 export interface EmailRecipient {
   email: string;
   name?: string;
 }
 
-/**
- * Send a transactional email via Brevo.
- */
+
 export async function sendEmail(
   to: EmailRecipient,
   subject: string,
@@ -151,7 +140,6 @@ export async function sendEmail(
   );
 }
 
-// ─── 1. Verification email ────────────────────────────────────────────────────
 
 export async function sendVerificationEmail(
   email: string,
@@ -181,7 +169,6 @@ export async function sendVerificationEmail(
   await sendEmail({ email, name }, "Verify your LotusMart account", html);
 }
 
-// ─── 2. Password reset email ──────────────────────────────────────────────────
 
 export async function sendPasswordResetEmail(
   email: string,
@@ -214,7 +201,6 @@ export async function sendPasswordResetEmail(
   await sendEmail({ email, name }, "Reset your LotusMart password", html);
 }
 
-// ─── 3. Welcome email ─────────────────────────────────────────────────────────
 
 export async function sendWelcomeEmail(email: string, name: string): Promise<void> {
   const html = emailWrapper(`
@@ -258,7 +244,6 @@ export async function sendWelcomeEmail(email: string, name: string): Promise<voi
   await sendEmail({ email, name }, "Welcome to LotusMart — your account is active!", html);
 }
 
-// ─── 4. Order confirmation email ──────────────────────────────────────────────
 
 interface OrderConfirmationData {
   orderNumber: string;
@@ -387,7 +372,6 @@ export async function sendOrderConfirmationEmail(
   );
 }
 
-// ─── 5. Shipping update email ─────────────────────────────────────────────────
 
 export async function sendShippingUpdateEmail(
   email: string,
@@ -445,7 +429,6 @@ export async function sendShippingUpdateEmail(
   );
 }
 
-// ─── 6. Admin new-order alert ─────────────────────────────────────────────────
 
 interface AdminOrderAlert {
   orderNumber: string;
@@ -520,10 +503,8 @@ export async function sendAdminNewOrderAlert(order: AdminOrderAlert): Promise<vo
   );
 }
 
-// ─── Legacy aliases (backwards-compatible with any callers using old names) ───
 
-/** @deprecated Use sendOrderConfirmationEmail */
 export const sendOrderConfirmation = sendOrderConfirmationEmail;
 
-/** @deprecated Use sendShippingUpdateEmail */
+
 export const sendShippingUpdate = sendShippingUpdateEmail;

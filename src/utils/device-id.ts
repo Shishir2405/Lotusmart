@@ -1,7 +1,4 @@
-/**
- * Device ID utility for anonymous user identification.
- * Generates and persists a unique device ID in localStorage.
- */
+
 
 const DEVICE_ID_KEY = "lotusmart-device-id";
 

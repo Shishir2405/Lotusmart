@@ -1,4 +1,4 @@
-// GET /api/site-config/[key] — Public: get site config by key
+
 
 import { NextRequest } from "next/server";
 import { ApiError } from "@/lib/api-error";

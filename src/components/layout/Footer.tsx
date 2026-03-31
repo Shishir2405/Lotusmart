@@ -19,9 +19,7 @@ import {
   RiCheckLine,
 } from "react-icons/ri";
 
-/* ─────────────────────────────────────────────
-   DATA
-───────────────────────────────────────────── */
+
 const footerLinks = {
   Shop: [
     { label: "All Products", href: "/products" },
@@ -72,9 +70,7 @@ const itemVariants: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: smoothEase } },
 };
 
-/* ─────────────────────────────────────────────
-   FOOTER LINK ITEM
-───────────────────────────────────────────── */
+
 function FooterLinkItem({ href, label }: { href: string; label: string }) {
   return (
     <li>
@@ -100,9 +96,7 @@ function FooterLinkItem({ href, label }: { href: string; label: string }) {
   );
 }
 
-/* ─────────────────────────────────────────────
-   MAIN FOOTER
-───────────────────────────────────────────── */
+
 export function Footer() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
@@ -118,7 +112,7 @@ export function Footer() {
 
   return (
     <footer style={{ backgroundColor: "#1c1914" }}>
-      {/* ── Newsletter Banner ── */}
+      
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -130,7 +124,7 @@ export function Footer() {
           borderBottom: "1px solid rgba(255,255,255,0.06)",
         }}
       >
-        {/* Decorative rings */}
+        
         <div
           className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full opacity-10"
           style={{ border: "2px solid #FFE08A" }}
@@ -229,7 +223,7 @@ export function Footer() {
         </div>
       </motion.div>
 
-      {/* ── Main footer content ── */}
+      
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -238,9 +232,9 @@ export function Footer() {
         className="mx-auto w-full max-w-[1400px] px-6 py-14 md:px-8 lg:px-12"
       >
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
-          {/* ── Brand column ── */}
+          
           <motion.div variants={itemVariants}>
-            {/* Logo */}
+            
             <Link href="/">
               <motion.span
                 whileHover={{ opacity: 0.9 }}
@@ -266,7 +260,7 @@ export function Footer() {
               finest farms across India and delivered to your doorstep.
             </p>
 
-            {/* Contact */}
+            
             <div className="mb-6 flex flex-col gap-3">
               {[
                 {
@@ -291,7 +285,7 @@ export function Footer() {
               ))}
             </div>
 
-            {/* Social icons */}
+            
             <div className="flex items-center gap-2">
               {socials.map(({ icon: Icon, href, label, hoverBg }, i) => (
                 <motion.a
@@ -313,7 +307,7 @@ export function Footer() {
             </div>
           </motion.div>
 
-          {/* ── Link columns ── */}
+          
           {Object.entries(footerLinks).map(([title, links]) => (
             <motion.div key={title} variants={itemVariants}>
               <h4
@@ -335,14 +329,14 @@ export function Footer() {
         </div>
       </motion.div>
 
-      {/* ── Bottom bar ── */}
+      
       <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="mx-auto flex w-full max-w-[1400px] flex-col items-center justify-between gap-4 px-6 py-5 sm:flex-row md:px-8 lg:px-12">
           <p className="text-xs" style={{ color: "#615834" }}>
             © {new Date().getFullYear()} LotusMart. All rights reserved.
           </p>
 
-          {/* Trust badges */}
+          
           <div className="flex items-center gap-5">
             {trustBadges.map(({ icon: Icon, label }, i) => (
               <motion.div

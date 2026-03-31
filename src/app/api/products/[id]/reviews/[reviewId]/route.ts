@@ -1,4 +1,4 @@
-// DELETE /api/products/[id]/reviews/[reviewId] — delete own review or admin deletes any
+
 
 import { NextRequest } from "next/server";
 import connectDB from "@/lib/db";
@@ -26,7 +26,7 @@ export async function DELETE(request: NextRequest, { params }: Params) {
 
     await review.deleteOne();
 
-    // Recalculate product rating
+    
     const agg = await Review.aggregate([
       { $match: { product: new mongoose.Types.ObjectId(id) } },
       { $group: { _id: null, avg: { $avg: "$rating" }, count: { $sum: 1 } } },

@@ -23,8 +23,8 @@ export interface IAdminRole {
   name: string;
   description?: string;
   permissions: AdminPermission[];
-  isDefault?: boolean; // if true, new admin users get this role automatically
-  isSystem?: boolean; // system roles can't be deleted (like "Super Admin")
+  isDefault?: boolean; 
+  isSystem?: boolean; 
   createdBy?: mongoose.Types.ObjectId;
 }
 

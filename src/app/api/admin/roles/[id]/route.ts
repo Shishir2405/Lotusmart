@@ -7,13 +7,13 @@ import AdminRole, { ADMIN_PERMISSIONS } from "@/modules/roles/admin-role.model";
 import type { ITokenPayload, AdminPermission } from "@/types";
 
 function hasPermission(user: ITokenPayload, permission: AdminPermission): boolean {
-  if (!user.permissions) return true; // super admin
+  if (!user.permissions) return true; 
   return user.permissions.includes(permission);
 }
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-// GET — Get a single admin role by ID
+
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     await connectDB();
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
   }
 }
 
-// PATCH — Update an admin role
+
 export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
     await connectDB();
@@ -95,7 +95,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   }
 }
 
-// DELETE — Delete an admin role
+
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
     await connectDB();

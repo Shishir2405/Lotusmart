@@ -120,7 +120,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
   return (
     <div className="container-wide py-8">
-      {/* Breadcrumb */}
+      
       <div className="flex items-center gap-2 text-sm text-neutral-400 mb-6">
         <Link href="/" className="hover:text-[#E84672] transition-colors">Home</Link>
         <span>/</span>
@@ -138,7 +138,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-12">
-        {/* Images */}
+        
         <div>
           <motion.div
             key={selectedImage}
@@ -180,7 +180,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
           )}
         </div>
 
-        {/* Info */}
+        
         <div>
           {product.category && (
             <Link href={`/categories/${product.category.slug}`} className="text-sm font-medium text-[#7A6E42] hover:underline">
@@ -189,7 +189,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
           )}
           <h1 className="text-3xl font-bold text-neutral-900 mt-2 mb-3">{product.name}</h1>
 
-          {/* Rating */}
+          
           {product.ratings && product.ratings.count > 0 && (
             <div className="flex items-center gap-2 mb-4">
               <div className="flex items-center gap-0.5">
@@ -205,7 +205,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </div>
           )}
 
-          {/* Price */}
+          
           <div className="flex items-baseline gap-3 mb-5">
             <span className="text-4xl font-bold text-neutral-900">{formatCurrency(product.price)}</span>
             <span className="text-base text-neutral-400">/ {product.unit}</span>
@@ -214,12 +214,12 @@ export function ProductDetail({ product }: ProductDetailProps) {
             )}
           </div>
 
-          {/* Short description */}
+          
           {product.shortDescription && (
             <p className="text-neutral-600 text-sm leading-relaxed mb-5">{product.shortDescription}</p>
           )}
 
-          {/* Variants */}
+          
           {product.variants?.map((v) => (
             <div key={v.name} className="mb-4">
               <p className="text-sm font-semibold text-neutral-700 mb-2">{v.name}</p>
@@ -247,7 +247,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </div>
           ))}
 
-          {/* Quantity + CTA */}
+          
           <div className="flex items-center gap-4 mb-3">
             <div className="flex items-center gap-2 bg-[#F7F6F0] rounded-xl p-1">
               <button
@@ -285,7 +285,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </button>
           </div>
 
-          {/* Buy Now */}
+          
           {!isOutOfStock && (
             <Button
               size="lg"
@@ -302,7 +302,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
             <p className="text-sm text-amber-600 font-medium mb-4">Only {product.stock} left in stock</p>
           )}
 
-          {/* Trust badges */}
+          
           <div className="flex flex-wrap gap-4 py-4 border-t border-b border-[#EBE8D8] my-5">
             {[
               { icon: RiShieldCheckLine, text: "FSSAI Certified" },
@@ -314,7 +314,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
             ))}
           </div>
 
-          {/* SKU & Tags */}
+          
           {product.sku && <p className="text-xs text-neutral-400 mb-2">SKU: {product.sku}</p>}
           {product.tags && product.tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
@@ -328,7 +328,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
         </div>
       </div>
 
-      {/* Full description */}
+      
       {product.description && (
         <div className="mt-12 bg-white rounded-2xl p-8 border border-neutral-100">
           <h2 className="text-xl font-bold text-neutral-900 mb-4">Product Details</h2>
@@ -338,7 +338,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
         </div>
       )}
 
-      {/* Back link */}
+      
       <Link href="/products" className="inline-flex items-center gap-1.5 text-sm text-neutral-400 hover:text-[#E84672] mt-8 transition-colors">
         <RiArrowLeftLine size={16} /> Back to all products
       </Link>

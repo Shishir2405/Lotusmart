@@ -1,5 +1,4 @@
-// GET /api/products   — list & filter products (public)
-// POST /api/products  — create product (admin only)
+
 
 import { NextRequest } from "next/server";
 
@@ -15,9 +14,7 @@ import connectDB from "@/lib/db";
 import Category from "@/modules/products/category.model";
 import Product from "@/modules/products/product.model";
 
-// ──────────────────────────────────────────────
-// GET /api/products
-// ──────────────────────────────────────────────
+
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
@@ -38,10 +35,10 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search");
     const featured = searchParams.get("featured");
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     const query: Record<string, any> = { isActive: true };
 
-    // Category filter — resolve slug → ObjectId
+    
     if (categorySlug) {
       const category = await Category.findOne({
         slug: categorySlug,
@@ -53,25 +50,24 @@ export async function GET(request: NextRequest) {
       query.category = category._id;
     }
 
-    // Price range
+    
     if (minPrice || maxPrice) {
       query.price = {};
       if (minPrice) query.price.$gte = parseFloat(minPrice);
       if (maxPrice) query.price.$lte = parseFloat(maxPrice);
     }
 
-    // Full-text search
+    
     if (search) {
       query.$text = { $search: search };
     }
 
-    // Featured filter
+    
     if (featured === "true") {
       query.isFeatured = true;
     }
 
-    // Sort
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     let sort: Record<string, any> = { createdAt: -1 };
     if (search) {
       sort = { score: { $meta: "textScore" } };
@@ -82,7 +78,7 @@ export async function GET(request: NextRequest) {
     } else if (sortBy === "popular") {
       sort = { "ratings.count": -1, "ratings.average": -1 };
     }
-    // "newest" is already the default (createdAt: -1)
+    
 
     const [products, total] = await Promise.all([
       Product.find(query, search ? { score: { $meta: "textScore" } } : {})
@@ -101,9 +97,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// ──────────────────────────────────────────────
-// POST /api/products  (admin only)
-// ──────────────────────────────────────────────
+
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
@@ -131,7 +125,7 @@ export async function POST(request: NextRequest) {
       isFeatured,
       tags,
       variants,
-      // Enhanced fields
+      
       brand,
       manufacturer,
       countryOfOrigin,
@@ -163,7 +157,7 @@ export async function POST(request: NextRequest) {
       metaDescription,
     } = body;
 
-    // Basic validation
+    
     if (!name || typeof name !== "string" || name.trim().length === 0) {
       throw ApiError.badRequest("Product name is required");
     }
@@ -180,7 +174,7 @@ export async function POST(request: NextRequest) {
       throw ApiError.badRequest("Product SKU is required");
     }
 
-    // Verify category exists
+    
     const categoryDoc = await Category.findById(category).lean();
     if (!categoryDoc) {
       throw ApiError.badRequest("Category not found");
@@ -206,7 +200,7 @@ export async function POST(request: NextRequest) {
       isFeatured: isFeatured ?? false,
       tags: tags ?? [],
       variants: variants ?? [],
-      // Enhanced fields
+      
       brand,
       manufacturer,
       countryOfOrigin,

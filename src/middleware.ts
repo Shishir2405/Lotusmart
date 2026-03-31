@@ -1,4 +1,4 @@
-// Next.js Edge Middleware — route protection for LotusMart
+
 
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
@@ -15,10 +15,7 @@ function getSecretKey(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
-/**
- * Verify the JWT from the cookie and return the payload.
- * Returns `null` when the token is missing or invalid.
- */
+
 async function verifyAuth(
   request: NextRequest,
 ): Promise<ITokenPayload | null> {
@@ -41,47 +38,40 @@ async function verifyAuth(
   }
 }
 
-// ──────────────────────────────────────────────
-// Route definitions
-// ──────────────────────────────────────────────
 
-/** Routes that require the user to be authenticated (customer or admin). */
 const protectedPatterns = [
   /^\/account(\/|$)/,
   /^\/orders(\/|$)/,
 ];
 
-/** Routes that require admin role. */
+
 const adminPatterns = [/^\/admin(\/|$)/];
 
-/** Routes that authenticated users should be redirected away from. */
+
 const guestOnlyPatterns = [/^\/login(\/|$)/, /^\/register(\/|$)/];
 
-/** Admin login — unauthenticated users go here for admin access. */
+
 const adminLoginPattern = /^\/admin-login(\/|$)/;
 
 function matchesAny(pathname: string, patterns: RegExp[]): boolean {
   return patterns.some((pattern) => pattern.test(pathname));
 }
 
-// ──────────────────────────────────────────────
-// Middleware
-// ──────────────────────────────────────────────
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const user = await verifyAuth(request);
 
-  // ── Admin login page ──────────────────────
+  
   if (adminLoginPattern.test(pathname)) {
-    // If already authenticated as admin, redirect to dashboard
+    
     if (user && user.role === "admin") {
       return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     }
     return NextResponse.next();
   }
 
-  // ── Admin routes ───────────────────────────
+  
   if (matchesAny(pathname, adminPatterns)) {
     if (!user) {
       const loginUrl = new URL("/admin-login", request.url);
@@ -94,7 +84,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // ── Protected customer routes ──────────────
+  
   if (matchesAny(pathname, protectedPatterns)) {
     if (!user) {
       const loginUrl = new URL("/login", request.url);
@@ -104,7 +94,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // ── Guest-only routes (login / register) ───
+  
   if (matchesAny(pathname, guestOnlyPatterns)) {
     if (user) {
       return NextResponse.redirect(new URL("/", request.url));
@@ -115,9 +105,7 @@ export async function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// ──────────────────────────────────────────────
-// Matcher config — only run middleware on relevant paths
-// ──────────────────────────────────────────────
+
 export const config = {
   matcher: [
     "/account/:path*",

@@ -6,7 +6,7 @@ import { successResponse, errorResponse } from "@/lib/api-response";
 import Order from "@/modules/orders/order.model";
 import { sendShippingUpdate } from "@/services/email";
 
-// GET /api/orders/[id]
+
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectDB();
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const order = await Order.findById(id).lean();
     if (!order) throw ApiError.notFound("Order not found");
 
-    // Customers can only view their own orders
+    
     if (authUser.role !== "admin" && order.user.toString() !== authUser.userId) {
       throw ApiError.forbidden("Access denied");
     }
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 }
 
-// PATCH /api/orders/[id] — admin status update
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -65,7 +65,7 @@ export async function PATCH(
 
     await order.save();
 
-    // Notify customer of shipping update
+    
     if (orderStatus && ["shipped", "delivered", "cancelled"].includes(orderStatus)) {
       sendShippingUpdate(
         body.customerEmail ?? "",

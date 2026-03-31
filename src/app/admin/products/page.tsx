@@ -78,7 +78,7 @@ export default function AdminProductsPage() {
         </Link>
       </div>
 
-      {/* Search */}
+      
       <div className="bg-white rounded-2xl border border-neutral-100 mb-5 p-4">
         <div className="flex items-center gap-2 bg-[#F7F6F0] rounded-xl px-3 py-2 max-w-sm">
           <RiSearchLine className="text-neutral-400" size={16} />

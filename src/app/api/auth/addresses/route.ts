@@ -1,7 +1,4 @@
-/**
- * GET  /api/auth/addresses — list user's addresses
- * POST /api/auth/addresses — add a new address
- */
+
 
 import { NextRequest } from "next/server";
 import connectDB from "@/lib/db";
@@ -37,12 +34,12 @@ export async function POST(request: NextRequest) {
     const user = await User.findById(authUser.userId);
     if (!user) throw ApiError.notFound("User not found");
 
-    // If new address is default, unset others
+    
     if (isDefault) {
       user.addresses.forEach((a: { isDefault: boolean }) => { a.isDefault = false; });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     (user.addresses as any[]).push({ fullName, phone, addressLine1, addressLine2, city, state, pincode, label: label ?? "home", isDefault: isDefault ?? user.addresses.length === 0 });
     await user.save();
 

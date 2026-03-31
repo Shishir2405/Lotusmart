@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     );
     if (!isValid) throw ApiError.badRequest("Payment verification failed — invalid signature");
 
-    // Update order
+    
     if (internalOrderId) {
       const order = await Order.findById(internalOrderId);
       if (order && order.user.toString() === authUser.userId) {

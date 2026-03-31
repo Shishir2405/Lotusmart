@@ -1,5 +1,4 @@
-// GET  /api/products/[id]/reviews — list reviews for a product (public)
-// POST /api/products/[id]/reviews — submit a review (auth required)
+
 
 import { NextRequest } from "next/server";
 import connectDB from "@/lib/db";
@@ -30,7 +29,7 @@ export async function GET(request: NextRequest, { params }: Params) {
       Review.countDocuments({ product: id }),
     ]);
 
-    // Rating summary
+    
     const summary = await Review.aggregate([
       { $match: { product: new (await import("mongoose")).default.Types.ObjectId(id) } },
       {
@@ -85,12 +84,12 @@ export async function POST(request: NextRequest, { params }: Params) {
     if (!product || !product.isActive)
       throw ApiError.notFound("Product not found");
 
-    // Check for duplicate
+    
     const existing = await Review.findOne({ product: id, user: authUser.userId });
     if (existing)
       throw ApiError.conflict("You have already reviewed this product");
 
-    // Check if verified purchase
+    
     const purchasedOrder = await Order.findOne({
       user: authUser.userId,
       "items.product": id,
@@ -107,7 +106,7 @@ export async function POST(request: NextRequest, { params }: Params) {
       isVerifiedPurchase: !!purchasedOrder,
     });
 
-    // Update product rating aggregate
+    
     const agg = await Review.aggregate([
       { $match: { product: new (await import("mongoose")).default.Types.ObjectId(id) } },
       { $group: { _id: null, avg: { $avg: "$rating" }, count: { $sum: 1 } } },

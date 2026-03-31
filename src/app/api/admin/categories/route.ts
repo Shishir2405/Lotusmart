@@ -1,5 +1,4 @@
-// GET  /api/admin/categories — list ALL categories (admin, includes inactive)
-// POST /api/admin/categories — create category (admin)
+
 
 import { NextRequest } from "next/server";
 import { ApiError } from "@/lib/api-error";

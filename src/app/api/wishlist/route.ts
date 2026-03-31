@@ -1,8 +1,4 @@
-/**
- * GET  /api/wishlist — get wishlist for authenticated user or anonymous (via x-device-id)
- * POST /api/wishlist — toggle item (add/remove)
- * DELETE /api/wishlist — remove specific item by productId (query param)
- */
+
 
 import { NextRequest } from "next/server";
 import connectDB from "@/lib/db";
@@ -12,9 +8,7 @@ import { successResponse, errorResponse } from "@/lib/api-response";
 import Wishlist from "@/modules/products/wishlist.model";
 import Product from "@/modules/products/product.model";
 
-// ──────────────────────────────────────────────
-// Helper — resolve wishlist query (user or deviceId)
-// ──────────────────────────────────────────────
+
 async function resolveWishlistQuery(request: NextRequest) {
   const authUser = await getAuthUser(request);
   if (authUser) return { user: authUser.userId };

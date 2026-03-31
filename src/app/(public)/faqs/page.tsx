@@ -262,7 +262,7 @@ export default function FAQsPage() {
 
   return (
     <section className="min-h-screen bg-[#FFFDF7]">
-      {/* Hero Banner */}
+      
       <div
         className="w-full py-12 md:py-16"
         style={{
@@ -271,7 +271,7 @@ export default function FAQsPage() {
         }}
       >
         <div className="max-w-4xl mx-auto px-6">
-          {/* Breadcrumb */}
+          
           <motion.nav
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -290,7 +290,7 @@ export default function FAQsPage() {
             <span style={{ color: "#78716c" }}>FAQs</span>
           </motion.nav>
 
-          {/* Header */}
+          
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -329,7 +329,7 @@ export default function FAQsPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-6 py-10 md:py-14">
-        {/* Search */}
+        
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -363,7 +363,7 @@ export default function FAQsPage() {
           </div>
         </motion.div>
 
-        {/* Category Tabs */}
+        
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -412,7 +412,7 @@ export default function FAQsPage() {
           })}
         </motion.div>
 
-        {/* FAQ List */}
+        
         <div
           className="rounded-2xl bg-white px-6 py-2"
           style={{ border: "1px solid #EBE8D8" }}
@@ -449,7 +449,7 @@ export default function FAQsPage() {
           )}
         </div>
 
-        {/* Footer CTA */}
+        
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}

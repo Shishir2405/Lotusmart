@@ -1,4 +1,4 @@
-// Custom API error class with HTTP status codes
+
 
 export class ApiError extends Error {
   public readonly statusCode: number;
@@ -14,14 +14,13 @@ export class ApiError extends Error {
     this.statusCode = statusCode;
     this.errors = errors;
 
-    // Maintain proper stack trace in V8 environments
+    
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, ApiError);
     }
   }
 
-  // ── Factory helpers ──────────────────────────
-
+  
   static badRequest(
     message = "Bad request",
     errors?: Record<string, string[]> | string[],
@@ -57,16 +56,12 @@ export class ApiError extends Error {
     return new ApiError("Validation failed", 422, errors);
   }
 
-  /**
-   * Type guard to check if an unknown error is an ApiError.
-   */
+  
   static isApiError(error: unknown): error is ApiError {
     return error instanceof ApiError;
   }
 
-  /**
-   * Normalise any thrown value into an ApiError.
-   */
+  
   static from(error: unknown): ApiError {
     if (ApiError.isApiError(error)) return error;
 

@@ -20,9 +20,7 @@ import {
 } from "react-icons/ri";
 import { useAuth } from "@/hooks/useAuth";
 
-/* ─────────────────────────────────────────────
-   BRAND PANEL (left side on desktop)
-───────────────────────────────────────────── */
+
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const testimonial = {
@@ -44,7 +42,7 @@ const categories = [
   { icon: RiGiftLine, title: "Curated Gift Boxes", desc: "Handpicked hampers", emoji: "\u{1F381}" },
 ];
 
-/* Floating spice emoji decorations */
+
 const floatingSpices = [
   { emoji: "\u{1F336}\u{FE0F}", top: "8%", left: "78%", size: "1.5rem", delay: 0, opacity: 0.12 },
   { emoji: "\u{1FAD0}", top: "18%", left: "88%", size: "1.1rem", delay: 0.5, opacity: 0.09 },
@@ -56,7 +54,7 @@ const floatingSpices = [
   { emoji: "\u{1F33F}", top: "12%", left: "15%", size: "1.1rem", delay: 1.8, opacity: 0.08 },
 ];
 
-/* SVG decorative spice bowl pattern */
+
 function SpiceBowlDecoration({ className }: { className?: string }) {
   return (
     <svg
@@ -65,17 +63,17 @@ function SpiceBowlDecoration({ className }: { className?: string }) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Outer bowl ring */}
+      
       <circle cx="60" cy="60" r="55" stroke="currentColor" strokeWidth="1.5" opacity="0.15" />
       <circle cx="60" cy="60" r="45" stroke="currentColor" strokeWidth="1" opacity="0.1" />
-      {/* Inner spice dots pattern */}
+      
       <circle cx="60" cy="45" r="4" fill="currentColor" opacity="0.2" />
       <circle cx="48" cy="55" r="3.5" fill="currentColor" opacity="0.15" />
       <circle cx="72" cy="55" r="3.5" fill="currentColor" opacity="0.15" />
       <circle cx="54" cy="66" r="3" fill="currentColor" opacity="0.12" />
       <circle cx="66" cy="66" r="3" fill="currentColor" opacity="0.12" />
       <circle cx="60" cy="58" r="5" fill="currentColor" opacity="0.18" />
-      {/* Decorative arc */}
+      
       <path d="M30 75 Q60 95 90 75" stroke="currentColor" strokeWidth="1" opacity="0.1" />
     </svg>
   );
@@ -84,7 +82,7 @@ function SpiceBowlDecoration({ className }: { className?: string }) {
 function BrandPanel() {
   return (
     <div className="relative hidden h-full flex-col overflow-hidden lg:flex">
-      {/* Warm spice gradient background */}
+      
       <div
         className="absolute inset-0"
         style={{
@@ -93,7 +91,7 @@ function BrandPanel() {
         }}
       />
 
-      {/* Decorative spice-bowl circles */}
+      
       <div className="absolute -right-10 -top-10 text-amber-400">
         <SpiceBowlDecoration className="h-56 w-56" />
       </div>
@@ -104,7 +102,7 @@ function BrandPanel() {
         <SpiceBowlDecoration className="h-28 w-28" />
       </div>
 
-      {/* Radial warm glow overlays */}
+      
       <div
         className="absolute left-1/2 top-1/4 h-64 w-64 -translate-x-1/2 rounded-full opacity-20 blur-3xl"
         style={{ background: "radial-gradient(circle, #F4A623 0%, transparent 70%)" }}
@@ -114,7 +112,7 @@ function BrandPanel() {
         style={{ background: "radial-gradient(circle, #E8891C 0%, transparent 70%)" }}
       />
 
-      {/* Subtle pattern overlay */}
+      
       <div
         className="absolute inset-0 opacity-[0.03]"
         style={{
@@ -124,7 +122,7 @@ function BrandPanel() {
         }}
       />
 
-      {/* Warm bottom accent gradient */}
+      
       <div
         className="absolute bottom-0 left-0 right-0 h-32 opacity-30"
         style={{
@@ -132,7 +130,7 @@ function BrandPanel() {
         }}
       />
 
-      {/* SVG leaf vine decoration */}
+      
       <svg
         className="absolute bottom-0 left-0 right-0 h-24 w-full text-[#D4A31E]/[0.06]"
         viewBox="0 0 400 80"
@@ -144,7 +142,7 @@ function BrandPanel() {
         <path d="M0 70 Q80 40 160 65 T320 50 T400 60" stroke="currentColor" strokeWidth="1" fill="none" />
       </svg>
 
-      {/* Floating spice emoji decorations */}
+      
       {floatingSpices.map((spice, i) => (
         <motion.div
           key={i}
@@ -166,9 +164,9 @@ function BrandPanel() {
         </motion.div>
       ))}
 
-      {/* Content */}
+      
       <div className="relative z-10 flex h-full flex-col justify-between p-10 xl:p-14">
-        {/* Logo */}
+        
         <Link href="/" className="inline-flex w-fit items-center gap-0.5">
           <span className="text-xl font-extrabold tracking-tight text-white">
             Lotus
@@ -178,7 +176,7 @@ function BrandPanel() {
           </span>
         </Link>
 
-        {/* Headline */}
+        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -197,7 +195,7 @@ function BrandPanel() {
             -- handpicked and delivered fresh across India.
           </p>
 
-          {/* Category cards */}
+          
           <div className="mt-6 flex gap-3">
             {categories.map(({ icon: Icon, title, desc, emoji }) => (
               <div
@@ -213,7 +211,7 @@ function BrandPanel() {
             ))}
           </div>
 
-          {/* Trust badges */}
+          
           <div className="mt-5 flex flex-wrap gap-4">
             {trustItems.map(({ icon: Icon, label }) => (
               <span
@@ -229,7 +227,7 @@ function BrandPanel() {
           </div>
         </motion.div>
 
-        {/* Testimonial */}
+        
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -263,9 +261,7 @@ function BrandPanel() {
   );
 }
 
-/* ─────────────────────────────────────────────
-   LOGIN FORM
-───────────────────────────────────────────── */
+
 function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/";
@@ -292,7 +288,7 @@ function LoginForm() {
     try {
       await login({ email, password }, callbackUrl);
     } catch {
-      /* toast handled inside useAuth */
+      
     }
   };
 
@@ -304,7 +300,7 @@ function LoginForm() {
 
   return (
     <div className="flex h-full w-full flex-col justify-center px-6 py-12 sm:px-10 lg:px-14 xl:px-20">
-      {/* Mobile logo */}
+      
       <div className="mb-10 flex items-center justify-between lg:hidden">
         <Link href="/" className="inline-flex items-center gap-0.5">
           <span className="text-xl font-extrabold tracking-tight text-neutral-800">
@@ -328,7 +324,7 @@ function LoginForm() {
         transition={{ duration: 0.45, ease }}
         className="mx-auto w-full max-w-[380px]"
       >
-        {/* Header */}
+        
         <div className="mb-8">
           <h1 className="text-[1.75rem] font-bold tracking-tight text-neutral-900">
             Welcome back
@@ -338,9 +334,9 @@ function LoginForm() {
           </p>
         </div>
 
-        {/* Form */}
+        
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
-          {/* Email */}
+          
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
               Email
@@ -378,7 +374,7 @@ function LoginForm() {
             </AnimatePresence>
           </div>
 
-          {/* Password */}
+          
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
@@ -432,7 +428,7 @@ function LoginForm() {
             </AnimatePresence>
           </div>
 
-          {/* Submit */}
+          
           <motion.button
             type="submit"
             disabled={isLoading}
@@ -458,7 +454,7 @@ function LoginForm() {
           </motion.button>
         </form>
 
-        {/* Register link */}
+        
         <p className="mt-6 text-center text-sm text-neutral-400">
           Don&apos;t have an account?{" "}
           <Link
@@ -469,7 +465,7 @@ function LoginForm() {
           </Link>
         </p>
 
-        {/* Divider */}
+        
         <div className="my-5 flex items-center gap-3">
           <span className="h-px flex-1 bg-neutral-100" />
           <span className="text-[0.65rem] font-medium uppercase tracking-wider text-neutral-300">
@@ -478,7 +474,7 @@ function LoginForm() {
           <span className="h-px flex-1 bg-neutral-100" />
         </div>
 
-        {/* Guest */}
+        
         <Link href="/checkout">
           <div className="group flex cursor-pointer items-center justify-between rounded-xl border border-neutral-150 px-4 py-3 transition-all hover:border-neutral-200 hover:bg-neutral-50/50">
             <div>
@@ -496,7 +492,7 @@ function LoginForm() {
           </div>
         </Link>
 
-        {/* Legal */}
+        
         <p className="mt-8 text-center text-[0.65rem] text-neutral-300">
           By signing in you agree to our{" "}
           <Link href="/terms" className="underline underline-offset-2 hover:text-neutral-400">
@@ -512,9 +508,7 @@ function LoginForm() {
   );
 }
 
-/* ─────────────────────────────────────────────
-   PAGE
-───────────────────────────────────────────── */
+
 export default function LoginPage() {
   return (
     <div className="grid min-h-screen grid-cols-1 bg-white lg:grid-cols-2">

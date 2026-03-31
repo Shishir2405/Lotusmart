@@ -6,9 +6,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { RiArrowRightLine, RiLeafLine } from "react-icons/ri";
 
-/* ─────────────────────────────────────────────
-   DATA — using local images
-───────────────────────────────────────────── */
+
 const categories = [
   {
     name: "Whole\nSpices",
@@ -74,16 +72,14 @@ const categories = [
 
 const ease: [number, number, number, number] = [0.4, 0, 0.2, 1];
 
-/* ─────────────────────────────────────────────
-   COMPONENT
-───────────────────────────────────────────── */
+
 export function CategoryGrid() {
   const [active, setActive] = useState<number>(0);
 
   return (
     <section className="overflow-hidden bg-white py-16 lg:py-24">
       <div className="mx-auto w-full max-w-[1400px] px-6 md:px-8 lg:px-12">
-        {/* ── Header ── */}
+        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -137,7 +133,7 @@ export function CategoryGrid() {
           </Link>
         </motion.div>
 
-        {/* ── Expand accordion ── */}
+        
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -161,7 +157,7 @@ export function CategoryGrid() {
                 onClick={() => setActive(i)}
                 style={{ minWidth: "3.5rem" }}
               >
-                {/* Image */}
+                
                 <div className="absolute inset-0">
                   <Image
                     src={cat.image}
@@ -173,7 +169,7 @@ export function CategoryGrid() {
                   />
                 </div>
 
-                {/* Base dark overlay */}
+                
                 <div
                   className="absolute inset-0 transition-opacity duration-300"
                   style={{
@@ -183,7 +179,7 @@ export function CategoryGrid() {
                   }}
                 />
 
-                {/* Accent color tint when collapsed */}
+                
                 <AnimatePresence>
                   {!isActive && (
                     <motion.div
@@ -201,7 +197,7 @@ export function CategoryGrid() {
                   )}
                 </AnimatePresence>
 
-                {/* ── COLLAPSED STATE — vertical label ── */}
+                
                 <AnimatePresence>
                   {!isActive && (
                     <motion.div
@@ -231,7 +227,7 @@ export function CategoryGrid() {
                   )}
                 </AnimatePresence>
 
-                {/* ── EXPANDED STATE — full content ── */}
+                
                 <AnimatePresence>
                   {isActive && (
                     <motion.div
@@ -241,7 +237,7 @@ export function CategoryGrid() {
                       transition={{ duration: 0.3, delay: 0.1 }}
                       className="absolute inset-0 flex flex-col justify-between p-6"
                     >
-                      {/* Top: label badge */}
+                      
                       <div className="flex items-start justify-between">
                         <motion.span
                           initial={{ opacity: 0, y: -8 }}
@@ -268,7 +264,7 @@ export function CategoryGrid() {
                         </motion.span>
                       </div>
 
-                      {/* Bottom: name + desc + CTA */}
+                      
                       <div>
                         <motion.h3
                           initial={{ opacity: 0, y: 12 }}
@@ -318,7 +314,7 @@ export function CategoryGrid() {
                   )}
                 </AnimatePresence>
 
-                {/* Left edge accent line */}
+                
                 <motion.div
                   className="absolute top-0 bottom-0 left-0 w-[3px] rounded-full"
                   animate={{ opacity: isActive ? 1 : 0, scaleY: isActive ? 1 : 0 }}
@@ -330,7 +326,7 @@ export function CategoryGrid() {
           })}
         </motion.div>
 
-        {/* ── Mobile grid fallback ── */}
+        
         <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:hidden">
           {categories.map((cat, i) => (
             <motion.div

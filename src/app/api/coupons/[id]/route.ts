@@ -1,5 +1,4 @@
-// PATCH  /api/coupons/[id] — update coupon (admin)
-// DELETE /api/coupons/[id] — delete coupon (admin)
+
 
 import { NextRequest } from "next/server";
 import connectDB from "@/lib/db";
@@ -17,7 +16,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     const { id } = await params;
 
     const body = await request.json();
-    delete body.code; // code is immutable after creation
+    delete body.code; 
     delete body.usedCount;
 
     const coupon = await Coupon.findByIdAndUpdate(id, { $set: body }, { new: true, runValidators: true });

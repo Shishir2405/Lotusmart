@@ -47,7 +47,7 @@ export default function CartPage() {
       </h1>
 
       <div className="grid lg:grid-cols-3 gap-8">
-        {/* Cart Items */}
+        
         <div className="lg:col-span-2 space-y-4">
           <AnimatePresence>
             {items.map((item) => (
@@ -59,7 +59,7 @@ export default function CartPage() {
                 transition={{ duration: 0.25 }}
                 className="bg-white rounded-2xl p-4 sm:p-5 flex gap-4 border border-neutral-100"
               >
-                {/* Image */}
+                
                 <Link href={`/products/${item.slug}`} className="shrink-0">
                   <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-[#F7F6F0] overflow-hidden">
                     {item.image ? (
@@ -76,7 +76,7 @@ export default function CartPage() {
                   </div>
                 </Link>
 
-                {/* Details */}
+                
                 <div className="flex-1 min-w-0">
                   <Link href={`/products/${item.slug}`}>
                     <h3 className="text-sm font-semibold text-neutral-800 hover:text-[#E84672] transition-colors line-clamp-2">
@@ -93,7 +93,7 @@ export default function CartPage() {
                   </p>
 
                   <div className="flex items-center justify-between mt-3">
-                    {/* Quantity controls */}
+                    
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => updateQuantity(item.productId, item.quantity - 1, item.variant)}
@@ -131,7 +131,7 @@ export default function CartPage() {
           </AnimatePresence>
         </div>
 
-        {/* Order Summary */}
+        
         <div className="lg:col-span-1">
           <div className="bg-white rounded-2xl p-6 border border-neutral-100 sticky top-24">
             <h2 className="text-lg font-bold text-neutral-900 mb-5">Order Summary</h2>
@@ -178,7 +178,7 @@ export default function CartPage() {
               ← Continue Shopping
             </Link>
 
-            {/* Trust */}
+            
             <div className="mt-5 pt-4 border-t border-[#EBE8D8] flex items-center justify-center gap-4 text-xs text-neutral-400">
               <span>Secure checkout</span>
               <span>•</span>

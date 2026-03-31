@@ -1,7 +1,4 @@
-/**
- * useAuth hook
- * Wraps login, register, and logout with automatic cart/wishlist merge.
- */
+
 
 import { useCallback } from "react";
 import axios from "axios";
@@ -38,7 +35,7 @@ export function useAuth() {
         const loggedInUser = res.data.data.user;
         setUser(loggedInUser);
 
-        // Merge guest cart + wishlist into DB
+        
         await runMerge();
 
         toast.success(`Welcome back, ${loggedInUser?.name?.split(" ")[0]}!`);
@@ -68,7 +65,7 @@ export function useAuth() {
         const newUser = res.data.data.user;
         setUser(newUser);
 
-        // Merge local cart/wishlist (they clicked checkout as guest → created account)
+        
         await runMerge();
 
         toast.success(`Account created! Welcome to LotusMart 🌸`);

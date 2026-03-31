@@ -1,8 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
-// ──────────────────────────────────────────────
-// SiteConfig — key-value store for all site-wide settings
-// ──────────────────────────────────────────────
 
 export interface ISiteConfig {
   key: string;
@@ -41,9 +38,6 @@ const SiteConfig: Model<ISiteConfigDocument> =
 
 export default SiteConfig;
 
-// ──────────────────────────────────────────────
-// Type helpers for known config keys
-// ──────────────────────────────────────────────
 
 export interface FAQItem {
   id: string;
@@ -71,7 +65,7 @@ export interface ContactConfig {
 
 export interface PageContent {
   title: string;
-  content: string; // HTML content
+  content: string; 
   lastUpdated: string;
 }
 
