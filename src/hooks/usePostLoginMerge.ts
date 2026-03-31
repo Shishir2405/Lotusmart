@@ -2,14 +2,15 @@
  * usePostLoginMerge
  *
  * Called right after a successful login or registration.
- * Sends the guest localStorage cart + wishlist to the server merge endpoints,
- * then updates the local stores with the merged result.
+ * Sends the guest localStorage cart + wishlist AND anonymous device cart/wishlist
+ * to the server merge endpoints, then updates the local stores with the merged result.
  */
 
 import { useCallback } from "react";
 import axios from "axios";
 import { useCartStore } from "@/store/cart.store";
 import { useWishlistStore } from "@/store/wishlist.store";
+import { getDeviceId } from "@/utils/device-id";
 import type { CartItem } from "@/store/cart.store";
 import type { WishlistItem } from "@/store/wishlist.store";
 
@@ -21,10 +22,13 @@ export function usePostLoginMerge() {
   const mergeServerWishlist = useWishlistStore((s) => s.mergeServerWishlist);
 
   const runMerge = useCallback(async () => {
+    const deviceId = getDeviceId();
+
     try {
-      // Merge cart
+      // Merge cart (local + anonymous device cart)
       const cartRes = await axios.post<{ data: { items: CartItem[] } }>("/api/cart/merge", {
         localItems: cartItems,
+        deviceId: deviceId || undefined,
       });
       if (cartRes.data?.data?.items) {
         mergeServerCart(cartRes.data.data.items);
@@ -34,10 +38,13 @@ export function usePostLoginMerge() {
     }
 
     try {
-      // Merge wishlist
+      // Merge wishlist (local + anonymous device wishlist)
       const wlRes = await axios.post<{ data: { items: WishlistItem[] } }>(
         "/api/wishlist/merge",
-        { localItems: wishlistItems },
+        {
+          localItems: wishlistItems,
+          deviceId: deviceId || undefined,
+        },
       );
       if (wlRes.data?.data?.items) {
         mergeServerWishlist(wlRes.data.data.items);

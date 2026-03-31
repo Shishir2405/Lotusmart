@@ -2,19 +2,19 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   RiAddLine,
   RiEditLine,
   RiDeleteBinLine,
   RiUploadLine,
-  RiCloseLine,
   RiCheckLine,
 } from "react-icons/ri";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { Modal } from "@/components/ui/Modal";
 import axios from "axios";
 import toast from "react-hot-toast";
 
@@ -46,7 +46,8 @@ export default function AdminCategoriesPage() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchCategories = () => {
     setLoading(true);
@@ -146,18 +147,19 @@ export default function AdminCategoriesPage() {
     } catch { toast.error("Failed to update"); }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this category? This cannot be undone.")) return;
-    setDeletingId(id);
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await axios.delete(`/api/admin/categories/${id}`);
-      setCategories((prev) => prev.filter((c) => c._id !== id));
+      await axios.delete(`/api/admin/categories/${deleteTarget._id}`);
+      setCategories((prev) => prev.filter((c) => c._id !== deleteTarget._id));
       toast.success("Category deleted");
+      setDeleteTarget(null);
     } catch (err: unknown) {
       const msg = axios.isAxiosError(err) ? err.response?.data?.message : "Failed to delete";
       toast.error(msg ?? "Failed to delete");
     } finally {
-      setDeletingId(null);
+      setDeleting(false);
     }
   };
 
@@ -171,129 +173,10 @@ export default function AdminCategoriesPage() {
           <h1 className="text-2xl font-bold text-neutral-900">Categories</h1>
           <p className="text-sm text-neutral-400 mt-0.5">{categories.length} total categories</p>
         </div>
-        {!showForm && (
-          <Button leftIcon={<RiAddLine />} onClick={openCreate}>
-            Add Category
-          </Button>
-        )}
+        <Button leftIcon={<RiAddLine />} onClick={openCreate}>
+          Add Category
+        </Button>
       </div>
-
-      {/* Form panel */}
-      <AnimatePresence>
-        {showForm && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="bg-white rounded-2xl p-6 border border-neutral-100 mb-6"
-          >
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="font-semibold text-neutral-800">
-                {editTarget ? `Edit: ${editTarget.name}` : "New Category"}
-              </h2>
-              <button onClick={closeForm} className="p-1.5 rounded-lg hover:bg-neutral-100 text-neutral-400 transition-colors">
-                <RiCloseLine size={18} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  label="Name *"
-                  value={form.name}
-                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="e.g. Fresh Vegetables"
-                  required
-                />
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-                    Parent Category
-                  </label>
-                  <select
-                    value={form.parent}
-                    onChange={(e) => setForm((f) => ({ ...f, parent: e.target.value }))}
-                    className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#E84672] bg-white"
-                  >
-                    <option value="">None (top-level)</option>
-                    {parentOptions.map((c) => (
-                      <option key={c._id} value={c._id}>{c.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <Input
-                label="Description"
-                value={form.description}
-                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                placeholder="Short category description..."
-              />
-
-              {/* Image */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
-                  Category Image
-                </label>
-                {form.image ? (
-                  <div className="flex items-center gap-3">
-                    <div className="w-16 h-16 rounded-xl overflow-hidden border border-neutral-200 shrink-0">
-                      <Image
-                        src={form.image}
-                        alt="Category"
-                        width={64}
-                        height={64}
-                        className="object-cover w-full h-full"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setForm((f) => ({ ...f, image: "" }))}
-                      className="text-sm text-red-500 hover:underline"
-                    >
-                      Remove image
-                    </button>
-                  </div>
-                ) : (
-                  <label className={`flex items-center gap-3 w-fit px-4 py-2.5 border border-dashed border-neutral-200 rounded-xl cursor-pointer hover:border-[#E84672] transition-colors text-sm text-neutral-400 ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
-                    <RiUploadLine size={16} />
-                    {uploading ? "Uploading..." : "Upload image"}
-                    <input type="file" accept="image/*" className="sr-only" onChange={handleUpload} />
-                  </label>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 items-end">
-                <Input
-                  label="Sort Order"
-                  type="number"
-                  value={String(form.sortOrder)}
-                  onChange={(e) => setForm((f) => ({ ...f, sortOrder: Number(e.target.value) }))}
-                />
-                <div className="flex items-center gap-2 pb-2.5">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={form.isActive}
-                      onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))}
-                      className="rounded accent-[#E84672]"
-                    />
-                    <span className="text-sm text-neutral-700">Active</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-1">
-                <Button type="submit" isLoading={saving} leftIcon={<RiCheckLine />}>
-                  {editTarget ? "Save Changes" : "Create Category"}
-                </Button>
-                <Button type="button" variant="outline" onClick={closeForm}>
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Table */}
       <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
@@ -374,7 +257,7 @@ export default function AdminCategoriesPage() {
                           {cat.parent.name}
                         </span>
                       ) : (
-                        <span className="text-neutral-300 text-xs">—</span>
+                        <span className="text-neutral-300 text-xs">--</span>
                       )}
                     </td>
                     <td className="px-4 py-4 text-sm text-neutral-500">{cat.sortOrder}</td>
@@ -394,9 +277,8 @@ export default function AdminCategoriesPage() {
                           <RiEditLine size={16} />
                         </button>
                         <button
-                          onClick={() => handleDelete(cat._id)}
-                          disabled={deletingId === cat._id}
-                          className="p-1.5 rounded-lg hover:bg-red-50 text-neutral-400 hover:text-red-500 transition-colors disabled:opacity-40"
+                          onClick={() => setDeleteTarget(cat)}
+                          className="p-1.5 rounded-lg hover:bg-red-50 text-neutral-400 hover:text-red-500 transition-colors"
                         >
                           <RiDeleteBinLine size={16} />
                         </button>
@@ -407,6 +289,141 @@ export default function AdminCategoriesPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Create / Edit Category Modal */}
+      <Modal
+        isOpen={showForm}
+        onClose={closeForm}
+        title={editTarget ? `Edit: ${editTarget.name}` : "New Category"}
+        size="lg"
+      >
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Name *"
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              placeholder="e.g. Fresh Vegetables"
+              required
+            />
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1.5">
+                Parent Category
+              </label>
+              <select
+                value={form.parent}
+                onChange={(e) => setForm((f) => ({ ...f, parent: e.target.value }))}
+                className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#E84672] bg-white"
+              >
+                <option value="">None (top-level)</option>
+                {parentOptions.map((c) => (
+                  <option key={c._id} value={c._id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <Input
+            label="Description"
+            value={form.description}
+            onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+            placeholder="Short category description..."
+          />
+
+          {/* Image */}
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-2">
+              Category Image
+            </label>
+            {form.image ? (
+              <div className="flex items-center gap-3">
+                <div className="w-16 h-16 rounded-xl overflow-hidden border border-neutral-200 shrink-0">
+                  <Image
+                    src={form.image}
+                    alt="Category"
+                    width={64}
+                    height={64}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, image: "" }))}
+                  className="text-sm text-red-500 hover:underline"
+                >
+                  Remove image
+                </button>
+              </div>
+            ) : (
+              <label className={`flex items-center gap-3 w-fit px-4 py-2.5 border border-dashed border-neutral-200 rounded-xl cursor-pointer hover:border-[#E84672] transition-colors text-sm text-neutral-400 ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
+                <RiUploadLine size={16} />
+                {uploading ? "Uploading..." : "Upload image"}
+                <input type="file" accept="image/*" className="sr-only" onChange={handleUpload} />
+              </label>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 items-end">
+            <Input
+              label="Sort Order"
+              type="number"
+              value={String(form.sortOrder)}
+              onChange={(e) => setForm((f) => ({ ...f, sortOrder: Number(e.target.value) }))}
+            />
+            <div className="flex items-center gap-2 pb-2.5">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.isActive}
+                  onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))}
+                  className="rounded accent-[#E84672]"
+                />
+                <span className="text-sm text-neutral-700">Active</span>
+              </label>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-2 border-t border-neutral-100">
+            <Button type="submit" isLoading={saving} leftIcon={<RiCheckLine />}>
+              {editTarget ? "Save Changes" : "Create Category"}
+            </Button>
+            <Button type="button" variant="outline" onClick={closeForm}>
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        title="Delete Category"
+        size="sm"
+      >
+        <div className="p-6">
+          <p className="text-sm text-neutral-600 mb-2">
+            Are you sure you want to delete{" "}
+            <span className="font-semibold text-neutral-800">
+              {deleteTarget?.name}
+            </span>
+            ? This action cannot be undone.
+          </p>
+          <div className="flex gap-3 mt-5">
+            <Button
+              variant="danger"
+              onClick={handleDelete}
+              isLoading={deleting}
+              leftIcon={<RiDeleteBinLine />}
+            >
+              Delete
+            </Button>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

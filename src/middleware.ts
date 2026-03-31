@@ -49,8 +49,6 @@ async function verifyAuth(
 const protectedPatterns = [
   /^\/account(\/|$)/,
   /^\/orders(\/|$)/,
-  /^\/checkout(\/|$)/,
-  /^\/wishlist(\/|$)/,
 ];
 
 /** Routes that require admin role. */
@@ -124,8 +122,6 @@ export const config = {
   matcher: [
     "/account/:path*",
     "/orders/:path*",
-    "/checkout/:path*",
-    "/wishlist/:path*",
     "/admin/:path*",
     "/admin-login",
     "/login",

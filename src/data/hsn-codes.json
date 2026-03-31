@@ -16,7 +16,11 @@
   { "code": "09092200", "description": "Coriander seeds - Crushed or ground", "gst": 5 },
   { "code": "09093100", "description": "Cumin seeds - Neither crushed nor ground", "gst": 5 },
   { "code": "09093200", "description": "Cumin seeds - Crushed or ground", "gst": 5 },
-  { "code": "0910", "description": "Ginger, saffron, turmeric, thyme, bay leaves, curry", "gst": 5 },
+  {
+    "code": "0910",
+    "description": "Ginger, saffron, turmeric, thyme, bay leaves, curry",
+    "gst": 5
+  },
   { "code": "09101100", "description": "Ginger - Neither crushed nor ground", "gst": 5 },
   { "code": "09101200", "description": "Ginger - Crushed or ground", "gst": 5 },
   { "code": "09102011", "description": "Saffron - Neither crushed nor ground", "gst": 5 },
@@ -29,7 +33,11 @@
   { "code": "08011100", "description": "Desiccated coconut", "gst": 5 },
   { "code": "08013100", "description": "Cashew nuts - In shell", "gst": 5 },
   { "code": "08013200", "description": "Cashew nuts - Shelled", "gst": 5 },
-  { "code": "0802", "description": "Other nuts (almonds, hazelnuts, walnuts, pistachios)", "gst": 5 },
+  {
+    "code": "0802",
+    "description": "Other nuts (almonds, hazelnuts, walnuts, pistachios)",
+    "gst": 5
+  },
   { "code": "08021100", "description": "Almonds - In shell", "gst": 5 },
   { "code": "08021200", "description": "Almonds - Shelled", "gst": 5 },
   { "code": "08023100", "description": "Walnuts - In shell", "gst": 5 },
@@ -43,10 +51,18 @@
   { "code": "08042000", "description": "Figs - Fresh or dried", "gst": 0 },
   { "code": "0806", "description": "Grapes - Fresh or dried (raisins)", "gst": 5 },
   { "code": "08062000", "description": "Raisins / Dried grapes", "gst": 5 },
-  { "code": "0813", "description": "Dried fruits (apricots, prunes, apples, peaches, etc.)", "gst": 5 },
+  {
+    "code": "0813",
+    "description": "Dried fruits (apricots, prunes, apples, peaches, etc.)",
+    "gst": 5
+  },
   { "code": "08131000", "description": "Dried apricots", "gst": 5 },
   { "code": "08132000", "description": "Dried prunes", "gst": 5 },
-  { "code": "08134000", "description": "Other dried fruits (cranberries, blueberries, etc.)", "gst": 5 },
+  {
+    "code": "08134000",
+    "description": "Other dried fruits (cranberries, blueberries, etc.)",
+    "gst": 5
+  },
   { "code": "08135000", "description": "Mixtures of dried fruits and nuts", "gst": 5 },
   { "code": "1207", "description": "Other oil seeds (melon seeds, pumpkin seeds, etc.)", "gst": 5 },
   { "code": "12074090", "description": "Sesame seeds", "gst": 5 },
@@ -55,32 +71,64 @@
   { "code": "0409", "description": "Natural honey", "gst": 0 },
   { "code": "04090000", "description": "Natural honey - All types", "gst": 0 },
   { "code": "1905", "description": "Bread, pastry, cakes, biscuits", "gst": 18 },
-  { "code": "2106", "description": "Food preparations not elsewhere specified (protein powder, supplements)", "gst": 18 },
-  { "code": "21069099", "description": "Other food preparations (health mixes, superfood mixes)", "gst": 18 },
+  {
+    "code": "2106",
+    "description": "Food preparations not elsewhere specified (protein powder, supplements)",
+    "gst": 18
+  },
+  {
+    "code": "21069099",
+    "description": "Other food preparations (health mixes, superfood mixes)",
+    "gst": 18
+  },
   { "code": "1701", "description": "Cane or beet sugar, chemically pure sucrose", "gst": 5 },
   { "code": "17019910", "description": "Jaggery (gur)", "gst": 0 },
   { "code": "1704", "description": "Sugar confectionery (not containing cocoa)", "gst": 18 },
-  { "code": "2008", "description": "Fruits, nuts prepared/preserved (roasted nuts, nut butter)", "gst": 12 },
+  {
+    "code": "2008",
+    "description": "Fruits, nuts prepared/preserved (roasted nuts, nut butter)",
+    "gst": 12
+  },
   { "code": "20081900", "description": "Other nuts/seeds - Roasted, salted", "gst": 12 },
   { "code": "20081110", "description": "Peanut butter", "gst": 12 },
   { "code": "2009", "description": "Fruit juices, vegetable juices", "gst": 12 },
-  { "code": "1211", "description": "Plants/parts used in pharmacy, perfumery (herbs, ashwagandha, moringa)", "gst": 5 },
-  { "code": "12119029", "description": "Dried herbs - Tulsi, ashwagandha, moringa, etc.", "gst": 5 },
+  {
+    "code": "1211",
+    "description": "Plants/parts used in pharmacy, perfumery (herbs, ashwagandha, moringa)",
+    "gst": 5
+  },
+  {
+    "code": "12119029",
+    "description": "Dried herbs - Tulsi, ashwagandha, moringa, etc.",
+    "gst": 5
+  },
   { "code": "0712", "description": "Dried vegetables (onions, garlic, mushrooms, etc.)", "gst": 5 },
   { "code": "07129040", "description": "Dried garlic powder", "gst": 5 },
   { "code": "07129050", "description": "Dried onion powder", "gst": 5 },
-  { "code": "4819", "description": "Cartons, boxes, cases, bags of paper/paperboard (gift packaging)", "gst": 18 },
+  {
+    "code": "4819",
+    "description": "Cartons, boxes, cases, bags of paper/paperboard (gift packaging)",
+    "gst": 18
+  },
   { "code": "48191000", "description": "Cartons, boxes - Corrugated paper/board", "gst": 18 },
   { "code": "48192000", "description": "Folding cartons, boxes (gift boxes)", "gst": 18 },
   { "code": "4602", "description": "Basketwork, wickerwork (gift baskets)", "gst": 12 },
   { "code": "46021900", "description": "Baskets and hampers (gift hampers)", "gst": 12 },
   { "code": "1006", "description": "Rice", "gst": 5 },
   { "code": "10063000", "description": "Semi-milled or wholly milled rice", "gst": 5 },
-  { "code": "0713", "description": "Dried leguminous vegetables (pulses, lentils, chickpeas)", "gst": 5 },
+  {
+    "code": "0713",
+    "description": "Dried leguminous vegetables (pulses, lentils, chickpeas)",
+    "gst": 5
+  },
   { "code": "1101", "description": "Wheat or meslin flour", "gst": 0 },
   { "code": "1104", "description": "Cereal grains worked (rolled, flaked oats, muesli)", "gst": 5 },
   { "code": "1106", "description": "Flour of dried leguminous vegetables (besan, etc.)", "gst": 5 },
-  { "code": "1515", "description": "Other fixed vegetable fats and oils (coconut oil, etc.)", "gst": 5 },
+  {
+    "code": "1515",
+    "description": "Other fixed vegetable fats and oils (coconut oil, etc.)",
+    "gst": 5
+  },
   { "code": "15159020", "description": "Coconut oil - Virgin/cold-pressed", "gst": 5 },
   { "code": "0902", "description": "Tea", "gst": 5 },
   { "code": "09021000", "description": "Green tea (not fermented)", "gst": 5 },

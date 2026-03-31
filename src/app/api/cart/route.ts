@@ -1,4 +1,4 @@
-// GET    /api/cart — get cart for authenticated user
+// GET    /api/cart — get cart for authenticated user OR anonymous user (via x-device-id header)
 // POST   /api/cart — add / update item in cart
 // DELETE /api/cart — clear entire cart
 
@@ -6,37 +6,48 @@ import { NextRequest } from "next/server";
 
 import { ApiError } from "@/lib/api-error";
 import { errorResponse, successResponse } from "@/lib/api-response";
-import { requireAuth } from "@/lib/auth";
+import { getAuthUser } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import Cart from "@/modules/cart/cart.model";
 import Product from "@/modules/products/product.model";
 
 // ──────────────────────────────────────────────
+// Helper — resolve cart query (user or deviceId)
+// ──────────────────────────────────────────────
+async function resolveCartQuery(request: NextRequest) {
+  const authUser = await getAuthUser(request);
+  if (authUser) return { user: authUser.userId };
+
+  const deviceId = request.headers.get("x-device-id");
+  if (deviceId) return { deviceId };
+
+  throw ApiError.unauthorized("Authentication or device ID required");
+}
+
+// ──────────────────────────────────────────────
 // Helper — find-or-create cart and populate items
 // ──────────────────────────────────────────────
-async function getOrCreateCart(userId: string) {
-  let cart = await Cart.findOne({ user: userId }).populate(
+async function getOrCreateCart(query: { user?: string; deviceId?: string }) {
+  let cart = await Cart.findOne(query).populate(
     "items.product",
     "name slug images price stock isActive",
   );
 
   if (!cart) {
-    cart = await Cart.create({ user: userId, items: [], discount: 0 });
-    // No items yet, no need to re-populate
+    cart = await Cart.create({ ...query, items: [], discount: 0 });
   }
 
   return cart;
 }
 
 // ──────────────────────────────────────────────
-// GET /api/cart — guests get empty response; client Zustand store handles guest cart
+// GET /api/cart
 // ──────────────────────────────────────────────
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
-    const authUser = await requireAuth(request); // throws 401 for guests → client handles locally
-
-    const cart = await getOrCreateCart(authUser.userId);
+    const query = await resolveCartQuery(request);
+    const cart = await getOrCreateCart(query);
     const total = cart.getTotal();
 
     return successResponse({ ...cart.toJSON(), total }, "Cart fetched successfully");
@@ -52,7 +63,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
-    const authUser = await requireAuth(request);
+    const query = await resolveCartQuery(request);
 
     const body = await request.json();
     const { productId, quantity, variant } = body;
@@ -77,10 +88,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let cart = await Cart.findOne({ user: authUser.userId });
+    let cart = await Cart.findOne(query);
     if (!cart) {
       cart = await Cart.create({
-        user: authUser.userId,
+        ...query,
         items: [],
         discount: 0,
       });
@@ -117,10 +128,10 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     await connectDB();
-    const authUser = await requireAuth(request);
+    const query = await resolveCartQuery(request);
 
     await Cart.findOneAndUpdate(
-      { user: authUser.userId },
+      query,
       { $set: { items: [], discount: 0, couponCode: undefined } },
     );
 

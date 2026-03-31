@@ -1,32 +1,136 @@
 [
   { "prefix": "SPC", "category": "Spices", "description": "Whole and ground spice products" },
-  { "prefix": "DRF", "category": "Dry Fruits", "description": "Dried fruits such as raisins, figs, dates, and apricots" },
-  { "prefix": "NUT", "category": "Nuts", "description": "Tree nuts including almonds, cashews, walnuts, and pistachios" },
-  { "prefix": "SED", "category": "Seeds", "description": "Edible seeds such as chia, flax, pumpkin, and sunflower" },
+  {
+    "prefix": "DRF",
+    "category": "Dry Fruits",
+    "description": "Dried fruits such as raisins, figs, dates, and apricots"
+  },
+  {
+    "prefix": "NUT",
+    "category": "Nuts",
+    "description": "Tree nuts including almonds, cashews, walnuts, and pistachios"
+  },
+  {
+    "prefix": "SED",
+    "category": "Seeds",
+    "description": "Edible seeds such as chia, flax, pumpkin, and sunflower"
+  },
   { "prefix": "HRB", "category": "Herbs", "description": "Culinary and medicinal dried herbs" },
   { "prefix": "HNY", "category": "Honey", "description": "Natural and infused honey varieties" },
-  { "prefix": "SPF", "category": "Superfoods", "description": "Nutrient-dense superfoods and health supplements" },
-  { "prefix": "TEA", "category": "Tea", "description": "Loose leaf teas, tea bags, and herbal infusions" },
-  { "prefix": "GFT", "category": "Gifting", "description": "Gift boxes, hampers, and festive packs" },
-  { "prefix": "ORG", "category": "Organic", "description": "Certified organic products across categories" },
-  { "prefix": "BLD", "category": "Blends & Masala", "description": "Spice blends, masala mixes, and seasoning powders" },
-  { "prefix": "OIL", "category": "Oil", "description": "Cold-pressed, wood-pressed, and infused cooking oils" },
-  { "prefix": "PWD", "category": "Powder", "description": "Finely ground powders of spices, herbs, and superfoods" },
-  { "prefix": "WHL", "category": "Whole", "description": "Whole unground spices, grains, and produce" },
-  { "prefix": "RST", "category": "Roasted", "description": "Dry-roasted and flavoured roasted nuts and seeds" },
-  { "prefix": "RAW", "category": "Raw", "description": "Unprocessed raw nuts, seeds, and natural ingredients" },
-  { "prefix": "PRM", "category": "Premium", "description": "Premium and single-origin high-grade products" },
-  { "prefix": "CMB", "category": "Combo & Pack", "description": "Combo packs, value packs, and assorted bundles" },
-  { "prefix": "GRN", "category": "Grains & Millets", "description": "Whole grains, millets, and ancient cereals" },
-  { "prefix": "SWT", "category": "Sweeteners", "description": "Natural sweeteners such as jaggery, stevia, and palm sugar" },
-  { "prefix": "BRY", "category": "Berries", "description": "Dried berries including goji, cranberry, and blueberry" },
-  { "prefix": "AYR", "category": "Ayurvedic", "description": "Traditional Ayurvedic ingredients and formulations" },
-  { "prefix": "SAF", "category": "Saffron & Exotic", "description": "Saffron, vanilla, and other exotic high-value spices" },
-  { "prefix": "FLV", "category": "Flavoured", "description": "Flavoured and seasoned snack-grade dry fruits and nuts" },
-  { "prefix": "MNT", "category": "Mouth Freshener", "description": "Mukhwas, pan masala, and after-meal refreshers" },
-  { "prefix": "DIP", "category": "Dips & Chutneys", "description": "Dry chutneys, dip mixes, and condiment powders" },
-  { "prefix": "TRL", "category": "Trail Mix", "description": "Ready-to-eat trail mixes and snack mixes" },
+  {
+    "prefix": "SPF",
+    "category": "Superfoods",
+    "description": "Nutrient-dense superfoods and health supplements"
+  },
+  {
+    "prefix": "TEA",
+    "category": "Tea",
+    "description": "Loose leaf teas, tea bags, and herbal infusions"
+  },
+  {
+    "prefix": "GFT",
+    "category": "Gifting",
+    "description": "Gift boxes, hampers, and festive packs"
+  },
+  {
+    "prefix": "ORG",
+    "category": "Organic",
+    "description": "Certified organic products across categories"
+  },
+  {
+    "prefix": "BLD",
+    "category": "Blends & Masala",
+    "description": "Spice blends, masala mixes, and seasoning powders"
+  },
+  {
+    "prefix": "OIL",
+    "category": "Oil",
+    "description": "Cold-pressed, wood-pressed, and infused cooking oils"
+  },
+  {
+    "prefix": "PWD",
+    "category": "Powder",
+    "description": "Finely ground powders of spices, herbs, and superfoods"
+  },
+  {
+    "prefix": "WHL",
+    "category": "Whole",
+    "description": "Whole unground spices, grains, and produce"
+  },
+  {
+    "prefix": "RST",
+    "category": "Roasted",
+    "description": "Dry-roasted and flavoured roasted nuts and seeds"
+  },
+  {
+    "prefix": "RAW",
+    "category": "Raw",
+    "description": "Unprocessed raw nuts, seeds, and natural ingredients"
+  },
+  {
+    "prefix": "PRM",
+    "category": "Premium",
+    "description": "Premium and single-origin high-grade products"
+  },
+  {
+    "prefix": "CMB",
+    "category": "Combo & Pack",
+    "description": "Combo packs, value packs, and assorted bundles"
+  },
+  {
+    "prefix": "GRN",
+    "category": "Grains & Millets",
+    "description": "Whole grains, millets, and ancient cereals"
+  },
+  {
+    "prefix": "SWT",
+    "category": "Sweeteners",
+    "description": "Natural sweeteners such as jaggery, stevia, and palm sugar"
+  },
+  {
+    "prefix": "BRY",
+    "category": "Berries",
+    "description": "Dried berries including goji, cranberry, and blueberry"
+  },
+  {
+    "prefix": "AYR",
+    "category": "Ayurvedic",
+    "description": "Traditional Ayurvedic ingredients and formulations"
+  },
+  {
+    "prefix": "SAF",
+    "category": "Saffron & Exotic",
+    "description": "Saffron, vanilla, and other exotic high-value spices"
+  },
+  {
+    "prefix": "FLV",
+    "category": "Flavoured",
+    "description": "Flavoured and seasoned snack-grade dry fruits and nuts"
+  },
+  {
+    "prefix": "MNT",
+    "category": "Mouth Freshener",
+    "description": "Mukhwas, pan masala, and after-meal refreshers"
+  },
+  {
+    "prefix": "DIP",
+    "category": "Dips & Chutneys",
+    "description": "Dry chutneys, dip mixes, and condiment powders"
+  },
+  {
+    "prefix": "TRL",
+    "category": "Trail Mix",
+    "description": "Ready-to-eat trail mixes and snack mixes"
+  },
   { "prefix": "BLK", "category": "Bulk", "description": "Bulk and wholesale quantity packs" },
-  { "prefix": "SMP", "category": "Sample & Trial", "description": "Sample-size and trial packs for new customers" },
-  { "prefix": "SEA", "category": "Seasonal & Festive", "description": "Seasonal specialties and festive limited-edition products" }
+  {
+    "prefix": "SMP",
+    "category": "Sample & Trial",
+    "description": "Sample-size and trial packs for new customers"
+  },
+  {
+    "prefix": "SEA",
+    "category": "Seasonal & Festive",
+    "description": "Seasonal specialties and festive limited-edition products"
+  }
 ]

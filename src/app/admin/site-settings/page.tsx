@@ -33,8 +33,12 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { Modal } from "@/components/ui/Modal";
+import dynamic from "next/dynamic";
 import axios from "axios";
 import toast from "react-hot-toast";
+
+const RichTextEditor = dynamic(() => import("@/components/ui/RichTextEditor").then(m => m.default), { ssr: false, loading: () => <div className="h-64 rounded-xl border border-neutral-200 bg-neutral-50 animate-pulse" /> });
 
 // ---------------------------------------------------------------------------
 // Types
@@ -309,12 +313,15 @@ export default function AdminSiteSettingsPage() {
     closeFaqForm();
   };
 
+  // FAQ delete state
+  const [deleteFaqTarget, setDeleteFaqTarget] = useState<string | null>(null);
+
   const deleteFaqItem = async (id: string) => {
-    if (!confirm("Delete this FAQ item?")) return;
     const updated = faqItems
       .filter((f) => f.id !== id)
       .map((f, i) => ({ ...f, sortOrder: i }));
     await saveFaqItems(updated);
+    setDeleteFaqTarget(null);
   };
 
   const moveFaqItem = async (id: string, direction: "up" | "down") => {
@@ -501,6 +508,8 @@ export default function AdminSiteSettingsPage() {
               onSubmit={handleFaqSubmit}
               onDelete={deleteFaqItem}
               onMove={moveFaqItem}
+              deleteFaqTarget={deleteFaqTarget}
+              setDeleteFaqTarget={setDeleteFaqTarget}
             />
           )}
           {activeTab === "contact" && (
@@ -543,6 +552,8 @@ function FAQTab({
   onSubmit,
   onDelete,
   onMove,
+  deleteFaqTarget,
+  setDeleteFaqTarget,
 }: {
   items: FAQItem[];
   showForm: boolean;
@@ -556,6 +567,8 @@ function FAQTab({
   onSubmit: (e: React.FormEvent) => void;
   onDelete: (id: string) => void;
   onMove: (id: string, direction: "up" | "down") => void;
+  deleteFaqTarget: string | null;
+  setDeleteFaqTarget: React.Dispatch<React.SetStateAction<string | null>>;
 }) {
   const categoryColor: Record<FAQItem["category"], string> = {
     Products: "bg-blue-50 text-blue-700",
@@ -564,92 +577,20 @@ function FAQTab({
     General: "bg-neutral-100 text-neutral-600",
   };
 
+  const deleteItem = items.find((f) => f.id === deleteFaqTarget);
+
   return (
     <div>
-      {/* Create / Edit form */}
-      <AnimatePresence>
-        {showForm && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="bg-white rounded-2xl p-6 border border-neutral-100 mb-6"
-          >
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="font-semibold text-neutral-800">
-                {editingFaq ? "Edit FAQ Item" : "New FAQ Item"}
-              </h2>
-              <button
-                onClick={onCloseForm}
-                className="p-1.5 rounded-lg hover:bg-neutral-100 text-neutral-400 transition-colors"
-              >
-                <RiCloseLine size={18} />
-              </button>
-            </div>
-            <form onSubmit={onSubmit} className="space-y-4">
-              <Input
-                label="Question"
-                value={faqForm.question}
-                onChange={(e) => setFaqForm((f) => ({ ...f, question: e.target.value }))}
-                placeholder="e.g. How do I track my order?"
-                required
-              />
-              <Textarea
-                label="Answer"
-                value={faqForm.answer}
-                onChange={(e) => setFaqForm((f) => ({ ...f, answer: e.target.value }))}
-                placeholder="Provide a clear, helpful answer..."
-                required
-                className="min-h-[120px]"
-              />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-                    Category
-                  </label>
-                  <select
-                    value={faqForm.category}
-                    onChange={(e) =>
-                      setFaqForm((f) => ({
-                        ...f,
-                        category: e.target.value as FAQItem["category"],
-                      }))
-                    }
-                    className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#E84672] focus:ring-2 focus:ring-[#E84672]/30 bg-white transition-all duration-200"
-                  >
-                    {FAQ_CATEGORIES.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div className="flex gap-3 pt-1">
-                <Button type="submit" isLoading={saving} leftIcon={<RiCheckLine />}>
-                  {editingFaq ? "Save Changes" : "Add FAQ"}
-                </Button>
-                <Button type="button" variant="outline" onClick={onCloseForm}>
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Header + Add button */}
-      {!showForm && (
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-sm text-neutral-500">{items.length} FAQ items</p>
-          <Button leftIcon={<RiAddLine />} size="sm" onClick={onOpenCreate}>
-            Add New FAQ
-          </Button>
-        </div>
-      )}
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm text-neutral-500">{items.length} FAQ items</p>
+        <Button leftIcon={<RiAddLine />} size="sm" onClick={onOpenCreate}>
+          Add New FAQ
+        </Button>
+      </div>
 
       {/* FAQ list */}
-      {items.length === 0 && !showForm ? (
+      {items.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-2xl border border-neutral-100">
           <RiQuestionLine size={40} className="mx-auto text-neutral-300 mb-3" />
           <p className="text-neutral-500 text-sm mb-4">No FAQ items yet. Add one to get started.</p>
@@ -714,7 +655,7 @@ function FAQTab({
                       <RiEditLine size={16} />
                     </button>
                     <button
-                      onClick={() => onDelete(item.id)}
+                      onClick={() => setDeleteFaqTarget(item.id)}
                       disabled={saving}
                       className="p-1.5 rounded-lg hover:bg-red-50 text-neutral-400 hover:text-red-500 transition-colors disabled:opacity-40"
                       title="Delete"
@@ -728,6 +669,94 @@ function FAQTab({
           </AnimatePresence>
         </div>
       )}
+
+      {/* Create / Edit FAQ Modal */}
+      <Modal
+        isOpen={showForm}
+        onClose={onCloseForm}
+        title={editingFaq ? "Edit FAQ Item" : "New FAQ Item"}
+        size="lg"
+      >
+        <form onSubmit={onSubmit} className="p-6 space-y-4">
+          <Input
+            label="Question"
+            value={faqForm.question}
+            onChange={(e) => setFaqForm((f) => ({ ...f, question: e.target.value }))}
+            placeholder="e.g. How do I track my order?"
+            required
+          />
+          <Textarea
+            label="Answer"
+            value={faqForm.answer}
+            onChange={(e) => setFaqForm((f) => ({ ...f, answer: e.target.value }))}
+            placeholder="Provide a clear, helpful answer..."
+            required
+            className="min-h-[120px]"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1.5">
+                Category
+              </label>
+              <select
+                value={faqForm.category}
+                onChange={(e) =>
+                  setFaqForm((f) => ({
+                    ...f,
+                    category: e.target.value as FAQItem["category"],
+                  }))
+                }
+                className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#E84672] focus:ring-2 focus:ring-[#E84672]/30 bg-white transition-all duration-200"
+              >
+                {FAQ_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-3 pt-2 border-t border-neutral-100">
+            <Button type="submit" isLoading={saving} leftIcon={<RiCheckLine />}>
+              {editingFaq ? "Save Changes" : "Add FAQ"}
+            </Button>
+            <Button type="button" variant="outline" onClick={onCloseForm}>
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Delete FAQ Confirmation Modal */}
+      <Modal
+        isOpen={!!deleteFaqTarget}
+        onClose={() => setDeleteFaqTarget(null)}
+        title="Delete FAQ Item"
+        size="sm"
+      >
+        <div className="p-6">
+          <p className="text-sm text-neutral-600 mb-2">
+            Are you sure you want to delete the FAQ item{" "}
+            <span className="font-semibold text-neutral-800">
+              &quot;{deleteItem?.question}&quot;
+            </span>
+            ? This action cannot be undone.
+          </p>
+          <div className="flex gap-3 mt-5">
+            <Button
+              variant="danger"
+              onClick={() => deleteFaqTarget && onDelete(deleteFaqTarget)}
+              isLoading={saving}
+              leftIcon={<RiDeleteBinLine />}
+            >
+              Delete
+            </Button>
+            <Button variant="outline" onClick={() => setDeleteFaqTarget(null)}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
@@ -922,22 +951,12 @@ function PageEditorTab({
           placeholder={`${PAGE_LABELS[pageKey]} title`}
         />
 
-        <div className="flex flex-col gap-1.5 w-full">
-          <label className="text-sm font-medium text-neutral-700">
-            Content <span className="text-neutral-400 font-normal">(HTML supported)</span>
-          </label>
-          <textarea
-            value={page.content}
-            onChange={(e) => updateField("content", e.target.value)}
-            placeholder="Write the page content here. You can use plain text or HTML markup..."
-            className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-800 placeholder:text-neutral-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#E84672]/30 focus:border-[#E84672] resize-y min-h-[400px] font-mono text-xs leading-relaxed"
-          />
-          <p className="text-xs text-neutral-400">
-            {page.content.length > 0
-              ? `${page.content.length.toLocaleString()} characters`
-              : "No content yet"}
-          </p>
-        </div>
+        <RichTextEditor
+          label="Content"
+          value={page.content}
+          onChange={(val) => updateField("content", val)}
+          placeholder="Write the page content here..."
+        />
       </div>
 
       <div className="mt-6 pt-5 border-t border-neutral-100 flex justify-end">

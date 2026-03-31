@@ -8,6 +8,7 @@ import {
   RiHeartLine,
   RiHeartFill,
   RiShoppingCartLine,
+  RiFlashlightLine,
   RiAddLine,
   RiSubtractLine,
   RiStarFill,
@@ -15,11 +16,11 @@ import {
   RiTruckLine,
   RiArrowLeftLine,
 } from "react-icons/ri";
+import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cart.store";
 import { useWishlistStore } from "@/store/wishlist.store";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency, calculateDiscount } from "@/utils/helpers";
-import { OrderStatusBadge } from "@/components/ui/Badge";
 import toast from "react-hot-toast";
 
 interface ProductDetailProps {
@@ -48,6 +49,7 @@ interface ProductDetailProps {
 }
 
 export function ProductDetail({ product }: ProductDetailProps) {
+  const router = useRouter();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
@@ -79,6 +81,27 @@ export function ProductDetail({ product }: ProductDetailProps) {
       variant,
     });
     toast.success("Added to cart");
+  };
+
+  const handleBuyNow = () => {
+    if (isOutOfStock) return;
+    const variant = Object.keys(selectedVariants).length
+      ? { name: Object.keys(selectedVariants)[0], value: Object.values(selectedVariants)[0] }
+      : undefined;
+
+    addItem({
+      productId: product._id,
+      name: product.name,
+      slug: product.slug,
+      image: product.images?.[0] ?? "",
+      price: product.price,
+      compareAtPrice: product.compareAtPrice,
+      stock: product.stock,
+      unit: product.unit,
+      quantity,
+      variant,
+    });
+    router.push("/checkout");
   };
 
   const handleWishlist = () => {
