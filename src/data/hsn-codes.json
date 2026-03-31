@@ -1,138 +1,413 @@
 [
-  { "code": "0904", "description": "Pepper (Piper species), dried/crushed/ground", "gst": 5 },
-  { "code": "09041100", "description": "Pepper - Neither crushed nor ground", "gst": 5 },
-  { "code": "09041200", "description": "Pepper - Crushed or ground", "gst": 5 },
-  { "code": "0905", "description": "Vanilla", "gst": 5 },
-  { "code": "0906", "description": "Cinnamon and cinnamon-tree flowers", "gst": 5 },
-  { "code": "09061100", "description": "Cinnamon - Neither crushed nor ground", "gst": 5 },
-  { "code": "09061900", "description": "Cinnamon - Crushed or ground", "gst": 5 },
-  { "code": "0907", "description": "Cloves (whole fruit, cloves and stems)", "gst": 5 },
-  { "code": "0908", "description": "Nutmeg, mace and cardamoms", "gst": 5 },
-  { "code": "09081100", "description": "Nutmeg - Neither crushed nor ground", "gst": 5 },
-  { "code": "09082100", "description": "Cardamom - Neither crushed nor ground", "gst": 5 },
-  { "code": "09082200", "description": "Cardamom - Crushed or ground", "gst": 5 },
-  { "code": "0909", "description": "Seeds of anise, badian, fennel, coriander, cumin", "gst": 5 },
-  { "code": "09092100", "description": "Coriander seeds - Neither crushed nor ground", "gst": 5 },
-  { "code": "09092200", "description": "Coriander seeds - Crushed or ground", "gst": 5 },
-  { "code": "09093100", "description": "Cumin seeds - Neither crushed nor ground", "gst": 5 },
-  { "code": "09093200", "description": "Cumin seeds - Crushed or ground", "gst": 5 },
   {
-    "code": "0910",
-    "description": "Ginger, saffron, turmeric, thyme, bay leaves, curry",
-    "gst": 5
-  },
-  { "code": "09101100", "description": "Ginger - Neither crushed nor ground", "gst": 5 },
-  { "code": "09101200", "description": "Ginger - Crushed or ground", "gst": 5 },
-  { "code": "09102011", "description": "Saffron - Neither crushed nor ground", "gst": 5 },
-  { "code": "09102012", "description": "Saffron - Crushed or ground", "gst": 5 },
-  { "code": "09103000", "description": "Turmeric (Curcuma)", "gst": 5 },
-  { "code": "09109100", "description": "Mixtures of spices", "gst": 5 },
-  { "code": "09109910", "description": "Curry paste", "gst": 5 },
-  { "code": "09109920", "description": "Curry powder", "gst": 5 },
-  { "code": "0801", "description": "Coconuts, Brazil nuts and cashew nuts", "gst": 5 },
-  { "code": "08011100", "description": "Desiccated coconut", "gst": 5 },
-  { "code": "08013100", "description": "Cashew nuts - In shell", "gst": 5 },
-  { "code": "08013200", "description": "Cashew nuts - Shelled", "gst": 5 },
-  {
-    "code": "0802",
-    "description": "Other nuts (almonds, hazelnuts, walnuts, pistachios)",
-    "gst": 5
-  },
-  { "code": "08021100", "description": "Almonds - In shell", "gst": 5 },
-  { "code": "08021200", "description": "Almonds - Shelled", "gst": 5 },
-  { "code": "08023100", "description": "Walnuts - In shell", "gst": 5 },
-  { "code": "08023200", "description": "Walnuts - Shelled", "gst": 5 },
-  { "code": "08024300", "description": "Pistachios - Shelled", "gst": 5 },
-  { "code": "08025100", "description": "Macadamia nuts - In shell", "gst": 5 },
-  { "code": "08026100", "description": "Macadamia nuts - Shelled", "gst": 5 },
-  { "code": "0803", "description": "Bananas including plantains, dried", "gst": 0 },
-  { "code": "0804", "description": "Dates, figs, pineapples, avocados, guavas, mangoes", "gst": 0 },
-  { "code": "08041000", "description": "Dates - Fresh or dried", "gst": 0 },
-  { "code": "08042000", "description": "Figs - Fresh or dried", "gst": 0 },
-  { "code": "0806", "description": "Grapes - Fresh or dried (raisins)", "gst": 5 },
-  { "code": "08062000", "description": "Raisins / Dried grapes", "gst": 5 },
-  {
-    "code": "0813",
-    "description": "Dried fruits (apricots, prunes, apples, peaches, etc.)",
-    "gst": 5
-  },
-  { "code": "08131000", "description": "Dried apricots", "gst": 5 },
-  { "code": "08132000", "description": "Dried prunes", "gst": 5 },
-  {
-    "code": "08134000",
-    "description": "Other dried fruits (cranberries, blueberries, etc.)",
-    "gst": 5
-  },
-  { "code": "08135000", "description": "Mixtures of dried fruits and nuts", "gst": 5 },
-  { "code": "1207", "description": "Other oil seeds (melon seeds, pumpkin seeds, etc.)", "gst": 5 },
-  { "code": "12074090", "description": "Sesame seeds", "gst": 5 },
-  { "code": "12079910", "description": "Niger seeds", "gst": 5 },
-  { "code": "12079990", "description": "Other oil seeds - Chia seeds, flax seeds", "gst": 5 },
-  { "code": "0409", "description": "Natural honey", "gst": 0 },
-  { "code": "04090000", "description": "Natural honey - All types", "gst": 0 },
-  { "code": "1905", "description": "Bread, pastry, cakes, biscuits", "gst": 18 },
-  {
-    "code": "2106",
-    "description": "Food preparations not elsewhere specified (protein powder, supplements)",
-    "gst": 18
+    "note": "─── SPICES ─────────────────────────────────────────────────────────────"
   },
   {
-    "code": "21069099",
-    "description": "Other food preparations (health mixes, superfood mixes)",
-    "gst": 18
-  },
-  { "code": "1701", "description": "Cane or beet sugar, chemically pure sucrose", "gst": 5 },
-  { "code": "17019910", "description": "Jaggery (gur)", "gst": 0 },
-  { "code": "1704", "description": "Sugar confectionery (not containing cocoa)", "gst": 18 },
-  {
-    "code": "2008",
-    "description": "Fruits, nuts prepared/preserved (roasted nuts, nut butter)",
-    "gst": 12
-  },
-  { "code": "20081900", "description": "Other nuts/seeds - Roasted, salted", "gst": 12 },
-  { "code": "20081110", "description": "Peanut butter", "gst": 12 },
-  { "code": "2009", "description": "Fruit juices, vegetable juices", "gst": 12 },
-  {
-    "code": "1211",
-    "description": "Plants/parts used in pharmacy, perfumery (herbs, ashwagandha, moringa)",
-    "gst": 5
+    "sku": "SPC-TRM-WHL-100-001",
+    "product_name": "Turmeric (Whole)",
+    "hsn": "09103000",
+    "gst_pct": 5
   },
   {
-    "code": "12119029",
-    "description": "Dried herbs - Tulsi, ashwagandha, moringa, etc.",
-    "gst": 5
+    "sku": "SPC-TRM-PWD-100-001",
+    "product_name": "Turmeric Powder",
+    "hsn": "09103000",
+    "gst_pct": 5
   },
-  { "code": "0712", "description": "Dried vegetables (onions, garlic, mushrooms, etc.)", "gst": 5 },
-  { "code": "07129040", "description": "Dried garlic powder", "gst": 5 },
-  { "code": "07129050", "description": "Dried onion powder", "gst": 5 },
   {
-    "code": "4819",
-    "description": "Cartons, boxes, cases, bags of paper/paperboard (gift packaging)",
-    "gst": 18
+    "sku": "SPC-TRM-PWD-250-002",
+    "product_name": "Turmeric Powder 250g",
+    "hsn": "09103000",
+    "gst_pct": 5
   },
-  { "code": "48191000", "description": "Cartons, boxes - Corrugated paper/board", "gst": 18 },
-  { "code": "48192000", "description": "Folding cartons, boxes (gift boxes)", "gst": 18 },
-  { "code": "4602", "description": "Basketwork, wickerwork (gift baskets)", "gst": 12 },
-  { "code": "46021900", "description": "Baskets and hampers (gift hampers)", "gst": 12 },
-  { "code": "1006", "description": "Rice", "gst": 5 },
-  { "code": "10063000", "description": "Semi-milled or wholly milled rice", "gst": 5 },
+  { "sku": "SPC-CUM-WHL-100-001", "product_name": "Cumin Seeds", "hsn": "09093100", "gst_pct": 5 },
+  { "sku": "SPC-CUM-PWD-100-001", "product_name": "Cumin Powder", "hsn": "09093200", "gst_pct": 5 },
   {
-    "code": "0713",
-    "description": "Dried leguminous vegetables (pulses, lentils, chickpeas)",
-    "gst": 5
+    "sku": "SPC-COR-WHL-100-001",
+    "product_name": "Coriander Seeds",
+    "hsn": "09092100",
+    "gst_pct": 5
   },
-  { "code": "1101", "description": "Wheat or meslin flour", "gst": 0 },
-  { "code": "1104", "description": "Cereal grains worked (rolled, flaked oats, muesli)", "gst": 5 },
-  { "code": "1106", "description": "Flour of dried leguminous vegetables (besan, etc.)", "gst": 5 },
   {
-    "code": "1515",
-    "description": "Other fixed vegetable fats and oils (coconut oil, etc.)",
-    "gst": 5
+    "sku": "SPC-COR-PWD-100-001",
+    "product_name": "Coriander Powder",
+    "hsn": "09092200",
+    "gst_pct": 5
   },
-  { "code": "15159020", "description": "Coconut oil - Virgin/cold-pressed", "gst": 5 },
-  { "code": "0902", "description": "Tea", "gst": 5 },
-  { "code": "09021000", "description": "Green tea (not fermented)", "gst": 5 },
-  { "code": "09023000", "description": "Black tea (fermented)", "gst": 5 },
-  { "code": "0901", "description": "Coffee", "gst": 5 },
-  { "code": "09012100", "description": "Coffee - Roasted, not decaffeinated", "gst": 5 }
+  {
+    "sku": "SPC-BPP-WHL-050-001",
+    "product_name": "Black Pepper (Whole)",
+    "hsn": "09041100",
+    "gst_pct": 5
+  },
+  {
+    "sku": "SPC-BPP-PWD-050-001",
+    "product_name": "Black Pepper Powder",
+    "hsn": "09041200",
+    "gst_pct": 5
+  },
+  {
+    "sku": "SPC-GRN-WHL-050-001",
+    "product_name": "Green Cardamom (Whole)",
+    "hsn": "09082100",
+    "gst_pct": 5
+  },
+  {
+    "sku": "SPC-GRN-PWD-025-002",
+    "product_name": "Green Cardamom Powder",
+    "hsn": "09082200",
+    "gst_pct": 5
+  },
+  {
+    "sku": "SPC-BLC-WHL-050-001",
+    "product_name": "Black Cardamom",
+    "hsn": "09082100",
+    "gst_pct": 5
+  },
+  { "sku": "SPC-CLV-WHL-050-001", "product_name": "Cloves", "hsn": "0907", "gst_pct": 5 },
+  {
+    "sku": "SPC-CIN-WHL-050-001",
+    "product_name": "Cinnamon Sticks",
+    "hsn": "09061100",
+    "gst_pct": 5
+  },
+  {
+    "sku": "SPC-CIN-PWD-100-001",
+    "product_name": "Cinnamon Powder",
+    "hsn": "09061900",
+    "gst_pct": 5
+  },
+  { "sku": "SPC-MSD-WHL-050-001", "product_name": "Mustard Seeds", "hsn": "0909", "gst_pct": 5 },
+  { "sku": "SPC-FNG-WHL-050-001", "product_name": "Fenugreek Seeds", "hsn": "0909", "gst_pct": 5 },
+  {
+    "sku": "SPC-AJW-WHL-050-001",
+    "product_name": "Ajwain (Carom Seeds)",
+    "hsn": "0909",
+    "gst_pct": 5
+  },
+  { "sku": "SPC-STR-WHL-025-001", "product_name": "Star Anise", "hsn": "0909", "gst_pct": 5 },
+  {
+    "sku": "SPC-DCP-PWD-050-001",
+    "product_name": "Dried Red Chilli Powder",
+    "hsn": "09109100",
+    "gst_pct": 5
+  },
+  {
+    "sku": "SPC-AMC-PWD-100-001",
+    "product_name": "Amchur (Dry Mango Powder)",
+    "hsn": "09109100",
+    "gst_pct": 5
+  },
+  {
+    "sku": "SPC-ASF-WHL-025-001",
+    "product_name": "Asafoetida (Hing)",
+    "hsn": "09109100",
+    "gst_pct": 5
+  },
+
+  {
+    "note": "─── BLENDS & MASALA ────────────────────────────────────────────────────"
+  },
+  { "sku": "BLD-GRM-PWD-100-001", "product_name": "Garam Masala", "hsn": "09109100", "gst_pct": 5 },
+  { "sku": "BLD-CHT-PWD-100-001", "product_name": "Chaat Masala", "hsn": "09109100", "gst_pct": 5 },
+  {
+    "sku": "BLD-CHK-PWD-100-001",
+    "product_name": "Chicken Masala",
+    "hsn": "09109100",
+    "gst_pct": 5
+  },
+  { "sku": "BLD-RJM-PWD-100-001", "product_name": "Rajma Masala", "hsn": "09109100", "gst_pct": 5 },
+  {
+    "sku": "BLD-SAM-PWD-100-001",
+    "product_name": "Sambar Masala",
+    "hsn": "09109100",
+    "gst_pct": 5
+  },
+  {
+    "sku": "BLD-PVB-PWD-100-001",
+    "product_name": "Pav Bhaji Masala",
+    "hsn": "09109100",
+    "gst_pct": 5
+  },
+  {
+    "sku": "BLD-KIT-PWD-100-001",
+    "product_name": "Kitchen King Masala",
+    "hsn": "09109100",
+    "gst_pct": 5
+  },
+  { "sku": "BLD-CHL-PWD-100-001", "product_name": "Chole Masala", "hsn": "09109100", "gst_pct": 5 },
+
+  {
+    "note": "─── DRY FRUITS ─────────────────────────────────────────────────────────"
+  },
+  {
+    "sku": "DRF-ALM-RAW-250-001",
+    "product_name": "Almonds (Shelled)",
+    "hsn": "08021200",
+    "gst_pct": 5
+  },
+  {
+    "sku": "DRF-ALM-RAW-500-002",
+    "product_name": "Almonds (Shelled) 500g",
+    "hsn": "08021200",
+    "gst_pct": 5
+  },
+  {
+    "sku": "DRF-CSH-RAW-250-001",
+    "product_name": "Cashews W240 (Shelled)",
+    "hsn": "08013200",
+    "gst_pct": 5
+  },
+  {
+    "sku": "DRF-CSH-RAW-500-002",
+    "product_name": "Cashews W240 (Shelled) 500g",
+    "hsn": "08013200",
+    "gst_pct": 5
+  },
+  {
+    "sku": "DRF-WLN-RAW-250-001",
+    "product_name": "Walnuts Kernels (Shelled)",
+    "hsn": "08023200",
+    "gst_pct": 5
+  },
+  {
+    "sku": "DRF-PST-RAW-250-001",
+    "product_name": "Pistachios (Shelled)",
+    "hsn": "08024300",
+    "gst_pct": 5
+  },
+  {
+    "sku": "DRF-RSN-RAW-250-001",
+    "product_name": "Raisins (Kishmish)",
+    "hsn": "08062000",
+    "gst_pct": 5
+  },
+  {
+    "sku": "DRF-DTS-RAW-250-001",
+    "product_name": "Dates (Medjool) 250g",
+    "hsn": "08041000",
+    "gst_pct": 0
+  },
+  {
+    "sku": "DRF-DTS-RAW-500-002",
+    "product_name": "Dates (Medjool) 500g",
+    "hsn": "08041000",
+    "gst_pct": 0
+  },
+  {
+    "sku": "DRF-FIG-RAW-250-001",
+    "product_name": "Dried Figs (Anjeer)",
+    "hsn": "08042000",
+    "gst_pct": 0
+  },
+  {
+    "sku": "DRF-APR-RAW-250-001",
+    "product_name": "Dried Apricots",
+    "hsn": "08131000",
+    "gst_pct": 5
+  },
+  { "sku": "DRF-PRN-RAW-250-001", "product_name": "Prunes", "hsn": "08132000", "gst_pct": 5 },
+  {
+    "sku": "DRF-PNT-RST-100-001",
+    "product_name": "Peanuts Roasted Salted",
+    "hsn": "20081900",
+    "gst_pct": 12
+  },
+  { "sku": "DRF-HZL-RAW-100-001", "product_name": "Hazelnuts", "hsn": "0802", "gst_pct": 5 },
+  {
+    "sku": "DRF-MCR-RAW-100-001",
+    "product_name": "Macadamia Nuts (Shelled)",
+    "hsn": "08026100",
+    "gst_pct": 5
+  },
+  {
+    "sku": "DRF-PNS-RAW-100-001",
+    "product_name": "Pine Nuts (Chilgoza)",
+    "hsn": "0802",
+    "gst_pct": 5
+  },
+
+  {
+    "note": "─── DAL & PULSES ───────────────────────────────────────────────────────"
+  },
+  {
+    "sku": "DAL-TDL-WHL-500-001",
+    "product_name": "Toor Dal (Arhar) 500g",
+    "hsn": "0713",
+    "gst_pct": 5
+  },
+  {
+    "sku": "DAL-TDL-WHL-1KG-002",
+    "product_name": "Toor Dal (Arhar) 1kg",
+    "hsn": "0713",
+    "gst_pct": 5
+  },
+  { "sku": "DAL-CDL-WHL-500-001", "product_name": "Chana Dal 500g", "hsn": "0713", "gst_pct": 5 },
+  {
+    "sku": "DAL-MDL-WHL-500-001",
+    "product_name": "Moong Dal Yellow Split 500g",
+    "hsn": "0713",
+    "gst_pct": 5
+  },
+  {
+    "sku": "DAL-MDL-WHL-1KG-002",
+    "product_name": "Moong Dal Yellow Split 1kg",
+    "hsn": "0713",
+    "gst_pct": 5
+  },
+  {
+    "sku": "DAL-UDL-WHL-500-001",
+    "product_name": "Urad Dal Black 500g",
+    "hsn": "0713",
+    "gst_pct": 5
+  },
+  {
+    "sku": "DAL-UDL-SPL-500-002",
+    "product_name": "Urad Dal White Split 500g",
+    "hsn": "0713",
+    "gst_pct": 5
+  },
+  {
+    "sku": "DAL-MSR-WHL-500-001",
+    "product_name": "Masoor Dal Red Lentil 500g",
+    "hsn": "0713",
+    "gst_pct": 5
+  },
+  {
+    "sku": "DAL-RJM-WHL-500-001",
+    "product_name": "Rajma Kidney Beans 500g",
+    "hsn": "0713",
+    "gst_pct": 5
+  },
+  {
+    "sku": "DAL-CHN-WHL-500-001",
+    "product_name": "Kala Chana Black Chickpeas 500g",
+    "hsn": "0713",
+    "gst_pct": 5
+  },
+  {
+    "sku": "DAL-CHN-WHL-500-002",
+    "product_name": "Kabuli Chana White Chickpeas 500g",
+    "hsn": "0713",
+    "gst_pct": 5
+  },
+  { "sku": "DAL-MTH-WHL-500-001", "product_name": "Moth Dal 500g", "hsn": "0713", "gst_pct": 5 },
+  {
+    "sku": "DAL-LBY-WHL-500-001",
+    "product_name": "Lobiya Black Eye Beans 500g",
+    "hsn": "0713",
+    "gst_pct": 5
+  },
+  {
+    "sku": "DAL-VAL-WHL-500-001",
+    "product_name": "Val Dal Field Beans 500g",
+    "hsn": "0713",
+    "gst_pct": 5
+  },
+
+  {
+    "note": "─── GIFTING — Spice Boxes ──────────────────────────────────────────────"
+  },
+  {
+    "sku": "GFT-SPC-CMB-STD-001",
+    "product_name": "Essential Spices Gift Box (6 spices)",
+    "hsn": "09109100",
+    "gst_pct": 5
+  },
+  {
+    "sku": "GFT-SPC-CMB-PRM-002",
+    "product_name": "Premium Whole Spice Hamper (8 spices)",
+    "hsn": "09109100",
+    "gst_pct": 5
+  },
+  {
+    "sku": "GFT-BLD-CMB-STD-001",
+    "product_name": "Home Kitchen Masala Box (5 blends)",
+    "hsn": "09109100",
+    "gst_pct": 5
+  },
+
+  {
+    "note": "─── GIFTING — Dry Fruit Boxes ──────────────────────────────────────────"
+  },
+  {
+    "sku": "GFT-DRF-CMB-STD-001",
+    "product_name": "Classic Dry Fruit Box (4 items)",
+    "hsn": "08135000",
+    "gst_pct": 5
+  },
+  {
+    "sku": "GFT-DRF-CMB-PRM-002",
+    "product_name": "Royal Dry Fruit Hamper (7 items)",
+    "hsn": "08135000",
+    "gst_pct": 5
+  },
+  {
+    "sku": "GFT-DRF-CMB-LUX-003",
+    "product_name": "Luxury Exotic Nut Box (5 items)",
+    "hsn": "08135000",
+    "gst_pct": 5
+  },
+
+  {
+    "note": "─── GIFTING — Dal & Mixed Hampers ──────────────────────────────────────"
+  },
+  {
+    "sku": "GFT-DAL-CMB-STD-001",
+    "product_name": "Festive Dal Sampler Box (5 dals)",
+    "hsn": "0713",
+    "gst_pct": 5
+  },
+  {
+    "sku": "GFT-MIX-CMB-STD-001",
+    "product_name": "Pantry Starter Gift Set (Dal + Spice)",
+    "hsn": "08135000",
+    "gst_pct": 5
+  },
+  {
+    "sku": "GFT-MIX-CMB-PRM-002",
+    "product_name": "Gourmet Kitchen Hamper (Dal + Spice + Dry Fruit)",
+    "hsn": "08135000",
+    "gst_pct": 5
+  },
+  {
+    "sku": "GFT-MIX-CMB-LUX-003",
+    "product_name": "Grand Festive Hamper (All Categories)",
+    "hsn": "08135000",
+    "gst_pct": 5
+  },
+
+  {
+    "note": "─── GIFTING — Seasonal & Festive ───────────────────────────────────────"
+  },
+  {
+    "sku": "SEA-DIW-GFT-STD-001",
+    "product_name": "Diwali Dry Fruit & Spice Box",
+    "hsn": "08135000",
+    "gst_pct": 5
+  },
+  {
+    "sku": "SEA-DIW-GFT-PRM-002",
+    "product_name": "Diwali Royal Hamper (Premium)",
+    "hsn": "08135000",
+    "gst_pct": 5
+  },
+  {
+    "sku": "SEA-EID-GFT-STD-001",
+    "product_name": "Eid Dry Fruit Gift Box",
+    "hsn": "08135000",
+    "gst_pct": 5
+  },
+  {
+    "sku": "SEA-HOL-GFT-STD-001",
+    "product_name": "Holi Colour Spice Hamper",
+    "hsn": "09109100",
+    "gst_pct": 5
+  },
+  {
+    "sku": "SEA-NEW-GFT-STD-001",
+    "product_name": "New Year Pantry Gift Set",
+    "hsn": "08135000",
+    "gst_pct": 5
+  }
 ]

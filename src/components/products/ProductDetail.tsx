@@ -248,7 +248,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
           ))}
 
           {/* Quantity + CTA */}
-          <div className="flex items-center gap-4 mb-4">
+          <div className="flex items-center gap-4 mb-3">
             <div className="flex items-center gap-2 bg-[#F7F6F0] rounded-xl p-1">
               <button
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -284,6 +284,19 @@ export function ProductDetail({ product }: ProductDetailProps) {
               {inWishlist ? <RiHeartFill size={20} className="text-[#E84672]" /> : <RiHeartLine size={20} className="text-neutral-400" />}
             </button>
           </div>
+
+          {/* Buy Now */}
+          {!isOutOfStock && (
+            <Button
+              size="lg"
+              fullWidth
+              leftIcon={<RiFlashlightLine />}
+              onClick={handleBuyNow}
+              className="mb-4 bg-[#FF6B35] hover:bg-[#E55A2B] border-[#FF6B35]"
+            >
+              Buy Now
+            </Button>
+          )}
 
           {product.stock > 0 && product.stock <= 10 && (
             <p className="text-sm text-amber-600 font-medium mb-4">Only {product.stock} left in stock</p>

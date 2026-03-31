@@ -1,136 +1,854 @@
 [
-  { "prefix": "SPC", "category": "Spices", "description": "Whole and ground spice products" },
   {
-    "prefix": "DRF",
-    "category": "Dry Fruits",
-    "description": "Dried fruits such as raisins, figs, dates, and apricots"
+    "note": "─── SPICES — Individual Products ───────────────────────────────────────"
   },
   {
-    "prefix": "NUT",
-    "category": "Nuts",
-    "description": "Tree nuts including almonds, cashews, walnuts, and pistachios"
+    "sku": "SPC-TRM-WHL-100-001",
+    "prefix": "SPC",
+    "product_code": "TRM",
+    "product_name": "Turmeric",
+    "category": "Spices",
+    "variant": "Whole",
+    "pack_size": "100g",
+    "mrp_inr": null
   },
   {
-    "prefix": "SED",
-    "category": "Seeds",
-    "description": "Edible seeds such as chia, flax, pumpkin, and sunflower"
-  },
-  { "prefix": "HRB", "category": "Herbs", "description": "Culinary and medicinal dried herbs" },
-  { "prefix": "HNY", "category": "Honey", "description": "Natural and infused honey varieties" },
-  {
-    "prefix": "SPF",
-    "category": "Superfoods",
-    "description": "Nutrient-dense superfoods and health supplements"
+    "sku": "SPC-TRM-PWD-100-001",
+    "prefix": "SPC",
+    "product_code": "TRM",
+    "product_name": "Turmeric Powder",
+    "category": "Spices",
+    "variant": "Powder",
+    "pack_size": "100g",
+    "mrp_inr": null
   },
   {
-    "prefix": "TEA",
-    "category": "Tea",
-    "description": "Loose leaf teas, tea bags, and herbal infusions"
+    "sku": "SPC-TRM-PWD-250-002",
+    "prefix": "SPC",
+    "product_code": "TRM",
+    "product_name": "Turmeric Powder",
+    "category": "Spices",
+    "variant": "Powder",
+    "pack_size": "250g",
+    "mrp_inr": null
   },
   {
-    "prefix": "GFT",
-    "category": "Gifting",
-    "description": "Gift boxes, hampers, and festive packs"
+    "sku": "SPC-CUM-WHL-100-001",
+    "prefix": "SPC",
+    "product_code": "CUM",
+    "product_name": "Cumin Seeds",
+    "category": "Spices",
+    "variant": "Whole",
+    "pack_size": "100g",
+    "mrp_inr": null
   },
   {
-    "prefix": "ORG",
-    "category": "Organic",
-    "description": "Certified organic products across categories"
+    "sku": "SPC-CUM-PWD-100-001",
+    "prefix": "SPC",
+    "product_code": "CUM",
+    "product_name": "Cumin Powder",
+    "category": "Spices",
+    "variant": "Powder",
+    "pack_size": "100g",
+    "mrp_inr": null
   },
   {
+    "sku": "SPC-COR-WHL-100-001",
+    "prefix": "SPC",
+    "product_code": "COR",
+    "product_name": "Coriander Seeds",
+    "category": "Spices",
+    "variant": "Whole",
+    "pack_size": "100g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SPC-COR-PWD-100-001",
+    "prefix": "SPC",
+    "product_code": "COR",
+    "product_name": "Coriander Powder",
+    "category": "Spices",
+    "variant": "Powder",
+    "pack_size": "100g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SPC-BPP-WHL-050-001",
+    "prefix": "SPC",
+    "product_code": "BPP",
+    "product_name": "Black Pepper",
+    "category": "Spices",
+    "variant": "Whole",
+    "pack_size": "50g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SPC-BPP-PWD-050-001",
+    "prefix": "SPC",
+    "product_code": "BPP",
+    "product_name": "Black Pepper Powder",
+    "category": "Spices",
+    "variant": "Powder",
+    "pack_size": "50g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SPC-GRN-WHL-050-001",
+    "prefix": "SPC",
+    "product_code": "GRN",
+    "product_name": "Green Cardamom",
+    "category": "Spices",
+    "variant": "Whole",
+    "pack_size": "50g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SPC-BLC-WHL-050-001",
+    "prefix": "SPC",
+    "product_code": "BLC",
+    "product_name": "Black Cardamom",
+    "category": "Spices",
+    "variant": "Whole",
+    "pack_size": "50g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SPC-CLV-WHL-050-001",
+    "prefix": "SPC",
+    "product_code": "CLV",
+    "product_name": "Cloves",
+    "category": "Spices",
+    "variant": "Whole",
+    "pack_size": "50g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SPC-CIN-WHL-050-001",
+    "prefix": "SPC",
+    "product_code": "CIN",
+    "product_name": "Cinnamon Sticks",
+    "category": "Spices",
+    "variant": "Whole",
+    "pack_size": "50g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SPC-CIN-PWD-100-001",
+    "prefix": "SPC",
+    "product_code": "CIN",
+    "product_name": "Cinnamon Powder",
+    "category": "Spices",
+    "variant": "Powder",
+    "pack_size": "100g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SPC-MSD-WHL-050-001",
+    "prefix": "SPC",
+    "product_code": "MSD",
+    "product_name": "Mustard Seeds",
+    "category": "Spices",
+    "variant": "Whole",
+    "pack_size": "50g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SPC-FNG-WHL-050-001",
+    "prefix": "SPC",
+    "product_code": "FNG",
+    "product_name": "Fenugreek Seeds",
+    "category": "Spices",
+    "variant": "Whole",
+    "pack_size": "50g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SPC-AJW-WHL-050-001",
+    "prefix": "SPC",
+    "product_code": "AJW",
+    "product_name": "Ajwain (Carom Seeds)",
+    "category": "Spices",
+    "variant": "Whole",
+    "pack_size": "50g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SPC-STR-WHL-025-001",
+    "prefix": "SPC",
+    "product_code": "STR",
+    "product_name": "Star Anise",
+    "category": "Spices",
+    "variant": "Whole",
+    "pack_size": "25g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SPC-DCP-PWD-050-001",
+    "prefix": "SPC",
+    "product_code": "DCP",
+    "product_name": "Dried Chilli Powder",
+    "category": "Spices",
+    "variant": "Powder",
+    "pack_size": "50g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SPC-AMC-PWD-100-001",
+    "prefix": "SPC",
+    "product_code": "AMC",
+    "product_name": "Amchur (Dry Mango Powder)",
+    "category": "Spices",
+    "variant": "Powder",
+    "pack_size": "100g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SPC-ASF-WHL-025-001",
+    "prefix": "SPC",
+    "product_code": "ASF",
+    "product_name": "Asafoetida (Hing)",
+    "category": "Spices",
+    "variant": "Whole",
+    "pack_size": "25g",
+    "mrp_inr": null
+  },
+
+  {
+    "note": "─── BLENDS & MASALA ────────────────────────────────────────────────────"
+  },
+  {
+    "sku": "BLD-GRM-PWD-100-001",
     "prefix": "BLD",
+    "product_code": "GRM",
+    "product_name": "Garam Masala",
     "category": "Blends & Masala",
-    "description": "Spice blends, masala mixes, and seasoning powders"
+    "variant": "Powder",
+    "pack_size": "100g",
+    "mrp_inr": null
   },
   {
-    "prefix": "OIL",
-    "category": "Oil",
-    "description": "Cold-pressed, wood-pressed, and infused cooking oils"
+    "sku": "BLD-CHT-PWD-100-001",
+    "prefix": "BLD",
+    "product_code": "CHT",
+    "product_name": "Chaat Masala",
+    "category": "Blends & Masala",
+    "variant": "Powder",
+    "pack_size": "100g",
+    "mrp_inr": null
   },
   {
-    "prefix": "PWD",
-    "category": "Powder",
-    "description": "Finely ground powders of spices, herbs, and superfoods"
+    "sku": "BLD-CHK-PWD-100-001",
+    "prefix": "BLD",
+    "product_code": "CHK",
+    "product_name": "Chicken Masala",
+    "category": "Blends & Masala",
+    "variant": "Powder",
+    "pack_size": "100g",
+    "mrp_inr": null
   },
   {
-    "prefix": "WHL",
-    "category": "Whole",
-    "description": "Whole unground spices, grains, and produce"
+    "sku": "BLD-RJM-PWD-100-001",
+    "prefix": "BLD",
+    "product_code": "RJM",
+    "product_name": "Rajma Masala",
+    "category": "Blends & Masala",
+    "variant": "Powder",
+    "pack_size": "100g",
+    "mrp_inr": null
   },
   {
-    "prefix": "RST",
-    "category": "Roasted",
-    "description": "Dry-roasted and flavoured roasted nuts and seeds"
+    "sku": "BLD-SAM-PWD-100-001",
+    "prefix": "BLD",
+    "product_code": "SAM",
+    "product_name": "Sambar Masala",
+    "category": "Blends & Masala",
+    "variant": "Powder",
+    "pack_size": "100g",
+    "mrp_inr": null
   },
   {
-    "prefix": "RAW",
-    "category": "Raw",
-    "description": "Unprocessed raw nuts, seeds, and natural ingredients"
+    "sku": "BLD-PVB-PWD-100-001",
+    "prefix": "BLD",
+    "product_code": "PVB",
+    "product_name": "Pav Bhaji Masala",
+    "category": "Blends & Masala",
+    "variant": "Powder",
+    "pack_size": "100g",
+    "mrp_inr": null
   },
   {
-    "prefix": "PRM",
-    "category": "Premium",
-    "description": "Premium and single-origin high-grade products"
+    "sku": "BLD-KIT-PWD-100-001",
+    "prefix": "BLD",
+    "product_code": "KIT",
+    "product_name": "Kitchen King Masala",
+    "category": "Blends & Masala",
+    "variant": "Powder",
+    "pack_size": "100g",
+    "mrp_inr": null
   },
   {
-    "prefix": "CMB",
-    "category": "Combo & Pack",
-    "description": "Combo packs, value packs, and assorted bundles"
+    "sku": "BLD-CHL-PWD-100-001",
+    "prefix": "BLD",
+    "product_code": "CHL",
+    "product_name": "Chole Masala",
+    "category": "Blends & Masala",
+    "variant": "Powder",
+    "pack_size": "100g",
+    "mrp_inr": null
+  },
+
+  {
+    "note": "─── DRY FRUITS ─────────────────────────────────────────────────────────"
   },
   {
-    "prefix": "GRN",
-    "category": "Grains & Millets",
-    "description": "Whole grains, millets, and ancient cereals"
+    "sku": "DRF-ALM-RAW-250-001",
+    "prefix": "DRF",
+    "product_code": "ALM",
+    "product_name": "Almonds",
+    "category": "Dry Fruits",
+    "variant": "Raw",
+    "pack_size": "250g",
+    "mrp_inr": null
   },
   {
-    "prefix": "SWT",
-    "category": "Sweeteners",
-    "description": "Natural sweeteners such as jaggery, stevia, and palm sugar"
+    "sku": "DRF-ALM-RAW-500-002",
+    "prefix": "DRF",
+    "product_code": "ALM",
+    "product_name": "Almonds",
+    "category": "Dry Fruits",
+    "variant": "Raw",
+    "pack_size": "500g",
+    "mrp_inr": null
   },
   {
-    "prefix": "BRY",
-    "category": "Berries",
-    "description": "Dried berries including goji, cranberry, and blueberry"
+    "sku": "DRF-CSH-RAW-250-001",
+    "prefix": "DRF",
+    "product_code": "CSH",
+    "product_name": "Cashews W240",
+    "category": "Dry Fruits",
+    "variant": "Raw",
+    "pack_size": "250g",
+    "mrp_inr": null
   },
   {
-    "prefix": "AYR",
-    "category": "Ayurvedic",
-    "description": "Traditional Ayurvedic ingredients and formulations"
+    "sku": "DRF-CSH-RAW-500-002",
+    "prefix": "DRF",
+    "product_code": "CSH",
+    "product_name": "Cashews W240",
+    "category": "Dry Fruits",
+    "variant": "Raw",
+    "pack_size": "500g",
+    "mrp_inr": null
   },
   {
-    "prefix": "SAF",
-    "category": "Saffron & Exotic",
-    "description": "Saffron, vanilla, and other exotic high-value spices"
+    "sku": "DRF-WLN-RAW-250-001",
+    "prefix": "DRF",
+    "product_code": "WLN",
+    "product_name": "Walnuts (Kernels)",
+    "category": "Dry Fruits",
+    "variant": "Raw",
+    "pack_size": "250g",
+    "mrp_inr": null
   },
   {
-    "prefix": "FLV",
-    "category": "Flavoured",
-    "description": "Flavoured and seasoned snack-grade dry fruits and nuts"
+    "sku": "DRF-PST-RAW-250-001",
+    "prefix": "DRF",
+    "product_code": "PST",
+    "product_name": "Pistachios",
+    "category": "Dry Fruits",
+    "variant": "Raw",
+    "pack_size": "250g",
+    "mrp_inr": null
   },
   {
-    "prefix": "MNT",
-    "category": "Mouth Freshener",
-    "description": "Mukhwas, pan masala, and after-meal refreshers"
+    "sku": "DRF-RSN-RAW-250-001",
+    "prefix": "DRF",
+    "product_code": "RSN",
+    "product_name": "Raisins (Kishmish)",
+    "category": "Dry Fruits",
+    "variant": "Raw",
+    "pack_size": "250g",
+    "mrp_inr": null
   },
   {
-    "prefix": "DIP",
-    "category": "Dips & Chutneys",
-    "description": "Dry chutneys, dip mixes, and condiment powders"
+    "sku": "DRF-DTS-RAW-250-001",
+    "prefix": "DRF",
+    "product_code": "DTS",
+    "product_name": "Dates (Medjool)",
+    "category": "Dry Fruits",
+    "variant": "Raw",
+    "pack_size": "250g",
+    "mrp_inr": null
   },
   {
-    "prefix": "TRL",
-    "category": "Trail Mix",
-    "description": "Ready-to-eat trail mixes and snack mixes"
+    "sku": "DRF-DTS-RAW-500-002",
+    "prefix": "DRF",
+    "product_code": "DTS",
+    "product_name": "Dates (Medjool)",
+    "category": "Dry Fruits",
+    "variant": "Raw",
+    "pack_size": "500g",
+    "mrp_inr": null
   },
-  { "prefix": "BLK", "category": "Bulk", "description": "Bulk and wholesale quantity packs" },
   {
-    "prefix": "SMP",
-    "category": "Sample & Trial",
-    "description": "Sample-size and trial packs for new customers"
+    "sku": "DRF-FIG-RAW-250-001",
+    "prefix": "DRF",
+    "product_code": "FIG",
+    "product_name": "Dried Figs (Anjeer)",
+    "category": "Dry Fruits",
+    "variant": "Raw",
+    "pack_size": "250g",
+    "mrp_inr": null
   },
   {
+    "sku": "DRF-APR-RAW-250-001",
+    "prefix": "DRF",
+    "product_code": "APR",
+    "product_name": "Dried Apricots",
+    "category": "Dry Fruits",
+    "variant": "Raw",
+    "pack_size": "250g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "DRF-PRN-RAW-250-001",
+    "prefix": "DRF",
+    "product_code": "PRN",
+    "product_name": "Prunes",
+    "category": "Dry Fruits",
+    "variant": "Raw",
+    "pack_size": "250g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "DRF-PNT-RST-100-001",
+    "prefix": "DRF",
+    "product_code": "PNT",
+    "product_name": "Peanuts Roasted Salted",
+    "category": "Dry Fruits",
+    "variant": "Roasted",
+    "pack_size": "100g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "DRF-HZL-RAW-100-001",
+    "prefix": "DRF",
+    "product_code": "HZL",
+    "product_name": "Hazelnuts",
+    "category": "Dry Fruits",
+    "variant": "Raw",
+    "pack_size": "100g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "DRF-MCR-RAW-100-001",
+    "prefix": "DRF",
+    "product_code": "MCR",
+    "product_name": "Macadamia Nuts",
+    "category": "Dry Fruits",
+    "variant": "Raw",
+    "pack_size": "100g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "DRF-PNS-RAW-100-001",
+    "prefix": "DRF",
+    "product_code": "PNS",
+    "product_name": "Pine Nuts (Chilgoza)",
+    "category": "Dry Fruits",
+    "variant": "Raw",
+    "pack_size": "100g",
+    "mrp_inr": null
+  },
+
+  {
+    "note": "─── DAL & PULSES (new category — prefix DAL) ───────────────────────────"
+  },
+  {
+    "sku": "DAL-TDL-WHL-500-001",
+    "prefix": "DAL",
+    "product_code": "TDL",
+    "product_name": "Toor Dal (Arhar)",
+    "category": "Dal & Pulses",
+    "variant": "Whole",
+    "pack_size": "500g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "DAL-TDL-WHL-1KG-002",
+    "prefix": "DAL",
+    "product_code": "TDL",
+    "product_name": "Toor Dal (Arhar)",
+    "category": "Dal & Pulses",
+    "variant": "Whole",
+    "pack_size": "1kg",
+    "mrp_inr": null
+  },
+  {
+    "sku": "DAL-CDL-WHL-500-001",
+    "prefix": "DAL",
+    "product_code": "CDL",
+    "product_name": "Chana Dal",
+    "category": "Dal & Pulses",
+    "variant": "Whole",
+    "pack_size": "500g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "DAL-MDL-WHL-500-001",
+    "prefix": "DAL",
+    "product_code": "MDL",
+    "product_name": "Moong Dal (Yellow Split)",
+    "category": "Dal & Pulses",
+    "variant": "Whole",
+    "pack_size": "500g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "DAL-MDL-WHL-1KG-002",
+    "prefix": "DAL",
+    "product_code": "MDL",
+    "product_name": "Moong Dal (Yellow Split)",
+    "category": "Dal & Pulses",
+    "variant": "Whole",
+    "pack_size": "1kg",
+    "mrp_inr": null
+  },
+  {
+    "sku": "DAL-UDL-WHL-500-001",
+    "prefix": "DAL",
+    "product_code": "UDL",
+    "product_name": "Urad Dal (Black)",
+    "category": "Dal & Pulses",
+    "variant": "Whole",
+    "pack_size": "500g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "DAL-UDL-SPL-500-002",
+    "prefix": "DAL",
+    "product_code": "UDL",
+    "product_name": "Urad Dal (White Split)",
+    "category": "Dal & Pulses",
+    "variant": "Split",
+    "pack_size": "500g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "DAL-MSR-WHL-500-001",
+    "prefix": "DAL",
+    "product_code": "MSR",
+    "product_name": "Masoor Dal (Red Lentil)",
+    "category": "Dal & Pulses",
+    "variant": "Whole",
+    "pack_size": "500g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "DAL-RJM-WHL-500-001",
+    "prefix": "DAL",
+    "product_code": "RJM",
+    "product_name": "Rajma (Kidney Beans)",
+    "category": "Dal & Pulses",
+    "variant": "Whole",
+    "pack_size": "500g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "DAL-CHN-WHL-500-001",
+    "prefix": "DAL",
+    "product_code": "CHN",
+    "product_name": "Kala Chana (Black Chickpeas)",
+    "category": "Dal & Pulses",
+    "variant": "Whole",
+    "pack_size": "500g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "DAL-CHN-WHL-500-002",
+    "prefix": "DAL",
+    "product_code": "CHN",
+    "product_name": "Kabuli Chana (White Chickpeas)",
+    "category": "Dal & Pulses",
+    "variant": "Whole",
+    "pack_size": "500g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "DAL-MTH-WHL-500-001",
+    "prefix": "DAL",
+    "product_code": "MTH",
+    "product_name": "Moth Dal",
+    "category": "Dal & Pulses",
+    "variant": "Whole",
+    "pack_size": "500g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "DAL-LBY-WHL-500-001",
+    "prefix": "DAL",
+    "product_code": "LBY",
+    "product_name": "Lobiya (Black Eye Beans)",
+    "category": "Dal & Pulses",
+    "variant": "Whole",
+    "pack_size": "500g",
+    "mrp_inr": null
+  },
+  {
+    "sku": "DAL-VAL-WHL-500-001",
+    "prefix": "DAL",
+    "product_code": "VAL",
+    "product_name": "Val Dal (Field Beans)",
+    "category": "Dal & Pulses",
+    "variant": "Whole",
+    "pack_size": "500g",
+    "mrp_inr": null
+  },
+
+  {
+    "note": "─── GIFTING — Spice Focused ────────────────────────────────────────────"
+  },
+  {
+    "sku": "GFT-SPC-CMB-STD-001",
+    "prefix": "GFT",
+    "product_code": "SPC",
+    "product_name": "Essential Spices Gift Box (6 spices)",
+    "category": "Gifting",
+    "variant": "Standard",
+    "pack_size": "6x50g",
+    "contains": [
+      "SPC-TRM-PWD-100-001",
+      "SPC-CUM-PWD-100-001",
+      "SPC-COR-PWD-100-001",
+      "SPC-BPP-PWD-050-001",
+      "SPC-DCP-PWD-050-001",
+      "SPC-AMC-PWD-100-001"
+    ],
+    "mrp_inr": null
+  },
+  {
+    "sku": "GFT-SPC-CMB-PRM-002",
+    "prefix": "GFT",
+    "product_code": "SPC",
+    "product_name": "Premium Whole Spice Hamper (8 spices)",
+    "category": "Gifting",
+    "variant": "Premium",
+    "pack_size": "8x50g",
+    "contains": [
+      "SPC-GRN-WHL-050-001",
+      "SPC-BLC-WHL-050-001",
+      "SPC-CLV-WHL-050-001",
+      "SPC-CIN-WHL-050-001",
+      "SPC-STR-WHL-025-001",
+      "SPC-BPP-WHL-050-001",
+      "SPC-MSD-WHL-050-001",
+      "SPC-AJW-WHL-050-001"
+    ],
+    "mrp_inr": null
+  },
+  {
+    "sku": "GFT-BLD-CMB-STD-001",
+    "prefix": "GFT",
+    "product_code": "BLD",
+    "product_name": "Home Kitchen Masala Box (5 blends)",
+    "category": "Gifting",
+    "variant": "Standard",
+    "pack_size": "5x100g",
+    "contains": [
+      "BLD-GRM-PWD-100-001",
+      "BLD-CHT-PWD-100-001",
+      "BLD-PVB-PWD-100-001",
+      "BLD-CHL-PWD-100-001",
+      "BLD-KIT-PWD-100-001"
+    ],
+    "mrp_inr": null
+  },
+
+  {
+    "note": "─── GIFTING — Dry Fruit Focused ────────────────────────────────────────"
+  },
+  {
+    "sku": "GFT-DRF-CMB-STD-001",
+    "prefix": "GFT",
+    "product_code": "DRF",
+    "product_name": "Classic Dry Fruit Box (4 items)",
+    "category": "Gifting",
+    "variant": "Standard",
+    "pack_size": "4x100g",
+    "contains": [
+      "DRF-ALM-RAW-250-001",
+      "DRF-CSH-RAW-250-001",
+      "DRF-RSN-RAW-250-001",
+      "DRF-PST-RAW-250-001"
+    ],
+    "mrp_inr": null
+  },
+  {
+    "sku": "GFT-DRF-CMB-PRM-002",
+    "prefix": "GFT",
+    "product_code": "DRF",
+    "product_name": "Royal Dry Fruit Hamper (7 items)",
+    "category": "Gifting",
+    "variant": "Premium",
+    "pack_size": "7x100g",
+    "contains": [
+      "DRF-ALM-RAW-250-001",
+      "DRF-CSH-RAW-250-001",
+      "DRF-WLN-RAW-250-001",
+      "DRF-PST-RAW-250-001",
+      "DRF-FIG-RAW-250-001",
+      "DRF-DTS-RAW-250-001",
+      "DRF-APR-RAW-250-001"
+    ],
+    "mrp_inr": null
+  },
+  {
+    "sku": "GFT-DRF-CMB-LUX-003",
+    "prefix": "GFT",
+    "product_code": "DRF",
+    "product_name": "Luxury Exotic Nut Box (5 items)",
+    "category": "Gifting",
+    "variant": "Luxury",
+    "pack_size": "5x100g",
+    "contains": [
+      "DRF-MCR-RAW-100-001",
+      "DRF-HZL-RAW-100-001",
+      "DRF-PNS-RAW-100-001",
+      "DRF-WLN-RAW-250-001",
+      "DRF-PST-RAW-250-001"
+    ],
+    "mrp_inr": null
+  },
+
+  {
+    "note": "─── GIFTING — Dal & Spice Combo (Festive Pantry) ───────────────────────"
+  },
+  {
+    "sku": "GFT-DAL-CMB-STD-001",
+    "prefix": "GFT",
+    "product_code": "DAL",
+    "product_name": "Festive Dal Sampler Box (5 dals)",
+    "category": "Gifting",
+    "variant": "Standard",
+    "pack_size": "5x250g",
+    "contains": [
+      "DAL-TDL-WHL-500-001",
+      "DAL-CDL-WHL-500-001",
+      "DAL-MDL-WHL-500-001",
+      "DAL-MSR-WHL-500-001",
+      "DAL-UDL-WHL-500-001"
+    ],
+    "mrp_inr": null
+  },
+  {
+    "sku": "GFT-MIX-CMB-STD-001",
+    "prefix": "GFT",
+    "product_code": "MIX",
+    "product_name": "Pantry Starter Gift Set (Dal + Spice)",
+    "category": "Gifting",
+    "variant": "Standard",
+    "pack_size": "Mixed",
+    "contains": [
+      "DAL-TDL-WHL-500-001",
+      "DAL-MDL-WHL-500-001",
+      "SPC-TRM-PWD-100-001",
+      "SPC-CUM-PWD-100-001",
+      "BLD-GRM-PWD-100-001"
+    ],
+    "mrp_inr": null
+  },
+  {
+    "sku": "GFT-MIX-CMB-PRM-002",
+    "prefix": "GFT",
+    "product_code": "MIX",
+    "product_name": "Gourmet Kitchen Hamper (Dal + Spice + Dry Fruit)",
+    "category": "Gifting",
+    "variant": "Premium",
+    "pack_size": "Mixed",
+    "contains": [
+      "DAL-TDL-WHL-500-001",
+      "DAL-CDL-WHL-500-001",
+      "BLD-GRM-PWD-100-001",
+      "SPC-GRN-WHL-050-001",
+      "DRF-ALM-RAW-250-001",
+      "DRF-CSH-RAW-250-001",
+      "DRF-RSN-RAW-250-001"
+    ],
+    "mrp_inr": null
+  },
+  {
+    "sku": "GFT-MIX-CMB-LUX-003",
+    "prefix": "GFT",
+    "product_code": "MIX",
+    "product_name": "Grand Festive Hamper (All Categories)",
+    "category": "Gifting",
+    "variant": "Luxury",
+    "pack_size": "Mixed",
+    "contains": [
+      "DRF-ALM-RAW-250-001",
+      "DRF-CSH-RAW-250-001",
+      "DRF-WLN-RAW-250-001",
+      "DRF-DTS-RAW-250-001",
+      "DAL-TDL-WHL-500-001",
+      "DAL-MDL-WHL-500-001",
+      "SPC-GRN-WHL-050-001",
+      "BLD-GRM-PWD-100-001",
+      "SPC-TRM-PWD-100-001"
+    ],
+    "mrp_inr": null
+  },
+
+  {
+    "note": "─── GIFTING — Seasonal & Festive Editions ──────────────────────────────"
+  },
+  {
+    "sku": "SEA-DIW-GFT-STD-001",
     "prefix": "SEA",
+    "product_code": "DIW",
+    "product_name": "Diwali Dry Fruit & Spice Box",
     "category": "Seasonal & Festive",
-    "description": "Seasonal specialties and festive limited-edition products"
+    "variant": "Standard",
+    "pack_size": "Mixed",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SEA-DIW-GFT-PRM-002",
+    "prefix": "SEA",
+    "product_code": "DIW",
+    "product_name": "Diwali Royal Hamper (Premium)",
+    "category": "Seasonal & Festive",
+    "variant": "Premium",
+    "pack_size": "Mixed",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SEA-EID-GFT-STD-001",
+    "prefix": "SEA",
+    "product_code": "EID",
+    "product_name": "Eid Dry Fruit Gift Box",
+    "category": "Seasonal & Festive",
+    "variant": "Standard",
+    "pack_size": "Mixed",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SEA-HOL-GFT-STD-001",
+    "prefix": "SEA",
+    "product_code": "HOL",
+    "product_name": "Holi Colour Spice Hamper",
+    "category": "Seasonal & Festive",
+    "variant": "Standard",
+    "pack_size": "Mixed",
+    "mrp_inr": null
+  },
+  {
+    "sku": "SEA-NEW-GFT-STD-001",
+    "prefix": "SEA",
+    "product_code": "NEW",
+    "product_name": "New Year Pantry Gift Set",
+    "category": "Seasonal & Festive",
+    "variant": "Standard",
+    "pack_size": "Mixed",
+    "mrp_inr": null
   }
 ]
