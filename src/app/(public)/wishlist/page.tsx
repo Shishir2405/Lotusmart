@@ -4,14 +4,19 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { RiHeartFill, RiHeartLine, RiShoppingCartLine } from "react-icons/ri";
+import {
+  RiHeartFill,
+  RiHeartLine,
+  RiShoppingCartLine,
+  RiArrowRightLine,
+} from "react-icons/ri";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { formatCurrency } from "@/utils/helpers";
 import { useWishlistStore } from "@/store/wishlist.store";
 import { useCartStore } from "@/store/cart.store";
 import { useAuthStore } from "@/store/auth.store";
-import axios from "axios";
+import apiClient from "@/lib/api-client";
 import toast from "react-hot-toast";
 
 interface WishlistProduct {
@@ -33,71 +38,133 @@ interface ServerWishlistItem {
 
 export default function WishlistPage() {
   const { user } = useAuthStore();
-  const { items: localItems, toggleItem } = useWishlistStore();
+  const { items: localItems, removeItem: removeLocalItem } =
+    useWishlistStore();
   const { addItem } = useCartStore();
   const [serverItems, setServerItems] = useState<WishlistProduct[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [removing, setRemoving] = useState<string | null>(null);
+  const [movingToCart, setMovingToCart] = useState<string | null>(null);
 
+  // Fetch wishlist from server (works for both auth and anonymous via device ID)
   useEffect(() => {
-    if (!user) return;
     setLoading(true);
-    axios
+    apiClient
       .get<{ data: { items: ServerWishlistItem[] } }>("/api/wishlist")
-      .then((r) => setServerItems(r.data.data.items.map((i) => i.product).filter(Boolean)))
-      .catch(() => null)
+      .then((r) => {
+        const items = r.data.data?.items ?? [];
+        setServerItems(items.map((i) => i.product).filter(Boolean));
+      })
+      .catch(() => {
+        // If API fails (no device ID or auth), use local items
+        setServerItems([]);
+      })
       .finally(() => setLoading(false));
   }, [user]);
 
   const handleRemove = async (productId: string) => {
     setRemoving(productId);
-    if (user) {
-      await axios.post("/api/wishlist", { productId }).catch(() => null);
+    try {
+      await apiClient.post("/api/wishlist", { productId });
       setServerItems((prev) => prev.filter((p) => p._id !== productId));
-    } else {
-      toggleItem({ productId, name: "", slug: "", image: "", price: 0, unit: "", isInStock: true });
+      removeLocalItem(productId);
+      toast.success("Removed from wishlist");
+    } catch {
+      toast.error("Failed to remove item");
     }
     setRemoving(null);
-    toast.success("Removed from wishlist");
   };
 
   const handleAddToCart = (product: WishlistProduct) => {
     if (product.stock === 0) return;
-    addItem({ productId: product._id, name: product.name, slug: product.slug, price: product.price, image: product.images?.[0] ?? "", stock: product.stock, unit: product.unit });
+    addItem({
+      productId: product._id,
+      name: product.name,
+      slug: product.slug,
+      price: product.price,
+      image: product.images?.[0] ?? "",
+      stock: product.stock,
+      unit: product.unit,
+    });
     toast.success("Added to cart");
   };
 
-  // For guests, show local wishlist (just IDs — no product details available without fetching)
-  const isEmpty = user ? serverItems.length === 0 : localItems.length === 0;
+  const handleMoveToCart = async (product: WishlistProduct) => {
+    if (product.stock === 0) return;
+    setMovingToCart(product._id);
+    try {
+      await apiClient.post("/api/wishlist/move-to-cart", {
+        productId: product._id,
+      });
+      setServerItems((prev) => prev.filter((p) => p._id !== product._id));
+      removeLocalItem(product._id);
+      addItem({
+        productId: product._id,
+        name: product.name,
+        slug: product.slug,
+        price: product.price,
+        image: product.images?.[0] ?? "",
+        stock: product.stock,
+        unit: product.unit,
+      });
+      toast.success("Moved to cart");
+    } catch {
+      // Fallback to local add
+      handleAddToCart(product);
+    }
+    setMovingToCart(null);
+  };
 
-  if (!loading && isEmpty) {
+  const displayItems = serverItems.length > 0 ? serverItems : [];
+  const isEmpty = !loading && displayItems.length === 0 && localItems.length === 0;
+
+  if (loading) {
     return (
-      <div className="container-narrow py-24 text-center">
-        <RiHeartLine size={48} className="text-neutral-300 mx-auto mb-5" />
-        <h2 className="text-2xl font-bold text-neutral-900 mb-2">Your wishlist is empty</h2>
-        <p className="text-neutral-500 mb-8">
-          {user ? "Save items you love and find them here." : "Sign in to save your wishlist across devices."}
-        </p>
-        <div className="flex gap-3 justify-center">
-          <Link href="/products"><Button size="lg">Browse Products</Button></Link>
-          {!user && <Link href="/login"><Button variant="outline" size="lg">Sign In</Button></Link>}
+      <div className="container-narrow py-10">
+        <h1 className="text-2xl font-bold text-neutral-900 mb-6">
+          My Wishlist
+        </h1>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="bg-white rounded-2xl border border-neutral-100 overflow-hidden animate-pulse"
+            >
+              <div className="aspect-square bg-neutral-100" />
+              <div className="p-3 space-y-2">
+                <div className="h-4 bg-neutral-100 rounded w-3/4" />
+                <div className="h-4 bg-neutral-100 rounded w-1/2" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
   }
 
-  if (!user) {
-    // Guests only have IDs; prompt them to sign in for full wishlist view
+  if (isEmpty) {
     return (
       <div className="container-narrow py-24 text-center">
         <RiHeartLine size={48} className="text-neutral-300 mx-auto mb-5" />
         <h2 className="text-2xl font-bold text-neutral-900 mb-2">
-          {localItems.length} item{localItems.length !== 1 ? "s" : ""} saved
+          Your wishlist is empty
         </h2>
-        <p className="text-neutral-500 mb-8">Sign in to view and manage your full wishlist.</p>
+        <p className="text-neutral-500 mb-8">
+          {user
+            ? "Save items you love and find them here."
+            : "Save items you love and they'll appear here."}
+        </p>
         <div className="flex gap-3 justify-center">
-          <Link href="/login"><Button size="lg">Sign In</Button></Link>
-          <Link href="/products"><Button variant="outline" size="lg">Keep Browsing</Button></Link>
+          <Link href="/products">
+            <Button size="lg">Browse Products</Button>
+          </Link>
+          {!user && (
+            <Link href="/login">
+              <Button variant="outline" size="lg">
+                Sign In
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
     );
@@ -107,15 +174,36 @@ export default function WishlistPage() {
     <div className="container-narrow py-10">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-neutral-900">My Wishlist</h1>
-        <p className="text-sm text-neutral-400">{serverItems.length} item{serverItems.length !== 1 ? "s" : ""}</p>
+        <p className="text-sm text-neutral-400">
+          {displayItems.length} item
+          {displayItems.length !== 1 ? "s" : ""}
+        </p>
       </div>
+
+      {!user && (
+        <div className="bg-[#FFF1F3] rounded-xl p-4 mb-6 flex items-center justify-between">
+          <p className="text-sm text-[#C9305A]">
+            Sign in to sync your wishlist across devices
+          </p>
+          <Link href="/login">
+            <Button size="sm" variant="outline" rightIcon={<RiArrowRightLine size={14} />}>
+              Sign In
+            </Button>
+          </Link>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         <AnimatePresence>
-          {serverItems.map((product) => {
-            const discount = product.compareAtPrice && product.compareAtPrice > product.price
-              ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
-              : null;
+          {displayItems.map((product) => {
+            const discountPct =
+              product.compareAtPrice && product.compareAtPrice > product.price
+                ? Math.round(
+                    ((product.compareAtPrice - product.price) /
+                      product.compareAtPrice) *
+                      100,
+                  )
+                : null;
 
             return (
               <motion.div
@@ -126,7 +214,10 @@ export default function WishlistPage() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 className="bg-white rounded-2xl border border-neutral-100 overflow-hidden group"
               >
-                <Link href={`/products/${product.slug}`} className="block relative">
+                <Link
+                  href={`/products/${product.slug}`}
+                  className="block relative"
+                >
                   <div className="aspect-square bg-[#F7F6F0] relative overflow-hidden">
                     {product.images?.[0] ? (
                       <Image
@@ -137,11 +228,16 @@ export default function WishlistPage() {
                         sizes="(max-width: 640px) 50vw, 25vw"
                       />
                     ) : (
-                      <div className="absolute inset-0 flex items-center justify-center text-neutral-300 text-sm font-bold">No Image</div>
+                      <div className="absolute inset-0 flex items-center justify-center text-neutral-300 text-sm font-bold">
+                        No Image
+                      </div>
                     )}
-                    {discount && (
-                      <Badge variant="error" className="absolute top-2 left-2">
-                        -{discount}%
+                    {discountPct && (
+                      <Badge
+                        variant="error"
+                        className="absolute top-2 left-2"
+                      >
+                        -{discountPct}%
                       </Badge>
                     )}
                     {product.stock === 0 && (
@@ -159,20 +255,30 @@ export default function WishlistPage() {
                     </h3>
                   </Link>
                   <div className="flex items-center gap-1.5 mt-1.5">
-                    <span className="text-sm font-bold text-neutral-900">{formatCurrency(product.price)}</span>
-                    {product.compareAtPrice && product.compareAtPrice > product.price && (
-                      <span className="text-xs text-neutral-400 line-through">{formatCurrency(product.compareAtPrice)}</span>
-                    )}
+                    <span className="text-sm font-bold text-neutral-900">
+                      {formatCurrency(product.price)}
+                    </span>
+                    {product.compareAtPrice &&
+                      product.compareAtPrice > product.price && (
+                        <span className="text-xs text-neutral-400 line-through">
+                          {formatCurrency(product.compareAtPrice)}
+                        </span>
+                      )}
                   </div>
 
                   <div className="flex gap-1.5 mt-2.5">
                     <button
-                      onClick={() => handleAddToCart(product)}
-                      disabled={product.stock === 0}
+                      onClick={() => handleMoveToCart(product)}
+                      disabled={
+                        product.stock === 0 ||
+                        movingToCart === product._id
+                      }
                       className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-[#E84672] text-white text-xs font-medium hover:bg-[#C9305A] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                     >
                       <RiShoppingCartLine size={13} />
-                      Add
+                      {movingToCart === product._id
+                        ? "Moving..."
+                        : "Move to Cart"}
                     </button>
                     <button
                       onClick={() => handleRemove(product._id)}
