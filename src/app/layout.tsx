@@ -52,6 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 iconTheme: { primary: "#16a34a", secondary: "#fff" },
                 style: {
                   background: "rgba(240, 253, 244, 0.92)",
+                  color: "#1C1917",
                   border: "1px solid rgba(22, 163, 74, 0.15)",
                   backdropFilter: "blur(16px)",
                   WebkitBackdropFilter: "blur(16px)",
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 iconTheme: { primary: "#dc2626", secondary: "#fff" },
                 style: {
                   background: "rgba(254, 242, 242, 0.92)",
+                  color: "#1C1917",
                   border: "1px solid rgba(220, 38, 38, 0.15)",
                   backdropFilter: "blur(16px)",
                   WebkitBackdropFilter: "blur(16px)",
