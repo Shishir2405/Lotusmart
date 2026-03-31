@@ -206,7 +206,7 @@ export default function AddressesPage() {
                 {addr.addressLine2 && `, ${addr.addressLine2}`}<br />
                 {addr.city}, {addr.state} — {addr.pincode}
               </p>
-              <p className="text-xs text-neutral-400 mt-1">📞 {addr.phone}</p>
+              <p className="text-xs text-neutral-400 mt-1">{addr.phone}</p>
               {!addr.isDefault && (
                 <button onClick={() => setDefault(addr._id)} className="mt-3 text-xs text-[#E84672] font-medium hover:underline">
                   Set as default

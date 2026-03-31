@@ -209,7 +209,7 @@ export default function CheckoutPage() {
           setPlacedOrderId(internalOrderId);
           clearCart();
           setStep("confirm");
-          toast.success("Payment successful! 🎉");
+          toast.success("Payment successful!");
         },
       };
 

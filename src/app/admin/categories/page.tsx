@@ -337,7 +337,7 @@ export default function AdminCategoriesPage() {
               ? (
                   <tr>
                     <td colSpan={5} className="px-6 py-16 text-center">
-                      <div className="text-4xl mb-3">🌿</div>
+                      <RiAddLine size={40} className="text-neutral-200 mb-3 mx-auto" />
                       <p className="text-neutral-400 text-sm">No categories yet. Add one to get started.</p>
                     </td>
                   </tr>
@@ -360,7 +360,7 @@ export default function AdminCategoriesPage() {
                               height={36}
                               className="object-cover w-full h-full"
                             />
-                          ) : "🌿"}
+                          ) : <span className="text-sm font-bold text-neutral-300">{cat.name.charAt(0)}</span>}
                         </div>
                         <div>
                           <p className="text-sm font-medium text-neutral-800">{cat.name}</p>

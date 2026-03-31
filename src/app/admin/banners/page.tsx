@@ -179,7 +179,7 @@ export default function AdminBannersPage() {
         </div>
       ) : banners.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-2xl border border-neutral-100">
-          <div className="text-4xl mb-3">🖼️</div>
+          <RiUploadLine size={40} className="text-neutral-200 mb-3 mx-auto" />
           <p className="text-neutral-500">No banners yet. Add one to get started.</p>
         </div>
       ) : (

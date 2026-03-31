@@ -78,7 +78,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
       quantity,
       variant,
     });
-    toast.success("Added to cart 🛒");
+    toast.success("Added to cart");
   };
 
   const handleWishlist = () => {
@@ -133,7 +133,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 priority
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-8xl">🌿</div>
+              <div className="w-full h-full flex items-center justify-center text-neutral-300 text-lg font-bold">No Image</div>
             )}
             {discount > 0 && (
               <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-[#E84672] text-white text-sm font-bold">
@@ -263,7 +263,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
           </div>
 
           {product.stock > 0 && product.stock <= 10 && (
-            <p className="text-sm text-amber-600 font-medium mb-4">⚠️ Only {product.stock} left in stock</p>
+            <p className="text-sm text-amber-600 font-medium mb-4">Only {product.stock} left in stock</p>
           )}
 
           {/* Trust badges */}

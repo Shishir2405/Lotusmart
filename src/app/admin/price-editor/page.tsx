@@ -667,7 +667,7 @@ export default function QuickPriceEditorPage() {
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center text-lg">
-                                  {product.productType === "dry_fruit" ? "🥜" : "🌶️"}
+                                  {product.productType === "dry_fruit" ? "DF" : "SP"}
                                 </div>
                               )}
                             </div>

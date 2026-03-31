@@ -228,7 +228,7 @@ function ProductsContent() {
             <ProductGridSkeleton count={12} />
           ) : products.length === 0 ? (
             <div className="text-center py-20">
-              <div className="text-5xl mb-4">🔍</div>
+              <div className="text-neutral-300 mb-4 flex justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
               <h3 className="text-xl font-semibold text-neutral-700 mb-2">No products found</h3>
               <p className="text-neutral-400 mb-6">Try adjusting your filters or search term</p>
               <Button variant="outline" onClick={clearFilters}>Clear all filters</Button>

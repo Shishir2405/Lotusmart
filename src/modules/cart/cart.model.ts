@@ -52,8 +52,11 @@ const CartSchema = new Schema<ICartDocument>(
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: true,
-      unique: true,
+      sparse: true,
+    },
+    deviceId: {
+      type: String,
+      sparse: true,
     },
     items: { type: [CartItemSchema], default: [] },
     couponCode: { type: String, trim: true },
@@ -69,7 +72,8 @@ const CartSchema = new Schema<ICartDocument>(
 // ──────────────────────────────────────────────
 // Indexes
 // ──────────────────────────────────────────────
-// user is already unique (declared above), no extra index needed.
+CartSchema.index({ user: 1 }, { unique: true, sparse: true });
+CartSchema.index({ deviceId: 1 }, { unique: true, sparse: true });
 
 // ──────────────────────────────────────────────
 // Instance methods

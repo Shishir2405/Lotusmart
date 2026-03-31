@@ -92,7 +92,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-5xl">🌿</div>
+              <div className="w-full h-full flex items-center justify-center text-neutral-300 text-sm font-bold">No Image</div>
             )}
 
             {/* Overlay actions */}

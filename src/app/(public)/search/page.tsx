@@ -142,7 +142,7 @@ function SearchContent() {
                     <div className="w-9 h-9 rounded-lg bg-[#F7F6F0] overflow-hidden shrink-0 flex items-center justify-center">
                       {item.image ? (
                         <Image src={item.image} alt={item.name} width={36} height={36} className="object-cover w-full h-full" />
-                      ) : <span className="text-base">🌿</span>}
+                      ) : <span className="text-xs text-neutral-400 font-bold">N/A</span>}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-neutral-800 truncate">{item.name}</p>
@@ -168,7 +168,7 @@ function SearchContent() {
       {/* Results */}
       {!submittedQ ? (
         <div className="text-center py-16">
-          <div className="text-6xl mb-4">🔍</div>
+          <div className="text-neutral-300 mb-4 flex justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
           <h2 className="text-xl font-semibold text-neutral-700 mb-2">What are you looking for?</h2>
           <p className="text-neutral-400 text-sm">Try searching for spices, dry fruits, gift boxes…</p>
         </div>

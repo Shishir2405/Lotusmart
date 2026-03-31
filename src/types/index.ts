@@ -209,7 +209,8 @@ export interface ICartItem {
 
 export interface ICart extends Timestamps {
   _id: ObjectId;
-  user: Ref<IUser>;
+  user?: Ref<IUser>;
+  deviceId?: string;
   items: ICartItem[];
   couponCode?: string;
   discount: number;
@@ -225,7 +226,8 @@ export interface IWishlistItem {
 
 export interface IWishlist extends Timestamps {
   _id: ObjectId;
-  user: Ref<IUser>;
+  user?: Ref<IUser>;
+  deviceId?: string;
   items: IWishlistItem[];
 }
 

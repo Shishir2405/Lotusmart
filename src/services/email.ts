@@ -205,7 +205,7 @@ export async function sendPasswordResetEmail(
     <div style="background:#FFF3CD;border:1px solid #FFE18A;border-radius:8px;
                 padding:16px 20px;margin-top:28px;">
       <p style="margin:0;font-size:13px;color:#856404;line-height:1.7;">
-        ⚠️ This link expires in <strong>1 hour</strong>. If you didn't request a
+        This link expires in <strong>1 hour</strong>. If you didn't request a
         password reset, please ignore this email — your password will not change.
       </p>
     </div>
@@ -233,17 +233,17 @@ export async function sendWelcomeEmail(email: string, name: string): Promise<voi
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
       <tr>
         <td width="33%" style="padding:16px;text-align:center;vertical-align:top;">
-          <div style="font-size:28px;margin-bottom:8px;">🌶️</div>
+          <div style="font-size:16px;font-weight:700;margin-bottom:8px;color:${COLOR.rose};">*</div>
           <p style="margin:0;font-size:13px;font-weight:600;color:${COLOR.oliveHeading};">Premium Spices</p>
           <p style="margin:4px 0 0;font-size:12px;color:${COLOR.textMuted};">Sourced from farms</p>
         </td>
         <td width="33%" style="padding:16px;text-align:center;vertical-align:top;">
-          <div style="font-size:28px;margin-bottom:8px;">🥜</div>
+          <div style="font-size:16px;font-weight:700;margin-bottom:8px;color:${COLOR.rose};">*</div>
           <p style="margin:0;font-size:13px;font-weight:600;color:${COLOR.oliveHeading};">Dry Fruits</p>
           <p style="margin:4px 0 0;font-size:12px;color:${COLOR.textMuted};">Handpicked &amp; fresh</p>
         </td>
         <td width="33%" style="padding:16px;text-align:center;vertical-align:top;">
-          <div style="font-size:28px;margin-bottom:8px;">🚚</div>
+          <div style="font-size:16px;font-weight:700;margin-bottom:8px;color:${COLOR.rose};">*</div>
           <p style="margin:0;font-size:13px;font-weight:600;color:${COLOR.oliveHeading};">Fast Delivery</p>
           <p style="margin:4px 0 0;font-size:12px;color:${COLOR.textMuted};">Pan-India shipping</p>
         </td>
@@ -305,7 +305,7 @@ export async function sendOrderConfirmationEmail(
 
   const html = emailWrapper(`
     <h2 style="margin:0 0 6px;font-size:26px;font-weight:700;color:${COLOR.oliveHeading};">
-      Order Confirmed 🎉
+      Order Confirmed
     </h2>
     <p style="margin:0 0 28px;color:${COLOR.textMid};font-size:15px;line-height:1.7;">
       Hi <strong>${name}</strong>, thank you for your order! We're getting it ready.
@@ -372,7 +372,7 @@ export async function sendOrderConfirmationEmail(
       <p style="margin:4px 0 0;font-size:14px;color:${COLOR.textMid};line-height:1.7;">
         ${addressLines}
       </p>
-      <p style="margin:4px 0 0;font-size:13px;color:${COLOR.textMuted};">📞 ${addr.phone}</p>
+      <p style="margin:4px 0 0;font-size:13px;color:${COLOR.textMuted};">${addr.phone}</p>
     </div>
 
     <div style="text-align:center;">
@@ -396,19 +396,9 @@ export async function sendShippingUpdateEmail(
   status: string,
   trackingNumber?: string,
 ): Promise<void> {
-  const statusEmoji: Record<string, string> = {
-    shipped: "🚚",
-    delivered: "✅",
-    out_for_delivery: "🏃",
-    processing: "⚙️",
-    cancelled: "❌",
-  };
-
-  const emoji = statusEmoji[status.toLowerCase()] ?? "📦";
-
   const html = emailWrapper(`
     <h2 style="margin:0 0 10px;font-size:26px;font-weight:700;color:${COLOR.oliveHeading};">
-      Shipping Update ${emoji}
+      Shipping Update
     </h2>
     <p style="margin:0 0 28px;color:${COLOR.textMid};font-size:15px;line-height:1.8;">
       Hi <strong>${name}</strong>, here's the latest update on your order
@@ -476,7 +466,7 @@ export async function sendAdminNewOrderAlert(order: AdminOrderAlert): Promise<vo
 
   const html = emailWrapper(`
     <h2 style="margin:0 0 8px;font-size:24px;font-weight:700;color:${COLOR.oliveHeading};">
-      🛒 New Order Received
+      New Order Received
     </h2>
     <p style="margin:0 0 28px;color:${COLOR.textMid};font-size:14px;">
       A new order has been placed on LotusMart.

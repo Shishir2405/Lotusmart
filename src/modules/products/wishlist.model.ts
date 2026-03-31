@@ -29,8 +29,11 @@ const WishlistSchema = new Schema<IWishlistDocument>(
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: true,
-      unique: true,
+      sparse: true,
+    },
+    deviceId: {
+      type: String,
+      sparse: true,
     },
     items: { type: [WishlistItemSchema], default: [] },
   },
@@ -40,6 +43,12 @@ const WishlistSchema = new Schema<IWishlistDocument>(
     toObject: { virtuals: true },
   },
 );
+
+// ──────────────────────────────────────────────
+// Indexes
+// ──────────────────────────────────────────────
+WishlistSchema.index({ user: 1 }, { unique: true, sparse: true });
+WishlistSchema.index({ deviceId: 1 }, { unique: true, sparse: true });
 
 // ──────────────────────────────────────────────
 // Export

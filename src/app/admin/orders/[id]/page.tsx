@@ -11,6 +11,7 @@ import {
   RiUserLine,
   RiPhoneLine,
   RiMailLine,
+  RiFileTextLine,
 } from "react-icons/ri";
 import { OrderStatusBadge, PaymentStatusBadge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -146,7 +147,7 @@ export default function AdminOrderDetailPage() {
   if (!order) {
     return (
       <div className="p-8 text-center py-24">
-        <div className="text-6xl mb-4">📦</div>
+        <div className="text-neutral-300 mb-4"><RiFileTextLine size={48} className="mx-auto" /></div>
         <h2 className="text-xl font-bold text-neutral-900 mb-4">Order not found</h2>
         <Link href="/admin/orders"><Button variant="outline">Back to Orders</Button></Link>
       </div>
@@ -412,7 +413,7 @@ export default function AdminOrderDetailPage() {
               <br />
               {order.shippingAddress.city}, {order.shippingAddress.state} — {order.shippingAddress.pincode}
             </p>
-            <p className="text-xs text-neutral-400 mt-1">📞 {order.shippingAddress.phone}</p>
+            <p className="text-xs text-neutral-400 mt-1">{order.shippingAddress.phone}</p>
           </motion.div>
 
           {/* Payment info */}

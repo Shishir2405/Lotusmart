@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { RiHeartFill, RiShoppingCartLine } from "react-icons/ri";
+import { RiHeartFill, RiHeartLine, RiShoppingCartLine } from "react-icons/ri";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { formatCurrency } from "@/utils/helpers";
@@ -73,7 +73,7 @@ export default function WishlistPage() {
   if (!loading && isEmpty) {
     return (
       <div className="container-narrow py-24 text-center">
-        <div className="text-6xl mb-5">💛</div>
+        <RiHeartLine size={48} className="text-neutral-300 mx-auto mb-5" />
         <h2 className="text-2xl font-bold text-neutral-900 mb-2">Your wishlist is empty</h2>
         <p className="text-neutral-500 mb-8">
           {user ? "Save items you love and find them here." : "Sign in to save your wishlist across devices."}
@@ -90,7 +90,7 @@ export default function WishlistPage() {
     // Guests only have IDs; prompt them to sign in for full wishlist view
     return (
       <div className="container-narrow py-24 text-center">
-        <div className="text-6xl mb-5">💛</div>
+        <RiHeartLine size={48} className="text-neutral-300 mx-auto mb-5" />
         <h2 className="text-2xl font-bold text-neutral-900 mb-2">
           {localItems.length} item{localItems.length !== 1 ? "s" : ""} saved
         </h2>
@@ -137,7 +137,7 @@ export default function WishlistPage() {
                         sizes="(max-width: 640px) 50vw, 25vw"
                       />
                     ) : (
-                      <div className="absolute inset-0 flex items-center justify-center text-4xl">🌿</div>
+                      <div className="absolute inset-0 flex items-center justify-center text-neutral-300 text-sm font-bold">No Image</div>
                     )}
                     {discount && (
                       <Badge variant="error" className="absolute top-2 left-2">

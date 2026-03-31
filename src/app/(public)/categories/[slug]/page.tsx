@@ -62,7 +62,7 @@ export default async function CategoryPage({ params }: PageProps) {
 
       {products.length === 0 ? (
         <div className="text-center py-20">
-          <div className="text-5xl mb-4">🌿</div>
+          <div className="text-neutral-300 mb-4 flex justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
           <p className="text-neutral-500 text-lg">No products in this category yet.</p>
           <p className="text-neutral-400 text-sm mt-1">Check back soon!</p>
         </div>

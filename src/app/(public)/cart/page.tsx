@@ -25,7 +25,7 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="container-narrow py-24 text-center">
-        <div className="text-7xl mb-6">🛒</div>
+        <div className="text-neutral-300 mb-6 flex justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
         <h2 className="text-2xl font-bold text-neutral-900 mb-2">Your cart is empty</h2>
         <p className="text-neutral-500 mb-8">
           Browse our collection and add something delicious!
@@ -71,7 +71,7 @@ export default function CartPage() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-2xl">🌿</div>
+                      <div className="w-full h-full flex items-center justify-center text-xs text-neutral-300 font-bold">N/A</div>
                     )}
                   </div>
                 </Link>
@@ -180,7 +180,7 @@ export default function CartPage() {
 
             {/* Trust */}
             <div className="mt-5 pt-4 border-t border-[#EBE8D8] flex items-center justify-center gap-4 text-xs text-neutral-400">
-              <span>🔒 Secure checkout</span>
+              <span>Secure checkout</span>
               <span>•</span>
               <span>7-day returns</span>
             </div>

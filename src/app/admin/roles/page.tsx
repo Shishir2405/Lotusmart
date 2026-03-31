@@ -179,8 +179,11 @@ export default function AdminRolesPage() {
   const fetchRoles = useCallback(() => {
     setLoading(true);
     axios
-      .get<{ data: Role[] }>("/api/admin/roles")
-      .then((r) => setRoles(r.data.data))
+      .get<{ data: { roles: Role[] } }>("/api/admin/roles")
+      .then((r) => {
+        const d = r.data.data;
+        setRoles(Array.isArray(d) ? d : Array.isArray(d?.roles) ? d.roles : []);
+      })
       .catch(() => toast.error("Failed to load roles"))
       .finally(() => setLoading(false));
   }, []);

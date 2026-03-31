@@ -125,7 +125,7 @@ export default function AdminProductsPage() {
                         <div className="w-10 h-10 rounded-lg bg-[#F7F6F0] overflow-hidden shrink-0">
                           {product.images?.[0] ? (
                             <Image src={product.images[0]} alt={product.name} width={40} height={40} className="object-cover w-full h-full" />
-                          ) : <div className="w-full h-full flex items-center justify-center text-lg">🌿</div>}
+                          ) : <div className="w-full h-full flex items-center justify-center text-xs text-neutral-300 font-bold">N/A</div>}
                         </div>
                         <div>
                           <p className="text-sm font-medium text-neutral-800">{product.name}</p>
