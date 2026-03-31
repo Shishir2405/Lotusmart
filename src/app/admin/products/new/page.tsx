@@ -235,9 +235,10 @@ export default function NewProductPage() {
     hsnSearch.length >= 2
       ? hsnCodesData
           .filter(
-            (h) =>
-              h.code.includes(hsnSearch) ||
-              h.description.toLowerCase().includes(hsnSearch.toLowerCase())
+            (h): h is { sku: string; product_name: string; hsn: string; gst_pct: number } =>
+              "hsn" in h &&
+              (h.hsn!.includes(hsnSearch) ||
+                h.product_name!.toLowerCase().includes(hsnSearch.toLowerCase()))
           )
           .slice(0, 10)
       : [];
@@ -784,24 +785,24 @@ export default function NewProductPage() {
                     <div className="absolute z-20 mt-1 w-full max-h-48 overflow-y-auto rounded-xl border border-neutral-200 bg-white shadow-lg">
                       {filteredHsnCodes.map((h) => (
                         <button
-                          key={h.code}
+                          key={h.hsn}
                           type="button"
                           className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-neutral-50 transition-colors"
                           onMouseDown={() => {
-                            setValue("hsnCode", h.code);
-                            setValue("gstRate", String(h.gst));
+                            setValue("hsnCode", h.hsn);
+                            setValue("gstRate", String(h.gst_pct));
                             setHsnDropdownOpen(false);
                             setHsnSearch("");
                           }}
                         >
                           <span className="font-mono font-semibold text-[#E84672] shrink-0">
-                            {h.code}
+                            {h.hsn}
                           </span>
                           <span className="text-neutral-600 truncate">
-                            {h.description}
+                            {h.product_name}
                           </span>
                           <span className="ml-auto shrink-0 text-xs text-neutral-400">
-                            {h.gst}% GST
+                            {h.gst_pct}% GST
                           </span>
                         </button>
                       ))}
