@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "*.r2.cloudflarestorage.com",
       },
+      // R2 public dev URLs
+      {
+        protocol: "https",
+        hostname: "pub-*.r2.dev",
+      },
       // Custom CDN domains (set in env)
       {
         protocol: "https",
