@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Skeleton } from "@/components/ui/Skeleton";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast from "@/components/ui/toast";
 
 interface Category {
   _id: string;

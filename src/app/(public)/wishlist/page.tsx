@@ -17,7 +17,7 @@ import { useWishlistStore } from "@/store/wishlist.store";
 import { useCartStore } from "@/store/cart.store";
 import { useAuthStore } from "@/store/auth.store";
 import apiClient from "@/lib/api-client";
-import toast from "react-hot-toast";
+import toast from "@/components/ui/toast";
 
 interface WishlistProduct {
   _id: string;

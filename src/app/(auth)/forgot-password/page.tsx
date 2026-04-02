@@ -10,7 +10,7 @@ import {
   RiArrowRightLine,
 } from "react-icons/ri";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast from "@/components/ui/toast";
 
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 

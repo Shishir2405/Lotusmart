@@ -18,7 +18,7 @@ import { OrderStatusBadge, PaymentStatusBadge } from "@/components/ui/Badge";
 import { useAuthStore } from "@/store/auth.store";
 import { formatCurrency, formatDate } from "@/utils/helpers";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast from "@/components/ui/toast";
 
 interface RecentOrder {
   _id: string;

@@ -27,7 +27,7 @@ import { Input, Textarea } from "@/components/ui/Input";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Modal } from "@/components/ui/Modal";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast from "@/components/ui/toast";
 
 
 type SectionType =

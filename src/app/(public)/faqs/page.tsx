@@ -125,7 +125,7 @@ const defaultFAQs: FAQItem[] = [
     id: "9",
     question: "How can I contact customer support?",
     answer:
-      "You can reach us via email at support@lotusmart.in, call us at +91-9876543210, or use the WhatsApp chat on our website. Our support team is available Monday to Saturday, 9 AM to 7 PM.",
+      "You can reach us through our Contact Us page for email, phone, or WhatsApp support. Our support team is available Monday to Saturday, 9 AM to 7 PM.",
     category: "General",
     sortOrder: 1,
   },

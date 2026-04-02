@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { RiHomeLine, RiShieldCheckLine, RiCalendarLine } from "react-icons/ri";
 import type { Metadata } from "next";
+import { getContactInfo } from "@/lib/get-contact-info";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — LotusMart",
@@ -23,7 +24,7 @@ async function getPrivacyData() {
 }
 
 export default async function PrivacyPolicyPage() {
-  const data = await getPrivacyData();
+  const [data, contactInfo] = await Promise.all([getPrivacyData(), getContactInfo()]);
 
   const title = data?.title || "Privacy Policy";
   const content = data?.content || null;
@@ -195,10 +196,10 @@ export default async function PrivacyPolicyPage() {
                 <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
                   You have the right to access, correct, or delete your personal information at any time. You may also
                   opt out of marketing communications by clicking the unsubscribe link in any email or contacting us
-                  directly. To exercise any of these rights, please reach out to us at{" "}
-                  <a href="mailto:support@lotusmart.in" className="underline underline-offset-2" style={{ color: "#E84672" }}>
-                    support@lotusmart.in
-                  </a>.
+                  directly.{contactInfo && (<>{" "}To exercise any of these rights, please reach out to us at{" "}
+                  <a href={`mailto:${contactInfo.email}`} className="underline underline-offset-2" style={{ color: "#E84672" }}>
+                    {contactInfo.email}
+                  </a>.</>)}
                 </p>
               </div>
 
@@ -221,11 +222,11 @@ export default async function PrivacyPolicyPage() {
                   If you have any questions or concerns about this Privacy Policy, please{" "}
                   <Link href="/contact" className="underline underline-offset-2" style={{ color: "#E84672" }}>
                     contact us
-                  </Link>{" "}
-                  or email us at{" "}
-                  <a href="mailto:support@lotusmart.in" className="underline underline-offset-2" style={{ color: "#E84672" }}>
-                    support@lotusmart.in
-                  </a>.
+                  </Link>
+                  {contactInfo && (<>{" "}or email us at{" "}
+                  <a href={`mailto:${contactInfo.email}`} className="underline underline-offset-2" style={{ color: "#E84672" }}>
+                    {contactInfo.email}
+                  </a></>)}.
                 </p>
               </div>
             </div>

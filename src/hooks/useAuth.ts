@@ -5,7 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
 import { usePostLoginMerge } from "@/hooks/usePostLoginMerge";
-import toast from "react-hot-toast";
+import toast from "@/components/ui/toast";
 
 interface LoginPayload {
   email: string;

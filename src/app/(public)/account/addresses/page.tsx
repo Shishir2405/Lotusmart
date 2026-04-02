@@ -6,7 +6,7 @@ import { RiAddLine, RiEditLine, RiDeleteBinLine, RiHomeSmileLine, RiBriefcaseLin
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast from "@/components/ui/toast";
 
 interface Address {
   _id: string;

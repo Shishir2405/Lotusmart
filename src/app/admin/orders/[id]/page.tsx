@@ -18,7 +18,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency, formatDate } from "@/utils/helpers";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast from "@/components/ui/toast";
 
 interface TrackingEvent {
   date: string;

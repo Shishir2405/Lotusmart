@@ -8,7 +8,7 @@ import { RiHeartLine, RiHeartFill, RiShoppingCartLine, RiStarFill } from "react-
 import { useCartStore } from "@/store/cart.store";
 import { useWishlistStore } from "@/store/wishlist.store";
 import { formatCurrency, calculateDiscount } from "@/utils/helpers";
-import toast from "react-hot-toast";
+import toast from "@/components/ui/toast";
 import { cn } from "@/utils/helpers";
 
 export interface ProductCardData {

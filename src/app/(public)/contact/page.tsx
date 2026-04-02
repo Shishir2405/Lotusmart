@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import toast from "react-hot-toast";
+import toast from "@/components/ui/toast";
 import {
   RiMailLine,
   RiPhoneLine,
@@ -20,38 +20,9 @@ import {
   RiMessage2Line,
   RiArrowRightLine,
 } from "react-icons/ri";
-import axios from "axios";
+import { useContactInfo } from "@/hooks/useContactInfo";
 
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-interface ContactData {
-  email: string;
-  phone: string;
-  whatsapp: string;
-  address: string;
-  businessHours: string;
-  socialLinks: {
-    instagram?: string;
-    facebook?: string;
-    twitter?: string;
-    youtube?: string;
-  };
-  mapEmbedUrl?: string;
-}
-
-const defaultContact: ContactData = {
-  email: "support@lotusmart.in",
-  phone: "+91-9876543210",
-  whatsapp: "+919876543210",
-  address: "123 Spice Lane, Chandni Chowk, Mumbai 400001, India",
-  businessHours: "Monday - Saturday, 9:00 AM - 7:00 PM IST",
-  socialLinks: {
-    instagram: "https://instagram.com/lotusmart.in",
-    facebook: "https://facebook.com/lotusmart.in",
-    twitter: "https://twitter.com/lotusmart_in",
-    youtube: "https://youtube.com/@lotusmart",
-  },
-};
 
 const socialIcons = [
   { key: "instagram", icon: RiInstagramLine, label: "Instagram", hoverColor: "#E1306C" },
@@ -61,21 +32,9 @@ const socialIcons = [
 ];
 
 export default function ContactPage() {
-  const [contact, setContact] = useState<ContactData>(defaultContact);
+  const { contact, loading } = useContactInfo();
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    axios
-      .get("/api/site-config?key=contact")
-      .then((res) => {
-        const value = res.data?.data?.value;
-        if (value) {
-          setContact((prev) => ({ ...prev, ...value }));
-        }
-      })
-      .catch(() => {});
-  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -96,44 +55,46 @@ export default function ContactPage() {
     setForm({ name: "", email: "", subject: "", message: "" });
   };
 
-  const contactDetails = [
-    {
-      icon: RiMailLine,
-      label: "Email",
-      value: contact.email,
-      href: `mailto:${contact.email}`,
-      color: "#2563EB",
-      bg: "#EFF6FF",
-      border: "#BFDBFE",
-    },
-    {
-      icon: RiPhoneLine,
-      label: "Phone",
-      value: contact.phone,
-      href: `tel:${contact.phone.replace(/[^+\d]/g, "")}`,
-      color: "#5C6B3C",
-      bg: "#E8EDDD",
-      border: "#C5D1A8",
-    },
-    {
-      icon: RiWhatsappLine,
-      label: "WhatsApp",
-      value: "Chat with us",
-      href: `https://wa.me/${contact.whatsapp.replace(/[^+\d]/g, "")}`,
-      color: "#25D366",
-      bg: "#F0FDF4",
-      border: "#BBF7D0",
-    },
-    {
-      icon: RiMapPinLine,
-      label: "Address",
-      value: contact.address,
-      href: "#map",
-      color: "#B59F6B",
-      bg: "#F5F0E1",
-      border: "#D4C99A",
-    },
-  ];
+  const contactDetails = contact
+    ? [
+        {
+          icon: RiMailLine,
+          label: "Email",
+          value: contact.email,
+          href: `mailto:${contact.email}`,
+          color: "#2563EB",
+          bg: "#EFF6FF",
+          border: "#BFDBFE",
+        },
+        {
+          icon: RiPhoneLine,
+          label: "Phone",
+          value: contact.phone,
+          href: `tel:${contact.phone.replace(/[^+\d]/g, "")}`,
+          color: "#5C6B3C",
+          bg: "#E8EDDD",
+          border: "#C5D1A8",
+        },
+        {
+          icon: RiWhatsappLine,
+          label: "WhatsApp",
+          value: "Chat with us",
+          href: `https://wa.me/${contact.whatsapp.replace(/[^+\d]/g, "")}`,
+          color: "#25D366",
+          bg: "#F0FDF4",
+          border: "#BBF7D0",
+        },
+        {
+          icon: RiMapPinLine,
+          label: "Address",
+          value: contact.address,
+          href: "#map",
+          color: "#B59F6B",
+          bg: "#F5F0E1",
+          border: "#D4C99A",
+        },
+      ]
+    : [];
 
   return (
     <section className="min-h-screen bg-[#FFFDF7]">
@@ -196,7 +157,24 @@ export default function ContactPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-6 py-10 md:py-14">
-        
+
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="flex items-start gap-4 p-5 rounded-2xl bg-white animate-pulse"
+                style={{ border: "1px solid #EBE8D8" }}
+              >
+                <div className="w-10 h-10 rounded-xl bg-gray-200" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-16 bg-gray-200 rounded" />
+                  <div className="h-4 w-40 bg-gray-200 rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
@@ -236,8 +214,9 @@ export default function ContactPage() {
             </motion.a>
           ))}
         </motion.div>
+        )}
 
-        
+
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
@@ -266,7 +245,7 @@ export default function ContactPage() {
               </div>
             </div>
             <p className="text-[0.88rem] font-semibold text-neutral-700 mb-2">
-              {contact.businessHours}
+              {contact?.businessHours ?? "—"}
             </p>
             <p className="text-[0.8rem] font-medium" style={{ color: "#a8a29e" }}>
               Closed on Sundays and public holidays
@@ -287,7 +266,7 @@ export default function ContactPage() {
             <div className="flex items-center gap-3">
               {socialIcons.map(({ key, icon: Icon, label, hoverColor }) => {
                 const href =
-                  contact.socialLinks[key as keyof typeof contact.socialLinks];
+                  contact?.socialLinks[key as keyof typeof contact.socialLinks];
                 if (!href) return null;
                 return (
                   <motion.a
@@ -471,7 +450,7 @@ export default function ContactPage() {
         </motion.div>
 
         
-        {contact.mapEmbedUrl && (
+        {contact?.mapEmbedUrl && (
           <motion.div
             id="map"
             initial={{ opacity: 0, y: 14 }}

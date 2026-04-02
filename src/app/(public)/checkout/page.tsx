@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency } from "@/utils/helpers";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast from "@/components/ui/toast";
 
 type Step = "cart" | "address" | "account" | "payment" | "confirm";
 

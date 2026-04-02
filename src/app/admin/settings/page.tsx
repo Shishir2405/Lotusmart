@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { RiSaveLine, RiShieldLine, RiMailLine, RiStore2Line, RiTruckLine } from "react-icons/ri";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import toast from "react-hot-toast";
+import toast from "@/components/ui/toast";
 
 interface SettingsSection {
   id: string;

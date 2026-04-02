@@ -17,38 +17,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
-.go2072408551 {
-  animation: toast-slide-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) !important;
-}
-
-.go3958317564 {
-  animation: toast-dissolve-out 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
-}
-
-@keyframes toast-slide-in {
-  0% {
-    opacity: 0;
-    transform: translateX(20px) scale(0.96);
-    filter: blur(4px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-    filter: blur(0);
-  }
-}
-
-@keyframes toast-dissolve-out {
-  0% {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-    filter: blur(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(12px) scale(0.95);
-    filter: blur(6px);
-  }
+@keyframes toast-progress {
+  from { width: 100%; }
+  to { width: 0%; }
 }
 
 

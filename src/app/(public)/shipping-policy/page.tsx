@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { RiHomeLine, RiTruckLine, RiCalendarLine } from "react-icons/ri";
 import type { Metadata } from "next";
+import { getContactInfo } from "@/lib/get-contact-info";
 
 export const metadata: Metadata = {
   title: "Shipping Policy — LotusMart",
@@ -23,7 +24,7 @@ async function getShippingData() {
 }
 
 export default async function ShippingPolicyPage() {
-  const data = await getShippingData();
+  const [data, contactInfo] = await Promise.all([getShippingData(), getContactInfo()]);
 
   const title = data?.title || "Shipping Policy";
   const content = data?.content || null;
@@ -228,14 +229,14 @@ export default async function ShippingPolicyPage() {
                 <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
                   If your order is delayed, damaged during transit, or you face any delivery-related issues, please
                   contact us within 48 hours of the expected delivery date. We will work with our logistics partner
-                  to resolve the issue promptly. You can reach us at{" "}
-                  <a href="mailto:support@lotusmart.in" className="underline underline-offset-2" style={{ color: "#E84672" }}>
-                    support@lotusmart.in
+                  to resolve the issue promptly.{contactInfo && (<>{" "}You can reach us at{" "}
+                  <a href={`mailto:${contactInfo.email}`} className="underline underline-offset-2" style={{ color: "#E84672" }}>
+                    {contactInfo.email}
                   </a>{" "}
                   or call{" "}
-                  <a href="tel:+919876543210" className="underline underline-offset-2" style={{ color: "#E84672" }}>
-                    +91-9876543210
-                  </a>.
+                  <a href={`tel:${contactInfo.phone.replace(/[^+\d]/g, "")}`} className="underline underline-offset-2" style={{ color: "#E84672" }}>
+                    {contactInfo.phone}
+                  </a>.</>)}
                 </p>
               </div>
             </div>

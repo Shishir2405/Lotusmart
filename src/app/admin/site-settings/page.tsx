@@ -36,7 +36,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Modal } from "@/components/ui/Modal";
 import dynamic from "next/dynamic";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast from "@/components/ui/toast";
 
 const RichTextEditor = dynamic(() => import("@/components/ui/RichTextEditor").then(m => m.default), { ssr: false, loading: () => <div className="h-64 rounded-xl border border-neutral-200 bg-neutral-50 animate-pulse" /> });
 

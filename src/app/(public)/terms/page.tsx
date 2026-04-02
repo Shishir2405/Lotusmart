@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { RiHomeLine, RiFileTextLine, RiCalendarLine } from "react-icons/ri";
 import type { Metadata } from "next";
+import { getContactInfo } from "@/lib/get-contact-info";
 
 export const metadata: Metadata = {
   title: "Terms & Conditions — LotusMart",
@@ -23,7 +24,7 @@ async function getTermsData() {
 }
 
 export default async function TermsPage() {
-  const data = await getTermsData();
+  const [data, contactInfo] = await Promise.all([getTermsData(), getContactInfo()]);
 
   const title = data?.title || "Terms & Conditions";
   const content = data?.content || null;
@@ -207,11 +208,11 @@ export default async function TermsPage() {
                   If you have any questions about these Terms & Conditions, please{" "}
                   <Link href="/contact" className="underline underline-offset-2" style={{ color: "#E84672" }}>
                     contact us
-                  </Link>{" "}
-                  or email us at{" "}
-                  <a href="mailto:support@lotusmart.in" className="underline underline-offset-2" style={{ color: "#E84672" }}>
-                    support@lotusmart.in
-                  </a>.
+                  </Link>
+                  {contactInfo && (<>{" "}or email us at{" "}
+                  <a href={`mailto:${contactInfo.email}`} className="underline underline-offset-2" style={{ color: "#E84672" }}>
+                    {contactInfo.email}
+                  </a></>)}.
                 </p>
               </div>
             </div>

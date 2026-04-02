@@ -18,6 +18,7 @@ import {
   RiLockLine,
   RiCheckLine,
 } from "react-icons/ri";
+import { useContactInfo } from "@/hooks/useContactInfo";
 
 
 const footerLinks = {
@@ -45,11 +46,11 @@ const footerLinks = {
   ],
 };
 
-const socials = [
-  { icon: RiInstagramLine, href: "#", label: "Instagram", hoverBg: "#E1306C" },
-  { icon: RiFacebookCircleLine, href: "#", label: "Facebook", hoverBg: "#1877F2" },
-  { icon: RiTwitterXLine, href: "#", label: "Twitter / X", hoverBg: "#000000" },
-  { icon: RiWhatsappLine, href: "#", label: "WhatsApp", hoverBg: "#25D366" },
+const socialConfig = [
+  { key: "instagram", icon: RiInstagramLine, label: "Instagram", hoverBg: "#E1306C" },
+  { key: "facebook", icon: RiFacebookCircleLine, label: "Facebook", hoverBg: "#1877F2" },
+  { key: "twitter", icon: RiTwitterXLine, label: "Twitter / X", hoverBg: "#000000" },
+  { key: "whatsapp", icon: RiWhatsappLine, label: "WhatsApp", hoverBg: "#25D366" },
 ];
 
 const trustBadges = [
@@ -98,9 +99,27 @@ function FooterLinkItem({ href, label }: { href: string; label: string }) {
 
 
 export function Footer() {
+  const { contact } = useContactInfo();
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [focused, setFocused] = useState(false);
+
+  const footerContactItems = contact
+    ? [
+        { icon: RiMailLine, text: contact.email, href: `mailto:${contact.email}` },
+        { icon: RiPhoneLine, text: contact.phone, href: `tel:${contact.phone.replace(/[^+\d]/g, "")}` },
+        { icon: RiMapPinLine, text: contact.address, href: "#" },
+      ]
+    : [];
+
+  const socials = socialConfig
+    .map(({ key, icon, label, hoverBg }) => ({
+      icon,
+      href: contact?.socialLinks[key as keyof typeof contact.socialLinks] ?? "#",
+      label,
+      hoverBg,
+    }))
+    .filter(({ href }) => href && href !== "#");
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -262,15 +281,7 @@ export function Footer() {
 
             
             <div className="mb-6 flex flex-col gap-3">
-              {[
-                {
-                  icon: RiMailLine,
-                  text: "hello@lotusmart.com",
-                  href: "mailto:hello@lotusmart.com",
-                },
-                { icon: RiPhoneLine, text: "+91 98765 43210", href: "tel:+919876543210" },
-                { icon: RiMapPinLine, text: "123 Spice Lane, Mumbai 400001", href: "#" },
-              ].map(({ icon: Icon, text, href }) => (
+              {footerContactItems.map(({ icon: Icon, text, href }) => (
                 <Link key={text} href={href}>
                   <motion.span
                     whileHover={{ color: "#E84672", x: 2 }}

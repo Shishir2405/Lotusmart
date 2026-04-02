@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { RiHomeLine, RiRefund2Line, RiCalendarLine } from "react-icons/ri";
 import type { Metadata } from "next";
+import { getContactInfo } from "@/lib/get-contact-info";
 
 export const metadata: Metadata = {
   title: "Refund & Return Policy — LotusMart",
@@ -23,7 +24,7 @@ async function getRefundData() {
 }
 
 export default async function RefundPolicyPage() {
-  const data = await getRefundData();
+  const [data, contactInfo] = await Promise.all([getRefundData(), getContactInfo()]);
 
   const title = data?.title || "Refund & Return Policy";
   const content = data?.content || null;
@@ -219,10 +220,10 @@ export default async function RefundPolicyPage() {
                   6. How to Initiate a Return
                 </h2>
                 <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  To initiate a return, contact our support team via email at{" "}
-                  <a href="mailto:support@lotusmart.in" className="underline underline-offset-2" style={{ color: "#E84672" }}>
-                    support@lotusmart.in
-                  </a>{" "}
+                  To initiate a return, contact our support team{contactInfo && (<>{" "}via email at{" "}
+                  <a href={`mailto:${contactInfo.email}`} className="underline underline-offset-2" style={{ color: "#E84672" }}>
+                    {contactInfo.email}
+                  </a></>)}{" "}
                   or through the{" "}
                   <Link href="/contact" className="underline underline-offset-2" style={{ color: "#E84672" }}>
                     Contact Us

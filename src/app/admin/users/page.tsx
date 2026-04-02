@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { formatDate } from "@/utils/helpers";
 import { useDebounce } from "@/hooks/useDebounce";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast from "@/components/ui/toast";
 
 interface User {
   _id: string;

@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import dynamic from "next/dynamic";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast from "@/components/ui/toast";
 import hsnCodesData from "@/data/hsn-codes.json";
 import skuCodesData from "@/data/sku-codes.json";
 

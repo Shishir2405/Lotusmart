@@ -21,7 +21,7 @@ import { useCartStore } from "@/store/cart.store";
 import { useWishlistStore } from "@/store/wishlist.store";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency, calculateDiscount } from "@/utils/helpers";
-import toast from "react-hot-toast";
+import toast from "@/components/ui/toast";
 
 interface ProductDetailProps {
   product: {

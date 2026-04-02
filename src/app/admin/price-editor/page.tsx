@@ -20,7 +20,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { formatCurrency, formatRelativeTime } from "@/utils/helpers";
 import { useDebounce } from "@/hooks/useDebounce";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast from "@/components/ui/toast";
 
 
 interface Product {
