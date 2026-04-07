@@ -7,6 +7,13 @@ import type { ITokenPayload } from "@/types";
 
 const COOKIE_NAME = "lotusmart-auth-token";
 
+// Allowed origins for API requests
+const ALLOWED_ORIGINS = [
+  process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  "https://lotusmart.in",
+  "https://www.lotusmart.in",
+].filter(Boolean);
+
 function getSecretKey(): Uint8Array {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
@@ -39,6 +46,58 @@ async function verifyAuth(
 }
 
 
+// ---------- API route protection ----------
+
+function isAllowedOrigin(origin: string | null): boolean {
+  if (!origin) return false;
+  return ALLOWED_ORIGINS.some((allowed) => origin === allowed);
+}
+
+function getOriginFromReferer(referer: string | null): string | null {
+  if (!referer) return null;
+  try {
+    const url = new URL(referer);
+    return url.origin;
+  } catch {
+    return null;
+  }
+}
+
+function blockApiRequest(message: string) {
+  return NextResponse.json(
+    { success: false, message },
+    { status: 403 },
+  );
+}
+
+function protectApiRoute(request: NextRequest): NextResponse | null {
+  // Allow preflight CORS requests
+  if (request.method === "OPTIONS") return null;
+
+  // Check for custom header — browsers don't send this from address bar or <img>/<script> tags
+  const requestedWith = request.headers.get("x-requested-with");
+  if (requestedWith !== "LotusApp") {
+    return blockApiRequest("Forbidden");
+  }
+
+  // Validate Origin or Referer
+  const origin = request.headers.get("origin");
+  const referer = request.headers.get("referer");
+  const effectiveOrigin = origin || getOriginFromReferer(referer);
+
+  // In server-side rendering (SSR) calls, origin may be absent — allow if the
+  // custom header is present (already checked above) and there's no origin at all.
+  // This covers Next.js server actions and internal SSR fetches.
+  if (effectiveOrigin && !isAllowedOrigin(effectiveOrigin)) {
+    return blockApiRequest("Forbidden");
+  }
+
+  return null; // all checks passed
+}
+
+
+// ---------- Page route protection ----------
+
 const protectedPatterns = [
   /^\/account(\/|$)/,
   /^\/orders(\/|$)/,
@@ -60,18 +119,38 @@ function matchesAny(pathname: string, patterns: RegExp[]): boolean {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // ---------- API route protection ----------
+  if (pathname.startsWith("/api/")) {
+    const blocked = protectApiRoute(request);
+    if (blocked) return blocked;
+
+    // Add CORS headers to API responses
+    const response = NextResponse.next();
+    const origin = request.headers.get("origin");
+    if (origin && isAllowedOrigin(origin)) {
+      response.headers.set("Access-Control-Allow-Origin", origin);
+    }
+    response.headers.set("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, x-device-id");
+    response.headers.set("Access-Control-Allow-Credentials", "true");
+    response.headers.set("Access-Control-Max-Age", "86400");
+    return response;
+  }
+
+  // ---------- Page route protection ----------
   const user = await verifyAuth(request);
 
-  
+
   if (adminLoginPattern.test(pathname)) {
-    
+
     if (user && user.role === "admin") {
       return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     }
     return NextResponse.next();
   }
 
-  
+
   if (matchesAny(pathname, adminPatterns)) {
     if (!user) {
       const loginUrl = new URL("/admin-login", request.url);
@@ -84,7 +163,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  
+
   if (matchesAny(pathname, protectedPatterns)) {
     if (!user) {
       const loginUrl = new URL("/login", request.url);
@@ -94,7 +173,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  
+
   if (matchesAny(pathname, guestOnlyPatterns)) {
     if (user) {
       return NextResponse.redirect(new URL("/", request.url));
@@ -108,6 +187,9 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    // API routes
+    "/api/:path*",
+    // Page routes
     "/account/:path*",
     "/orders/:path*",
     "/admin/:path*",
