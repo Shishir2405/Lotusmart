@@ -38,6 +38,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import axios from "axios";
 import { CATEGORIES } from "@/config/constants";
 import { LanguageToggler } from "@/components/shared/LanguageToggler";
+import { normalizeImageUrl } from "@/utils/helpers";
 
 
 interface SearchResult {
@@ -122,6 +123,45 @@ function fallbackAPICategories(): APICategory[] {
   return result;
 }
 
+// Used when API returns top-level cats with populated `children` array
+function buildNavCategoriesFromPopulated(apiCats: (APICategory & { children?: APICategory[] })[]): NavCategory[] {
+  const topLevel = apiCats
+    .filter((c) => c.isActive)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+
+  return topLevel.map((cat, i) => {
+    const children = (cat.children ?? [])
+      .filter((c) => c.isActive)
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+
+    const colors = COLOR_ROTATION[i % COLOR_ROTATION.length];
+    const Icon = ICON_ROTATION[i % ICON_ROTATION.length];
+    const fallbackImg = FALLBACK_IMAGES[i % FALLBACK_IMAGES.length];
+
+    return {
+      name: cat.name,
+      slug: cat.slug,
+      icon: Icon,
+      desc: cat.description || `Explore ${cat.name}`,
+      color: colors.color,
+      colorLight: colors.colorLight,
+      image: cat.image,
+      sub: children.map((child) => ({
+        label: child.name,
+        slug: child.slug,
+        badge: null,
+      })),
+      featured: {
+        label: `${cat.name} Collection`,
+        desc: `Explore our premium ${cat.name.toLowerCase()}`,
+        href: `/categories/${cat.slug}`,
+        image: cat.image || fallbackImg,
+      },
+    };
+  });
+}
+
+// Used for flat list fallback (all cats in one array with parent references)
 function buildNavCategories(apiCats: APICategory[]): NavCategory[] {
   const topLevel = apiCats
     .filter((c) => !c.parent && c.isActive)
@@ -412,7 +452,7 @@ function CategoryMegaMenu({
             >
               <div className="relative h-28 overflow-hidden">
                 <img
-                  src={cat.featured.image}
+                  src={normalizeImageUrl(cat.featured.image)}
                   alt={cat.featured.label}
                   className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                 />
@@ -512,26 +552,29 @@ function ProfileDropdown({
           )}
         </div>
 
-        
+        {/* Quick links */}
         <div className="relative z-10 mt-4 grid grid-cols-3 gap-1.5">
           {[
-            { label: "Orders", value: "12", icon: RiHeartPulseLine },
-            { label: "Wishlist", value: String(wishlistCount || 0), icon: RiHeartLine },
-            { label: "Reviews", value: "5", icon: RiStarLine },
-          ].map(({ label, value, icon: Icon }) => (
-            <motion.div
-              key={label}
-              whileHover={{ backgroundColor: "rgba(255,255,255,0.13)" }}
-              transition={{ duration: 0.13 }}
-              className="flex cursor-pointer flex-col items-center rounded-xl py-2"
-              style={{ backgroundColor: "rgba(255,255,255,0.07)" }}
-            >
-              <Icon size={12} style={{ color: "#FFE08A", marginBottom: 2 }} />
-              <span className="text-[0.9rem] leading-none font-black text-white">{value}</span>
-              <span className="mt-0.5 text-[0.58rem]" style={{ color: "#9C8F62" }}>
-                {label}
-              </span>
-            </motion.div>
+            { label: "Orders", href: "/account", icon: RiHeartPulseLine },
+            { label: "Wishlist", href: "/wishlist", icon: RiHeartLine, count: wishlistCount },
+            { label: "Reviews", href: "/account", icon: RiStarLine },
+          ].map(({ label, href, icon: Icon, count }) => (
+            <Link key={label} href={href} onClick={onClose}>
+              <motion.div
+                whileHover={{ backgroundColor: "rgba(255,255,255,0.13)" }}
+                transition={{ duration: 0.13 }}
+                className="flex cursor-pointer flex-col items-center rounded-xl py-2"
+                style={{ backgroundColor: "rgba(255,255,255,0.07)" }}
+              >
+                <Icon size={12} style={{ color: "#FFE08A", marginBottom: 2 }} />
+                <span className="text-[0.68rem] font-semibold text-white">{label}</span>
+                {count != null && count > 0 && (
+                  <span className="mt-0.5 text-[0.58rem]" style={{ color: "#FFE08A" }}>
+                    {count}
+                  </span>
+                )}
+              </motion.div>
+            </Link>
           ))}
         </div>
       </div>
@@ -630,8 +673,14 @@ export function Header() {
   const router = useRouter();
   const { logout } = useAuth();
   const user = useAuthStore((s) => s.user);
-  const cartCount = useCartStore((s) => s.getItemCount());
-  const wishlistCount = useWishlistStore((s) => s.items.length);
+  const rawCartCount = useCartStore((s) => s.getItemCount());
+  const rawWishlistCount = useWishlistStore((s) => s.items.length);
+
+  // Prevent hydration mismatch — show 0 until client mounts
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const cartCount = mounted ? rawCartCount : 0;
+  const wishlistCount = mounted ? rawWishlistCount : 0;
 
   const [navCategories, setNavCategories] = useState<NavCategory[]>([]);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -653,9 +702,9 @@ export function Header() {
   
   useEffect(() => {
     axios
-      .get<{ data: APICategory[] }>("/api/categories")
+      .get<{ data: APICategory[] }>("/api/categories?includeSubcategories=true")
       .then((r) => {
-        const cats = buildNavCategories(r.data.data ?? []);
+        const cats = buildNavCategoriesFromPopulated(r.data.data ?? []);
         if (cats.length > 0) {
           setNavCategories(cats);
         } else {
@@ -846,6 +895,20 @@ export function Header() {
               </motion.span>
             </Link>
 
+            <Link href="/blog">
+              <motion.span
+                whileHover={{ color: "#E84672", backgroundColor: "#FFF1F3" }}
+                transition={{ duration: 0.15 }}
+                className="inline-flex cursor-pointer items-center rounded-xl px-3.5 py-2 text-[0.84rem] font-medium select-none"
+                style={{
+                  color: pathname?.startsWith("/blog") ? "#E84672" : "#57534e",
+                  backgroundColor: pathname?.startsWith("/blog") ? "#FFF1F3" : "transparent",
+                }}
+              >
+                Blog
+              </motion.span>
+            </Link>
+
             
             <AnimatePresence>
               {activeCatData && (
@@ -959,7 +1022,7 @@ export function Header() {
                                 >
                                   {r.images?.[0] && (
                                     <img
-                                      src={r.images[0]}
+                                      src={normalizeImageUrl(r.images[0])}
                                       alt={r.name}
                                       className="h-full w-full object-cover"
                                     />
@@ -1290,6 +1353,15 @@ export function Header() {
                     style={{ color: "#44403c" }}
                   >
                     All Products <RiArrowRightLine size={14} style={{ color: "#D4CFB3" }} />
+                  </motion.span>
+                </Link>
+                <Link href="/blog" onClick={() => setMobileOpen(false)}>
+                  <motion.span
+                    whileHover={{ backgroundColor: "#FFF1F3", color: "#E84672" }}
+                    className="flex cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium"
+                    style={{ color: "#44403c" }}
+                  >
+                    Blog <RiArrowRightLine size={14} style={{ color: "#D4CFB3" }} />
                   </motion.span>
                 </Link>
               </motion.div>

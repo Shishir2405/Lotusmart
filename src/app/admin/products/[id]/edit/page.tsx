@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { Skeleton } from "@/components/ui/Skeleton";
 import axios from "axios";
 import toast from "@/components/ui/toast";
+import { normalizeImageUrl } from "@/utils/helpers";
 
 interface Category {
   _id: string;
@@ -267,8 +268,12 @@ export default function EditProductPage() {
         const res = await axios.post<{ data: { url: string } }>("/api/upload", fd);
         setImages((prev) => [...prev, res.data.data.url]);
       }
-    } catch {
-      toast.error("Image upload failed");
+    } catch (err) {
+      toast.error(
+        axios.isAxiosError(err)
+          ? (err.response?.data?.message ?? "Image upload failed")
+          : "Image upload failed",
+      );
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -418,7 +423,7 @@ export default function EditProductPage() {
             {images.map((url, i) => (
               <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border border-neutral-200 group">
                 
-                <img src={url} alt="" className="w-full h-full object-cover" />
+                <img src={normalizeImageUrl(url)} alt="" className="w-full h-full object-cover" />
                 <button
                   type="button"
                   onClick={() => setImages((prev) => prev.filter((_, idx) => idx !== i))}

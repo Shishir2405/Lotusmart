@@ -10,6 +10,7 @@ import {
   RiLeafLine,
   RiFlashlightLine,
 } from "react-icons/ri";
+import { normalizeImageUrl } from "@/utils/helpers";
 
 
 const primary = {
@@ -134,7 +135,7 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
               >
                 
                 <Image
-                  src={activePrimary.image}
+                  src={normalizeImageUrl(activePrimary.image)}
                   alt={activePrimary.headline}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -276,7 +277,7 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
                     className="relative h-[200px] min-h-[200px] cursor-pointer overflow-hidden rounded-3xl lg:h-full"
                   >
                     <Image
-                      src={b.image}
+                      src={normalizeImageUrl(b.image)}
                       alt={b.headline}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-105"

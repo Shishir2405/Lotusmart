@@ -13,7 +13,7 @@ export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type UserRole = "admin" | "customer";
 export type AddressLabel = "home" | "work" | "other";
 export type ProductUnit = "kg" | "g" | "pieces" | "pack" | "ml" | "L" | "box";
-export type PaymentMethod = "cod" | "razorpay";
+export type PaymentMethod = "razorpay";
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 export type OrderStatus =
   | "placed"
@@ -24,6 +24,7 @@ export type OrderStatus =
   | "cancelled"
   | "returned";
 export type BannerPosition = "hero" | "sidebar" | "category";
+export type BlogStatus = "draft" | "published" | "archived";
 
 
 export interface IAddress {
@@ -241,8 +242,10 @@ export interface IOrder extends Timestamps {
   total: number;
   notes?: string;
   trackingNumber?: string;
-  shiprocketOrderId?: string;
-  shiprocketShipmentId?: string;
+  shipmozoOrderId?: string;
+  shipmozoReferenceId?: string;
+  awbNumber?: string;
+  courierCompany?: string;
   estimatedDelivery?: Date;
   deliveredAt?: Date;
   cancelledAt?: Date;
@@ -259,6 +262,24 @@ export interface IBanner extends Timestamps {
   isActive: boolean;
   sortOrder: number;
   position: BannerPosition;
+}
+
+
+export interface IBlog extends Timestamps {
+  _id: ObjectId;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  coverImage: string;
+  author: string;
+  tags: string[];
+  status: BlogStatus;
+  viewCount: number;
+  isActive: boolean;
+  metaTitle?: string;
+  metaDescription?: string;
+  publishedAt?: Date;
 }
 
 
@@ -374,7 +395,8 @@ export type AdminPermission =
   | "banners"
   | "site_settings"
   | "settings"
-  | "roles";
+  | "roles"
+  | "blog";
 
 export interface IAdminRole extends Timestamps {
   _id: ObjectId;

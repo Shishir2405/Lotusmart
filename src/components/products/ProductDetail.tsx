@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cart.store";
 import { useWishlistStore } from "@/store/wishlist.store";
 import { Button } from "@/components/ui/Button";
-import { formatCurrency, calculateDiscount } from "@/utils/helpers";
+import { formatCurrency, calculateDiscount, normalizeImageUrl } from "@/utils/helpers";
 import toast from "@/components/ui/toast";
 
 interface ProductDetailProps {
@@ -137,18 +137,18 @@ export function ProductDetail({ product }: ProductDetailProps) {
         <span className="text-neutral-600 font-medium truncate">{product.name}</span>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-12">
-        
-        <div>
+      <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
+        {/* Images */}
+        <div className="lg:sticky lg:top-24 lg:self-start">
           <motion.div
             key={selectedImage}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="relative aspect-square rounded-3xl overflow-hidden bg-[#F7F6F0] mb-4"
+            className="relative aspect-[4/5] sm:aspect-square rounded-2xl lg:rounded-3xl overflow-hidden bg-[#F7F6F0] mb-3"
           >
             {product.images?.[selectedImage] ? (
               <Image
-                src={product.images[selectedImage]}
+                src={normalizeImageUrl(product.images[selectedImage])}
                 alt={product.name}
                 fill
                 className="object-cover"
@@ -166,37 +166,36 @@ export function ProductDetail({ product }: ProductDetailProps) {
           </motion.div>
 
           {product.images?.length > 1 && (
-            <div className="flex gap-3 overflow-x-auto pb-1 no-scrollbar">
+            <div className="flex gap-2.5 overflow-x-auto pb-1 no-scrollbar">
               {product.images.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedImage(i)}
-                  className={`shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-colors ${i === selectedImage ? "border-[#E84672]" : "border-transparent"}`}
+                  className={`shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-colors ${i === selectedImage ? "border-[#E84672]" : "border-neutral-200 hover:border-neutral-300"}`}
                 >
-                  <Image src={img} alt="" width={80} height={80} className="object-cover w-full h-full" />
+                  <Image src={normalizeImageUrl(img)} alt="" width={80} height={80} className="object-cover w-full h-full" />
                 </button>
               ))}
             </div>
           )}
         </div>
 
-        
+        {/* Product Info */}
         <div>
           {product.category && (
-            <Link href={`/categories/${product.category.slug}`} className="text-sm font-medium text-[#7A6E42] hover:underline">
+            <Link href={`/categories/${product.category.slug}`} className="inline-block text-xs font-semibold uppercase tracking-wider text-[#7A6E42] bg-[#F5F0E1] px-3 py-1 rounded-full hover:bg-[#EBE8D8] transition-colors">
               {product.category.name}
             </Link>
           )}
-          <h1 className="text-3xl font-bold text-neutral-900 mt-2 mb-3">{product.name}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 mt-3 mb-2 leading-tight">{product.name}</h1>
 
-          
           {product.ratings && product.ratings.count > 0 && (
             <div className="flex items-center gap-2 mb-4">
               <div className="flex items-center gap-0.5">
                 {[1, 2, 3, 4, 5].map((s) => (
                   <RiStarFill
                     key={s}
-                    size={16}
+                    size={15}
                     className={s <= Math.round(product.ratings!.average) ? "text-amber-400" : "text-neutral-200"}
                   />
                 ))}
@@ -205,16 +204,20 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </div>
           )}
 
-          
-          <div className="flex items-baseline gap-3 mb-5">
-            <span className="text-4xl font-bold text-neutral-900">{formatCurrency(product.price)}</span>
-            <span className="text-base text-neutral-400">/ {product.unit}</span>
+          {/* Price */}
+          <div className="flex items-baseline gap-3 mb-4 pb-4 border-b border-[#EBE8D8]">
+            <span className="text-3xl sm:text-4xl font-bold text-neutral-900">{formatCurrency(product.price)}</span>
+            <span className="text-sm text-neutral-400">/ {product.unit}</span>
             {product.compareAtPrice && product.compareAtPrice > product.price && (
               <span className="text-lg text-neutral-400 line-through">{formatCurrency(product.compareAtPrice)}</span>
             )}
+            {discount > 0 && (
+              <span className="text-sm font-bold text-[#E84672] bg-[#FFF1F3] px-2.5 py-0.5 rounded-full">
+                Save {discount}%
+              </span>
+            )}
           </div>
 
-          
           {product.shortDescription && (
             <p className="text-neutral-600 text-sm leading-relaxed mb-5">{product.shortDescription}</p>
           )}
@@ -247,59 +250,63 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </div>
           ))}
 
-          
-          <div className="flex items-center gap-4 mb-3">
-            <div className="flex items-center gap-2 bg-[#F7F6F0] rounded-xl p-1">
-              <button
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-neutral-600 hover:bg-neutral-50 transition-colors"
+          {/* Quantity + Actions */}
+          <div className="bg-[#FAFAF9] rounded-2xl p-4 mb-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center gap-1 bg-white rounded-xl p-1 border border-neutral-200">
+                <button
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  className="w-9 h-9 rounded-lg flex items-center justify-center text-neutral-600 hover:bg-neutral-50 transition-colors"
+                >
+                  <RiSubtractLine size={16} />
+                </button>
+                <span className="w-10 text-center font-semibold text-neutral-800">{quantity}</span>
+                <button
+                  onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
+                  disabled={quantity >= product.stock}
+                  className="w-9 h-9 rounded-lg flex items-center justify-center text-neutral-600 hover:bg-neutral-50 transition-colors disabled:opacity-40"
+                >
+                  <RiAddLine size={16} />
+                </button>
+              </div>
+
+              <Button
+                size="lg"
+                fullWidth
+                leftIcon={<RiShoppingCartLine />}
+                onClick={handleAddToCart}
+                disabled={isOutOfStock}
+                variant={inCart ? "outline" : "primary"}
               >
-                <RiSubtractLine size={16} />
-              </button>
-              <span className="w-10 text-center font-semibold text-neutral-800">{quantity}</span>
+                {isOutOfStock ? "Out of Stock" : inCart ? "In Cart — Add More" : "Add to Cart"}
+              </Button>
+
               <button
-                onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
-                disabled={quantity >= product.stock}
-                className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-neutral-600 hover:bg-neutral-50 transition-colors disabled:opacity-40"
+                onClick={handleWishlist}
+                className="w-11 h-11 rounded-xl border border-neutral-200 bg-white flex items-center justify-center hover:border-[#E84672] hover:bg-[#FFF1F3] transition-all shrink-0"
               >
-                <RiAddLine size={16} />
+                {inWishlist ? <RiHeartFill size={18} className="text-[#E84672]" /> : <RiHeartLine size={18} className="text-neutral-400" />}
               </button>
             </div>
 
-            <Button
-              size="lg"
-              fullWidth
-              leftIcon={<RiShoppingCartLine />}
-              onClick={handleAddToCart}
-              disabled={isOutOfStock}
-              variant={inCart ? "outline" : "primary"}
-            >
-              {isOutOfStock ? "Out of Stock" : inCart ? "In Cart — Add More" : "Add to Cart"}
-            </Button>
-
-            <button
-              onClick={handleWishlist}
-              className="w-12 h-12 rounded-xl border border-neutral-200 flex items-center justify-center hover:border-[#E84672] hover:bg-[#FFF1F3] transition-all shrink-0"
-            >
-              {inWishlist ? <RiHeartFill size={20} className="text-[#E84672]" /> : <RiHeartLine size={20} className="text-neutral-400" />}
-            </button>
+            {!isOutOfStock && (
+              <Button
+                size="lg"
+                fullWidth
+                leftIcon={<RiFlashlightLine />}
+                onClick={handleBuyNow}
+                className="bg-[#FF6B35] hover:bg-[#E55A2B] border-[#FF6B35]"
+              >
+                Buy Now
+              </Button>
+            )}
           </div>
 
-          
-          {!isOutOfStock && (
-            <Button
-              size="lg"
-              fullWidth
-              leftIcon={<RiFlashlightLine />}
-              onClick={handleBuyNow}
-              className="mb-4 bg-[#FF6B35] hover:bg-[#E55A2B] border-[#FF6B35]"
-            >
-              Buy Now
-            </Button>
-          )}
-
           {product.stock > 0 && product.stock <= 10 && (
-            <p className="text-sm text-amber-600 font-medium mb-4">Only {product.stock} left in stock</p>
+            <p className="text-sm text-amber-600 font-medium mb-4 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+              Only {product.stock} left in stock
+            </p>
           )}
 
           
@@ -328,18 +335,18 @@ export function ProductDetail({ product }: ProductDetailProps) {
         </div>
       </div>
 
-      
+      {/* Description */}
       {product.description && (
-        <div className="mt-12 bg-white rounded-2xl p-8 border border-neutral-100">
+        <div className="mt-10 bg-white rounded-2xl p-6 sm:p-8 border border-neutral-100">
           <h2 className="text-xl font-bold text-neutral-900 mb-4">Product Details</h2>
-          <div className="prose prose-sm max-w-none text-neutral-600 leading-relaxed whitespace-pre-wrap">
-            {product.description}
-          </div>
+          <div
+            className="prose prose-sm max-w-none text-neutral-600 leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: product.description }}
+          />
         </div>
       )}
 
-      
-      <Link href="/products" className="inline-flex items-center gap-1.5 text-sm text-neutral-400 hover:text-[#E84672] mt-8 transition-colors">
+      <Link href="/products" className="inline-flex items-center gap-1.5 text-sm text-neutral-400 hover:text-[#E84672] mt-6 mb-4 transition-colors">
         <RiArrowLeftLine size={16} /> Back to all products
       </Link>
     </div>

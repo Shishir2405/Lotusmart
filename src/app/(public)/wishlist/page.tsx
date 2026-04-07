@@ -12,7 +12,7 @@ import {
 } from "react-icons/ri";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { formatCurrency } from "@/utils/helpers";
+import { formatCurrency, normalizeImageUrl } from "@/utils/helpers";
 import { useWishlistStore } from "@/store/wishlist.store";
 import { useCartStore } from "@/store/cart.store";
 import { useAuthStore } from "@/store/auth.store";
@@ -221,7 +221,7 @@ export default function WishlistPage() {
                   <div className="aspect-square bg-[#F7F6F0] relative overflow-hidden">
                     {product.images?.[0] ? (
                       <Image
-                        src={product.images[0]}
+                        src={normalizeImageUrl(product.images[0])}
                         alt={product.name}
                         fill
                         className="object-cover transition-transform duration-300 group-hover:scale-105"

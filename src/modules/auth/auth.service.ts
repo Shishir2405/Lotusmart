@@ -95,6 +95,7 @@ export async function register(data: RegisterInput) {
     name: data.name,
     email: data.email,
     password: data.password,
+    phone: data.phone || undefined,
     verificationToken,
   });
 

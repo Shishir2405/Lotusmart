@@ -13,6 +13,7 @@ import {
   RiArrowLeftSLine,
   RiArrowRightSLine,
 } from "react-icons/ri";
+import { normalizeImageUrl } from "@/utils/helpers";
 
 const slides = [
   {
@@ -113,7 +114,7 @@ function mapAPISlides(apiSlides: HeroBannerSlide[]) {
       subtext: s.subtitle || "",
       cta: { label: s.ctaText || "Shop Now", href: s.ctaLink || "/products" },
       secondaryCta: { label: "Explore All", href: "/products" },
-      image: s.image || "/images/hero/spices-hero.jpg",
+      image: normalizeImageUrl(s.image) || "/images/hero/spices-hero.jpg",
       accentColor: colors.accentColor,
       bgFrom: colors.bgFrom,
       bgTo: colors.bgTo,
@@ -394,7 +395,7 @@ export function HeroSection({ settings }: HeroSectionProps = {}) {
                   }}
                 >
                   <Image
-                    src={slide.image}
+                    src={normalizeImageUrl(slide.image)}
                     alt={slide.headline.join(" ")}
                     fill
                     style={{ objectFit: "cover" }}

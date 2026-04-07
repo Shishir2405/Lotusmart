@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: "Terms & Conditions — LotusMart",
   description:
     "Read the LotusMart Terms & Conditions to understand the rules and guidelines for using our platform.",
+  alternates: {
+    canonical: "https://lotusmart.in/terms",
+  },
 };
 
 async function getTermsData() {

@@ -4,9 +4,12 @@ import type { Metadata } from "next";
 import { getContactInfo } from "@/lib/get-contact-info";
 
 export const metadata: Metadata = {
-  title: "Shipping Policy — LotusMart",
+  title: "Shipping Policy — LotusMart | Free Delivery on Orders Above ₹499",
   description:
-    "Learn about LotusMart's shipping policy, delivery timelines, and free shipping threshold. We deliver across India.",
+    "Learn about LotusMart's shipping policy. Free delivery on orders above ₹499, 2-5 day delivery across 19,000+ pin codes in India. Same-day dispatch available.",
+  alternates: {
+    canonical: "https://lotusmart.in/shipping-policy",
+  },
 };
 
 async function getShippingData() {

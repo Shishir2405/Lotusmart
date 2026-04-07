@@ -9,7 +9,7 @@ import { RiSearchLine, RiCloseLine, RiArrowRightLine } from "react-icons/ri";
 import { ProductCard, type ProductCardData } from "@/components/products/ProductCard";
 import { ProductGridSkeleton } from "@/components/ui/Skeleton";
 import { useDebounce } from "@/hooks/useDebounce";
-import { formatCurrency } from "@/utils/helpers";
+import { formatCurrency, normalizeImageUrl } from "@/utils/helpers";
 import axios from "axios";
 
 interface AutocompleteResult {
@@ -141,7 +141,7 @@ function SearchContent() {
                   >
                     <div className="w-9 h-9 rounded-lg bg-[#F7F6F0] overflow-hidden shrink-0 flex items-center justify-center">
                       {item.image ? (
-                        <Image src={item.image} alt={item.name} width={36} height={36} className="object-cover w-full h-full" />
+                        <Image src={normalizeImageUrl(item.image)} alt={item.name} width={36} height={36} className="object-cover w-full h-full" />
                       ) : <span className="text-xs text-neutral-400 font-bold">N/A</span>}
                     </div>
                     <div className="flex-1 min-w-0">

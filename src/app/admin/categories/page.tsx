@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Modal } from "@/components/ui/Modal";
 import axios from "axios";
 import toast from "@/components/ui/toast";
+import { normalizeImageUrl } from "@/utils/helpers";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -214,8 +215,12 @@ export default function AdminCategoriesPage() {
       const res = await axios.post<{ data: { url: string } }>("/api/upload", fd);
       setForm((f) => ({ ...f, image: res.data.data.url }));
       toast.success("Image uploaded");
-    } catch {
-      toast.error("Upload failed");
+    } catch (err) {
+      toast.error(
+        axios.isAxiosError(err)
+          ? (err.response?.data?.message ?? "Upload failed")
+          : "Upload failed",
+      );
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -589,7 +594,7 @@ export default function AdminCategoriesPage() {
               <div className="flex items-center gap-3">
                 <div className="w-16 h-16 rounded-xl overflow-hidden border border-neutral-200 shrink-0">
                   <Image
-                    src={form.image}
+                    src={normalizeImageUrl(form.image)}
                     alt="Category"
                     width={64}
                     height={64}
@@ -757,7 +762,7 @@ function TreeRow({
         {/* Icon / Image */}
         <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 flex items-center justify-center bg-white border border-neutral-100">
           {cat.image ? (
-            <Image src={cat.image} alt={cat.name} width={32} height={32} className="object-cover w-full h-full" />
+            <Image src={normalizeImageUrl(cat.image)} alt={cat.name} width={32} height={32} className="object-cover w-full h-full" />
           ) : (
             <IconComp size={16} className={style.iconColor} />
           )}

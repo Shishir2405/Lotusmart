@@ -1,6 +1,6 @@
 
 
-import { SITE_NAME, SITE_TAGLINE, SITE_DOMAIN, SUPPORT_EMAIL } from "./constants";
+import { SITE_NAME, SITE_TAGLINE, SITE_DOMAIN, SUPPORT_EMAIL, SUPPORT_PHONE } from "./constants";
 
 export interface SiteConfig {
   name: string;
@@ -112,8 +112,8 @@ export const defaultMetadata = {
     },
   },
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
+    icon: "/favicon-32x32.png",
+    shortcut: "/favicon-32x32.png",
     apple: "/apple-touch-icon.png",
   },
   manifest: siteConfig.manifest,
@@ -124,17 +124,135 @@ export function getOrganizationJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": `${siteConfig.url}/#organization`,
     name: siteConfig.name,
     url: siteConfig.url,
-    logo: `${siteConfig.url}/logo.png`,
+    logo: {
+      "@type": "ImageObject",
+      url: `${siteConfig.url}/logo.png`,
+      width: 512,
+      height: 512,
+    },
     description: siteConfig.description,
     email: siteConfig.email,
+    telephone: SUPPORT_PHONE,
     sameAs: [
       siteConfig.links.instagram,
       siteConfig.links.facebook,
       siteConfig.links.twitter,
       siteConfig.links.youtube,
     ],
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: SUPPORT_PHONE,
+      contactType: "customer service",
+      email: siteConfig.email,
+      availableLanguage: ["English", "Hindi"],
+      areaServed: "IN",
+    },
+  };
+}
+
+export function getWebSiteJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${siteConfig.url}/#website`,
+    name: siteConfig.name,
+    url: siteConfig.url,
+    description: siteConfig.description,
+    publisher: { "@id": `${siteConfig.url}/#organization` },
+    inLanguage: "en-IN",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${siteConfig.url}/search?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
+}
+
+export function getLocalBusinessJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Store",
+    "@id": `${siteConfig.url}/#store`,
+    name: siteConfig.name,
+    url: siteConfig.url,
+    image: `${siteConfig.url}/og-image.jpg`,
+    description: siteConfig.description,
+    telephone: SUPPORT_PHONE,
+    email: siteConfig.email,
+    priceRange: "₹₹",
+    currenciesAccepted: "INR",
+    paymentAccepted: "UPI, Credit Card, Debit Card, Net Banking",
+    areaServed: {
+      "@type": "Country",
+      name: "India",
+    },
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: "LotusMart Products",
+      itemListElement: [
+        { "@type": "OfferCatalog", name: "Spices" },
+        { "@type": "OfferCatalog", name: "Dry Fruits" },
+        { "@type": "OfferCatalog", name: "Gift Boxes & Hampers" },
+        { "@type": "OfferCatalog", name: "Herbs & Teas" },
+        { "@type": "OfferCatalog", name: "Honey & Superfoods" },
+      ],
+    },
+    sameAs: [
+      siteConfig.links.instagram,
+      siteConfig.links.facebook,
+      siteConfig.links.twitter,
+      siteConfig.links.youtube,
+    ],
+  };
+}
+
+export function getCollectionPageJsonLd(category: {
+  name: string;
+  description?: string;
+  url: string;
+  products: { name: string; url: string; image?: string; price: number }[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: category.name,
+    description: category.description ?? `Shop ${category.name} at LotusMart`,
+    url: category.url,
+    isPartOf: { "@id": `${siteConfig.url}/#website` },
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: category.products.length,
+      itemListElement: category.products.slice(0, 12).map((p, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        url: p.url,
+        name: p.name,
+        ...(p.image && { image: p.image }),
+      })),
+    },
+  };
+}
+
+export function getFAQPageJsonLd(
+  faqs: { question: string; answer: string }[],
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
   };
 }
 

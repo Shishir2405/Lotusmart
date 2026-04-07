@@ -24,6 +24,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { useDebounce } from "@/hooks/useDebounce";
 import axios from "axios";
 import toast from "@/components/ui/toast";
+import { normalizeImageUrl } from "@/utils/helpers";
 
 
 interface Product {
@@ -594,7 +595,7 @@ export default function AdminInventoryPage() {
                             <div className="w-9 h-9 rounded-lg bg-[#F7F6F0] overflow-hidden shrink-0">
                               {product.images?.[0] ? (
                                 <Image
-                                  src={product.images[0]}
+                                  src={normalizeImageUrl(product.images[0])}
                                   alt={product.name}
                                   width={36}
                                   height={36}

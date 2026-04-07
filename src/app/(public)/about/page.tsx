@@ -13,9 +13,20 @@ import {
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About Us — LotusMart",
+  title: "About Us — LotusMart | Premium Spices & Dry Fruits Since 2017",
   description:
-    "Discover the LotusMart story. We bring you premium quality spices, dry fruits, and curated gift boxes sourced directly from Indian farms.",
+    "Discover the LotusMart story. Since 2017, we bring you FSSAI certified, farm-fresh spices, dry fruits, and curated gift boxes sourced directly from Indian farms. 50,000+ orders delivered.",
+  keywords: [
+    "about LotusMart",
+    "LotusMart story",
+    "premium spices India",
+    "FSSAI certified spices",
+    "farm to door dry fruits",
+    "organic spices online",
+  ],
+  alternates: {
+    canonical: "https://lotusmart.in/about",
+  },
 };
 
 async function getAboutData() {

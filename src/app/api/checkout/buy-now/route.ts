@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     if (!productId) throw ApiError.badRequest("productId is required");
     if (!shippingAddress) throw ApiError.badRequest("shippingAddress is required");
-    if (!["cod", "razorpay"].includes(paymentMethod))
+    if (paymentMethod !== "razorpay")
       throw ApiError.badRequest("Invalid payment method");
 
     const qty = Math.max(1, Number(quantity));

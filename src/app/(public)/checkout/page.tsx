@@ -21,7 +21,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { formatCurrency } from "@/utils/helpers";
+import { formatCurrency, normalizeImageUrl } from "@/utils/helpers";
 import axios from "axios";
 import toast from "@/components/ui/toast";
 
@@ -84,7 +84,7 @@ export default function CheckoutPage() {
   const total = subtotal + shippingCost - discount;
 
   const [step, setStep] = useState<Step>("cart");
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "razorpay">("razorpay");
+  const [paymentMethod] = useState<"razorpay">("razorpay");
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [placedOrderId, setPlacedOrderId] = useState<string | null>(null);
 
@@ -97,7 +97,7 @@ export default function CheckoutPage() {
   const [savingAddress, setSavingAddress] = useState(false);
 
   
-  const [guestForm, setGuestForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
+  const [guestForm, setGuestForm] = useState({ name: "", email: "", phone: "", password: "", confirmPassword: "" });
 
   
   useEffect(() => {
@@ -205,6 +205,7 @@ export default function CheckoutPage() {
         await register({
           name: guestForm.name || address.fullName,
           email: guestForm.email,
+          phone: guestForm.phone || address.phone,
           password: guestForm.password,
           confirmPassword: guestForm.confirmPassword,
         });
@@ -255,12 +256,6 @@ export default function CheckoutPage() {
   };
 
   const handlePayment = async () => {
-    if (paymentMethod === "cod") {
-      await placeOrder();
-      return;
-    }
-
-    
     try {
       const shippingAddress = getSelectedAddress();
       const orderRes = await axios.post<{ data: { _id: string } }>(
@@ -410,7 +405,7 @@ export default function CheckoutPage() {
                         <div className="w-20 h-20 rounded-xl bg-[#F7F6F0] overflow-hidden shrink-0">
                           {item.image ? (
                             <Image
-                              src={item.image}
+                              src={normalizeImageUrl(item.image)}
                               alt={item.name}
                               width={80}
                               height={80}
@@ -853,60 +848,20 @@ export default function CheckoutPage() {
                   </div>
 
                   <div className="space-y-3">
-                    {[
-                      {
-                        value: "razorpay",
-                        label: "Pay Online",
-                        desc: "Credit/Debit card, UPI, Net Banking, Wallets",
-                        badge: "Recommended",
-                      },
-                      {
-                        value: "cod",
-                        label: "Cash on Delivery",
-                        desc: "Pay when your order arrives",
-                        badge: null,
-                      },
-                    ].map((opt) => (
-                      <label
-                        key={opt.value}
-                        className={`flex items-start gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all ${
-                          paymentMethod === opt.value
-                            ? "border-[#E84672] bg-[#FFF1F3]"
-                            : "border-neutral-200 hover:border-neutral-300"
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="payment"
-                          value={opt.value}
-                          checked={
-                            paymentMethod ===
-                            (opt.value as "cod" | "razorpay")
-                          }
-                          onChange={() =>
-                            setPaymentMethod(
-                              opt.value as "cod" | "razorpay",
-                            )
-                          }
-                          className="mt-1 accent-[#E84672]"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-neutral-800">
-                              {opt.label}
-                            </span>
-                            {opt.badge && (
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-[#E84672] text-white font-medium">
-                                {opt.badge}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-sm text-neutral-500 mt-0.5">
-                            {opt.desc}
-                          </p>
+                    <div className="flex items-start gap-4 p-4 rounded-2xl border-2 border-[#E84672] bg-[#FFF1F3]">
+                      <div className="w-5 h-5 rounded-full border-2 border-[#E84672] flex items-center justify-center mt-0.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#E84672]" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-neutral-800">Pay Online</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-[#E84672] text-white font-medium">Secure</span>
                         </div>
-                      </label>
-                    ))}
+                        <p className="text-sm text-neutral-500 mt-0.5">
+                          Credit/Debit card, UPI, Net Banking, Wallets
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-2 mt-5 text-xs text-neutral-400">
@@ -922,9 +877,7 @@ export default function CheckoutPage() {
                     onClick={handlePayment}
                     rightIcon={<RiArrowRightLine />}
                   >
-                    {paymentMethod === "cod"
-                      ? "Place Order"
-                      : `Pay ${formatCurrency(total)}`}
+{`Pay ${formatCurrency(total)}`}
                   </Button>
                 </div>
               </motion.div>
@@ -988,7 +941,7 @@ export default function CheckoutPage() {
                     <div className="w-12 h-12 rounded-lg bg-[#F7F6F0] overflow-hidden shrink-0">
                       {item.image ? (
                         <Image
-                          src={item.image}
+                          src={normalizeImageUrl(item.image)}
                           alt={item.name}
                           width={48}
                           height={48}

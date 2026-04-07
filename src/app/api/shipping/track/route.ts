@@ -2,23 +2,23 @@ import { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/auth";
 import { ApiError } from "@/lib/api-error";
 import { successResponse, errorResponse } from "@/lib/api-response";
-import { trackShipment, trackByAWB } from "@/services/shiprocket";
+import { trackOrder } from "@/services/shipmozo";
 
 export async function GET(request: NextRequest) {
   try {
     await requireAuth(request);
     const { searchParams } = new URL(request.url);
 
-    const shipmentId = searchParams.get("shipmentId");
     const awb = searchParams.get("awb");
+    if (!awb) throw ApiError.badRequest("awb query parameter is required");
 
-    if (!shipmentId && !awb) throw ApiError.badRequest("shipmentId or awb is required");
+    const data = await trackOrder(awb);
 
-    const data = shipmentId
-      ? await trackShipment(Number(shipmentId))
-      : await trackByAWB(awb!);
+    if (data.result !== "1") {
+      throw ApiError.badRequest(data.message || "Tracking failed");
+    }
 
-    return successResponse(data);
+    return successResponse(data.data);
   } catch (err) {
     const e = ApiError.from(err);
     return errorResponse(e.message, e.statusCode);

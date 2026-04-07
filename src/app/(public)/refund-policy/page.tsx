@@ -4,9 +4,12 @@ import type { Metadata } from "next";
 import { getContactInfo } from "@/lib/get-contact-info";
 
 export const metadata: Metadata = {
-  title: "Refund & Return Policy — LotusMart",
+  title: "Refund & Return Policy — LotusMart | 7-Day Hassle-Free Returns",
   description:
-    "Learn about LotusMart's refund and return policy. We offer hassle-free returns within 7 days of delivery.",
+    "LotusMart offers hassle-free 7-day returns from date of delivery. Full refund within 3-5 business days. Free replacement for damaged products within 48 hours.",
+  alternates: {
+    canonical: "https://lotusmart.in/refund-policy",
+  },
 };
 
 async function getRefundData() {

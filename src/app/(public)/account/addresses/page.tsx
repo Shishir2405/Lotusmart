@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { RiAddLine, RiEditLine, RiDeleteBinLine, RiHomeSmileLine, RiBriefcaseLine, RiMapPinLine } from "react-icons/ri";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { LocationSelector } from "@/components/ui/LocationSelector";
 import axios from "axios";
 import toast from "@/components/ui/toast";
 
@@ -125,8 +126,14 @@ export default function AddressesPage() {
               <div className="sm:col-span-2">
                 <Input label="Address Line 2 (optional)" value={form.addressLine2} onChange={(e) => setForm((f) => ({ ...f, addressLine2: e.target.value }))} />
               </div>
-              <Input label="City" value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} required />
-              <Input label="State" value={form.state} onChange={(e) => setForm((f) => ({ ...f, state: e.target.value }))} required />
+              <div className="sm:col-span-2">
+                <LocationSelector
+                  state={form.state}
+                  city={form.city}
+                  onStateChange={(v) => setForm((f) => ({ ...f, state: v }))}
+                  onCityChange={(v) => setForm((f) => ({ ...f, city: v }))}
+                />
+              </div>
               <Input label="Pincode" value={form.pincode} onChange={(e) => setForm((f) => ({ ...f, pincode: e.target.value }))} required maxLength={6} />
               <div>
                 <label className="block text-sm font-medium text-neutral-700 mb-1.5">Label</label>

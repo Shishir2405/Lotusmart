@@ -43,8 +43,10 @@ export async function PATCH(
       orderStatus,
       paymentStatus,
       trackingNumber,
-      shiprocketOrderId,
-      shiprocketShipmentId,
+      shipmozoOrderId,
+      shipmozoReferenceId,
+      awbNumber,
+      courierCompany,
       estimatedDelivery,
       cancelReason,
     } = body;
@@ -55,8 +57,10 @@ export async function PATCH(
     if (orderStatus) order.orderStatus = orderStatus;
     if (paymentStatus) order.paymentStatus = paymentStatus;
     if (trackingNumber) order.trackingNumber = trackingNumber;
-    if (shiprocketOrderId) order.shiprocketOrderId = shiprocketOrderId;
-    if (shiprocketShipmentId) order.shiprocketShipmentId = shiprocketShipmentId;
+    if (shipmozoOrderId) order.shipmozoOrderId = shipmozoOrderId;
+    if (shipmozoReferenceId) order.shipmozoReferenceId = shipmozoReferenceId;
+    if (awbNumber) order.awbNumber = awbNumber;
+    if (courierCompany) order.courierCompany = courierCompany;
     if (estimatedDelivery) order.estimatedDelivery = new Date(estimatedDelivery);
     if (cancelReason) order.cancelReason = cancelReason;
 

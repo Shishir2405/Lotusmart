@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: "Privacy Policy — LotusMart",
   description:
     "Learn how LotusMart collects, uses, and protects your personal information. Your privacy matters to us.",
+  alternates: {
+    canonical: "https://lotusmart.in/privacy-policy",
+  },
 };
 
 async function getPrivacyData() {

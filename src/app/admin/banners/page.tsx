@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
 import axios from "axios";
 import toast from "@/components/ui/toast";
+import { normalizeImageUrl } from "@/utils/helpers";
 
 interface Banner {
   _id: string;
@@ -54,8 +55,12 @@ export default function AdminBannersPage() {
       const res = await axios.post<{ data: { url: string } }>("/api/upload", fd);
       setImageUrl(res.data.data.url);
       toast.success("Image uploaded");
-    } catch {
-      toast.error("Upload failed");
+    } catch (err) {
+      toast.error(
+        axios.isAxiosError(err)
+          ? (err.response?.data?.message ?? "Upload failed")
+          : "Upload failed",
+      );
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -126,7 +131,7 @@ export default function AdminBannersPage() {
                 {imageUrl ? (
                   <div className="relative w-full h-40 rounded-xl overflow-hidden border border-neutral-200 mb-2">
                     
-                    <img src={imageUrl} alt="Banner preview" className="w-full h-full object-cover" />
+                    <img src={normalizeImageUrl(imageUrl)} alt="Banner preview" className="w-full h-full object-cover" />
                     <button type="button" onClick={() => setImageUrl("")} className="absolute top-2 right-2 bg-red-500 text-white rounded-lg p-1.5 text-xs">Remove</button>
                   </div>
                 ) : (
@@ -199,7 +204,7 @@ export default function AdminBannersPage() {
                 </div>
                 <div className="w-28 h-16 shrink-0 bg-[#F7F6F0] overflow-hidden">
                   
-                  <img src={banner.image} alt={banner.title} className="w-full h-full object-cover" />
+                  <img src={normalizeImageUrl(banner.image)} alt={banner.title} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 px-4 py-3 min-w-0">
                   <p className="text-sm font-semibold text-neutral-800 truncate">{banner.title}</p>

@@ -12,7 +12,7 @@ import {
 } from "react-icons/ri";
 import { useCartStore } from "@/store/cart.store";
 import { Button } from "@/components/ui/Button";
-import { formatCurrency } from "@/utils/helpers";
+import { formatCurrency, normalizeImageUrl } from "@/utils/helpers";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, getSubtotal, getTotal, discount, couponCode } =
@@ -64,7 +64,7 @@ export default function CartPage() {
                   <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-[#F7F6F0] overflow-hidden">
                     {item.image ? (
                       <Image
-                        src={item.image}
+                        src={normalizeImageUrl(item.image)}
                         alt={item.name}
                         width={96}
                         height={96}

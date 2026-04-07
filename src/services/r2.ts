@@ -17,48 +17,29 @@ function requireEnv(key: string): string {
 }
 
 
-const ASSETS_BUCKET = process.env.R2_ASSETS_BUCKET ?? "lotusmart-assets";
-const PROFILES_BUCKET = process.env.R2_PROFILES_BUCKET ?? "lotusmart-profiles";
-
-const ASSETS_PUBLIC_URL = (process.env.R2_ASSETS_PUBLIC_URL ?? "").replace(/\/$/, "");
-const PROFILES_PUBLIC_URL = (process.env.R2_PROFILES_PUBLIC_URL ?? "").replace(/\/$/, "");
-
+const BUCKET_NAME = process.env.R2_BUCKET_NAME ?? "weibaomedia";
 
 type BucketAlias = "assets" | "profiles";
 
-function resolveBucket(alias: BucketAlias): { name: string; publicUrl: string } {
-  return alias === "profiles"
-    ? { name: PROFILES_BUCKET, publicUrl: PROFILES_PUBLIC_URL }
-    : { name: ASSETS_BUCKET, publicUrl: ASSETS_PUBLIC_URL };
+function resolveBucket(_alias: BucketAlias): { name: string } {
+  return { name: BUCKET_NAME };
 }
 
 
-let _assetsClient: S3Client | null = null;
-let _profilesClient: S3Client | null = null;
+let _s3Client: S3Client | null = null;
 
-function makeS3Client(): S3Client {
-  return new S3Client({
-    region: "auto",
-    endpoint: `https://${requireEnv("R2_ACCOUNT_ID")}.r2.cloudflarestorage.com`,
-    credentials: {
-      accessKeyId: requireEnv("R2_ACCESS_KEY_ID"),
-      secretAccessKey: requireEnv("R2_SECRET_ACCESS_KEY"),
-    },
-  });
-}
-
-function getAssetsClient(): S3Client {
-  if (!_assetsClient) _assetsClient = makeS3Client();
-  return _assetsClient;
-}
-
-function getProfilesClient(): S3Client {
-  if (!_profilesClient) _profilesClient = makeS3Client();
-  return _profilesClient;
-}
-
-function getClient(alias: BucketAlias): S3Client {
-  return alias === "profiles" ? getProfilesClient() : getAssetsClient();
+function getClient(_alias?: BucketAlias): S3Client {
+  if (!_s3Client) {
+    _s3Client = new S3Client({
+      region: "auto",
+      endpoint: `https://${requireEnv("R2_ACCOUNT_ID")}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: requireEnv("R2_ACCESS_KEY_ID"),
+        secretAccessKey: requireEnv("R2_SECRET_ACCESS_KEY"),
+      },
+    });
+  }
+  return _s3Client;
 }
 
 
@@ -83,9 +64,9 @@ export function generateKey(folder: string, filename: string): string {
 }
 
 
-function buildPublicUrl(baseUrl: string, key: string): string {
-  if (!baseUrl) return key; 
-  return `${baseUrl}/${key}`;
+function buildPublicUrl(key: string): string {
+  // Serve images through the app's own proxy — no public bucket URL exposed
+  return `/api/r2/${key}`;
 }
 
 
@@ -95,7 +76,7 @@ export async function uploadToR2(
   contentType: string,
   bucket: BucketAlias,
 ): Promise<string> {
-  const { name: bucketName, publicUrl: base } = resolveBucket(bucket);
+  const { name: bucketName } = resolveBucket(bucket);
   const client = getClient(bucket);
 
   const upload = new Upload({
@@ -105,12 +86,11 @@ export async function uploadToR2(
       Key: key,
       Body: file,
       ContentType: contentType,
-      
     },
   });
 
   await upload.done();
-  return buildPublicUrl(base, key);
+  return buildPublicUrl(key);
 }
 
 
@@ -128,7 +108,7 @@ export async function uploadProductImage(
 ): Promise<UploadResult> {
   const key = generateKey("products", filename);
   const url = await uploadToR2(buffer, key, contentType, "assets");
-  return { key, url, bucket: ASSETS_BUCKET };
+  return { key, url, bucket: BUCKET_NAME };
 }
 
 
@@ -139,7 +119,7 @@ export async function uploadProfileImage(
 ): Promise<UploadResult> {
   const key = generateKey("avatars", filename);
   const url = await uploadToR2(buffer, key, contentType, "profiles");
-  return { key, url, bucket: PROFILES_BUCKET };
+  return { key, url, bucket: BUCKET_NAME };
 }
 
 
@@ -150,7 +130,7 @@ export async function uploadBannerImage(
 ): Promise<UploadResult> {
   const key = generateKey("banners", filename);
   const url = await uploadToR2(buffer, key, contentType, "assets");
-  return { key, url, bucket: ASSETS_BUCKET };
+  return { key, url, bucket: BUCKET_NAME };
 }
 
 
@@ -161,7 +141,7 @@ export async function uploadCategoryImage(
 ): Promise<UploadResult> {
   const key = generateKey("categories", filename);
   const url = await uploadToR2(buffer, key, contentType, "assets");
-  return { key, url, bucket: ASSETS_BUCKET };
+  return { key, url, bucket: BUCKET_NAME };
 }
 
 

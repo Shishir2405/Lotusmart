@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { RiHeartLine, RiHeartFill, RiShoppingCartLine, RiStarFill } from "react-icons/ri";
 import { useCartStore } from "@/store/cart.store";
 import { useWishlistStore } from "@/store/wishlist.store";
-import { formatCurrency, calculateDiscount } from "@/utils/helpers";
+import { formatCurrency, calculateDiscount, normalizeImageUrl } from "@/utils/helpers";
 import toast from "@/components/ui/toast";
 import { cn } from "@/utils/helpers";
 
@@ -84,7 +84,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
           <div className="relative aspect-square overflow-hidden bg-[#F7F6F0]">
             {!imgError && product.images?.[0] ? (
               <Image
-                src={product.images[0]}
+                src={normalizeImageUrl(product.images[0])}
                 alt={product.name}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-500"

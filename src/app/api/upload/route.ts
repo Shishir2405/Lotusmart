@@ -8,19 +8,32 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "im
 const MAX_SIZE_BYTES = 5 * 1024 * 1024; 
 const VALID_TARGETS: UploadTarget[] = ["products", "banners", "categories", "profiles"];
 
+// Frontend may send singular form — map to plural
+const TARGET_ALIASES: Record<string, UploadTarget> = {
+  product: "products",
+  banner: "banners",
+  category: "categories",
+  profile: "profiles",
+  products: "products",
+  banners: "banners",
+  categories: "categories",
+  profiles: "profiles",
+};
+
 export async function POST(req: NextRequest) {
   try {
     await requireAuth(req);
 
     const formData = await req.formData();
     const file = formData.get("file");
-    const target = (formData.get("target") as UploadTarget) ?? "products";
+    const rawTarget = (formData.get("target") as string) ?? "products";
+    const target = TARGET_ALIASES[rawTarget];
 
     if (!file || !(file instanceof Blob)) {
       throw ApiError.badRequest("No file provided");
     }
 
-    if (!VALID_TARGETS.includes(target)) {
+    if (!target || !VALID_TARGETS.includes(target)) {
       throw ApiError.badRequest(`Invalid target. Must be one of: ${VALID_TARGETS.join(", ")}`);
     }
 
@@ -38,7 +51,7 @@ export async function POST(req: NextRequest) {
     const result = await uploadFile(target, file, originalName, file.type);
 
     return successResponse(
-      { url: result.url, key: result.key, bucket: result.bucket },
+      { url: result.url, key: result.key },
       "File uploaded successfully",
       201,
     );

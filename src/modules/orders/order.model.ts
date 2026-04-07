@@ -68,7 +68,7 @@ const OrderSchema = new Schema<IOrderDocument>(
     billingAddress: { type: AddressSubSchema },
     paymentMethod: {
       type: String,
-      enum: ["cod", "razorpay"] satisfies PaymentMethod[],
+      enum: ["razorpay"] satisfies PaymentMethod[],
       required: true,
     },
     paymentStatus: {
@@ -100,8 +100,10 @@ const OrderSchema = new Schema<IOrderDocument>(
     total: { type: Number, required: true, min: 0 },
     notes: { type: String, maxlength: 1000 },
     trackingNumber: { type: String },
-    shiprocketOrderId: { type: String },
-    shiprocketShipmentId: { type: String },
+    shipmozoOrderId: { type: String },
+    shipmozoReferenceId: { type: String },
+    awbNumber: { type: String },
+    courierCompany: { type: String },
     estimatedDelivery: { type: Date },
     deliveredAt: { type: Date },
     cancelledAt: { type: Date },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Variants } from "framer-motion";
@@ -19,17 +19,10 @@ import {
   RiCheckLine,
 } from "react-icons/ri";
 import { useContactInfo } from "@/hooks/useContactInfo";
+import axios from "axios";
 
 
-const footerLinks = {
-  Shop: [
-    { label: "All Products", href: "/products" },
-    { label: "Spices", href: "/categories/spices" },
-    { label: "Dry Fruits", href: "/categories/dry-fruits" },
-    { label: "Gift Boxes", href: "/categories/gift-boxes" },
-    { label: "New Arrivals", href: "/products?sortBy=newest" },
-    { label: "Best Sellers", href: "/products?sortBy=popular" },
-  ],
+const staticLinks = {
   "Quick Links": [
     { label: "About Us", href: "/about" },
     { label: "Contact Us", href: "/contact" },
@@ -103,6 +96,26 @@ export function Footer() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [focused, setFocused] = useState(false);
+  const [shopLinks, setShopLinks] = useState([
+    { label: "All Products", href: "/products" },
+  ]);
+
+  useEffect(() => {
+    axios
+      .get<{ data: { name: string; slug: string }[] }>("/api/categories")
+      .then((r) => {
+        const cats = (r.data.data ?? []).map((c) => ({
+          label: c.name,
+          href: `/categories/${c.slug}`,
+        }));
+        setShopLinks([
+          { label: "All Products", href: "/products" },
+          ...cats,
+          { label: "New Arrivals", href: "/products?sortBy=newest" },
+        ]);
+      })
+      .catch(() => null);
+  }, []);
 
   const footerContactItems = contact
     ? [
@@ -319,7 +332,7 @@ export function Footer() {
           </motion.div>
 
           
-          {Object.entries(footerLinks).map(([title, links]) => (
+          {Object.entries({ Shop: shopLinks, ...staticLinks }).map(([title, links]) => (
             <motion.div key={title} variants={itemVariants}>
               <h4
                 className="mb-5 text-[0.7rem] font-bold tracking-widest uppercase"

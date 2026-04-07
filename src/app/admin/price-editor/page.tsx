@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { formatCurrency, formatRelativeTime } from "@/utils/helpers";
+import { formatCurrency, formatRelativeTime, normalizeImageUrl } from "@/utils/helpers";
 import { useDebounce } from "@/hooks/useDebounce";
 import axios from "axios";
 import toast from "@/components/ui/toast";
@@ -643,7 +643,7 @@ export default function QuickPriceEditorPage() {
                             <div className="w-10 h-10 rounded-lg bg-[#F7F6F0] overflow-hidden shrink-0">
                               {product.images?.[0] ? (
                                 <Image
-                                  src={product.images[0]}
+                                  src={normalizeImageUrl(product.images[0])}
                                   alt={product.name}
                                   width={40}
                                   height={40}

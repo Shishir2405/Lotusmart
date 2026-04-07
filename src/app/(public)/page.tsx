@@ -10,9 +10,12 @@ import { DynamicLandingSections } from "@/components/shared/DynamicLandingSectio
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "LotusMart — Premium Spices, Dry Fruits & Gift Boxes",
+  title: "LotusMart — Premium Spices, Dry Fruits & Gift Boxes | Buy Online India",
   description:
-    "Shop the finest quality spices, dry fruits, and curated gift boxes at LotusMart. Fresh, authentic, and delivered to your door.",
+    "Shop the finest quality spices, dry fruits, and curated gift boxes at LotusMart. FSSAI certified, farm-fresh whole spices, organic masalas, almonds, cashews, pistachios, and beautifully packed gift hampers. Free delivery across India on orders above ₹499.",
+  alternates: {
+    canonical: "https://lotusmart.in",
+  },
 };
 
 async function getLandingSections() {

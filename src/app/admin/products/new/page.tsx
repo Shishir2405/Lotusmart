@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/Input";
 import dynamic from "next/dynamic";
 import axios from "axios";
 import toast from "@/components/ui/toast";
+import { normalizeImageUrl } from "@/utils/helpers";
 import hsnCodesData from "@/data/hsn-codes.json";
 import skuCodesData from "@/data/sku-codes.json";
 
@@ -164,7 +165,13 @@ export default function NewProductPage() {
         const res = await axios.post<{ data: { url: string } }>("/api/upload", fd);
         setImages((prev) => [...prev, res.data.data.url]);
       }
-    } catch { toast.error("Image upload failed"); }
+    } catch (err) {
+      toast.error(
+        axios.isAxiosError(err)
+          ? (err.response?.data?.message ?? "Image upload failed")
+          : "Image upload failed",
+      );
+    }
     finally { setUploading(false); e.target.value = ""; }
   };
 
@@ -295,7 +302,7 @@ export default function NewProductPage() {
               {images.map((url, i) => (
                 <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border border-neutral-200 group">
                   
-                  <img src={url} alt="" className="w-full h-full object-cover" />
+                  <img src={normalizeImageUrl(url)} alt="" className="w-full h-full object-cover" />
                   <button type="button" onClick={() => setImages((p) => p.filter((_, idx) => idx !== i))} className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <RiDeleteBinLine className="text-white" size={16} />
                   </button>

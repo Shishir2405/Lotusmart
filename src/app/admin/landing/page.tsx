@@ -28,6 +28,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Modal } from "@/components/ui/Modal";
 import axios from "axios";
 import toast from "@/components/ui/toast";
+import { normalizeImageUrl } from "@/utils/helpers";
 
 
 type SectionType =
@@ -922,7 +923,7 @@ export default function AdminLandingPage() {
                       >
                         {cat.image && (
                           <img
-                            src={cat.image}
+                            src={normalizeImageUrl(cat.image)}
                             alt=""
                             className="w-6 h-6 rounded object-cover shrink-0"
                           />
@@ -989,7 +990,7 @@ export default function AdminLandingPage() {
                         >
                           {p.images?.[0] && (
                             <img
-                              src={p.images[0]}
+                              src={normalizeImageUrl(p.images[0])}
                               alt=""
                               className="w-8 h-8 rounded object-cover shrink-0"
                             />
@@ -1023,7 +1024,7 @@ export default function AdminLandingPage() {
                     >
                       {p.images?.[0] && (
                         <img
-                          src={p.images[0]}
+                          src={normalizeImageUrl(p.images[0])}
                           alt=""
                           className="w-5 h-5 rounded object-cover"
                         />

@@ -18,6 +18,7 @@ import {
   RiPagesLine,
   RiStackLine,
   RiShieldUserLine,
+  RiArticleLine,
 } from "react-icons/ri";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthStore } from "@/store/auth.store";
@@ -53,6 +54,7 @@ const navGroups = [
     items: [
       { href: "/admin/landing", label: "Landing Page", icon: RiLayoutLine, permission: "landing_page" },
       { href: "/admin/banners", label: "Banners", icon: RiImageLine, permission: "banners" },
+      { href: "/admin/blog", label: "Blog", icon: RiArticleLine, permission: "blog" },
       { href: "/admin/site-settings", label: "Site Content", icon: RiPagesLine, permission: "site_settings" },
     ],
   },

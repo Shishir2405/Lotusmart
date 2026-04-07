@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { RiArrowRightLine, RiLeafLine } from "react-icons/ri";
+import { normalizeImageUrl } from "@/utils/helpers";
 
 
 const categories = [
@@ -160,7 +161,7 @@ export function CategoryGrid() {
                 
                 <div className="absolute inset-0">
                   <Image
-                    src={cat.image}
+                    src={normalizeImageUrl(cat.image)}
                     alt={cat.name}
                     fill
                     className="object-cover transition-transform duration-700"
@@ -343,7 +344,7 @@ export function CategoryGrid() {
                   className="relative h-40 cursor-pointer overflow-hidden rounded-2xl"
                 >
                   <Image
-                    src={cat.image}
+                    src={normalizeImageUrl(cat.image)}
                     alt={cat.name}
                     fill
                     className="object-cover"

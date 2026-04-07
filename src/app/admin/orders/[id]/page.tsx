@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -12,6 +12,11 @@ import {
   RiPhoneLine,
   RiMailLine,
   RiFileTextLine,
+  RiSendPlaneLine,
+  RiDownloadLine,
+  RiCloseLine,
+  RiBuilding2Line,
+  RiPrinterLine,
 } from "react-icons/ri";
 import { OrderStatusBadge, PaymentStatusBadge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -24,6 +29,18 @@ interface TrackingEvent {
   date: string;
   activity: string;
   location: string;
+}
+
+interface Warehouse {
+  id: number;
+  default: string;
+  address_title: string;
+  name: string;
+  phone: string;
+  pincode: string;
+  city: string;
+  state: string;
+  status: string;
 }
 
 interface OrderDetail {
@@ -48,8 +65,10 @@ interface OrderDetail {
   razorpayOrderId?: string;
   razorpayPaymentId?: string;
   trackingNumber?: string;
-  shiprocketOrderId?: string;
-  shiprocketShipmentId?: string;
+  shipmozoOrderId?: string;
+  shipmozoReferenceId?: string;
+  awbNumber?: string;
+  courierCompany?: string;
   estimatedDelivery?: string;
   deliveredAt?: string;
   cancelledAt?: string;
@@ -78,6 +97,16 @@ export default function AdminOrderDetailPage() {
   const [trackingLoading, setTrackingLoading] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [newStatus, setNewStatus] = useState("");
+  const [pushingOrder, setPushingOrder] = useState(false);
+  const [assigningCourier, setAssigningCourier] = useState(false);
+  const [schedulingPickup, setSchedulingPickup] = useState(false);
+  const [labelLoading, setLabelLoading] = useState(false);
+  const [cancellingShipment, setCancellingShipment] = useState(false);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState<string>("");
+  const [warehousesLoading, setWarehousesLoading] = useState(false);
+  const [labelData, setLabelData] = useState<string | null>(null);
+  const [showLabelPreview, setShowLabelPreview] = useState(false);
 
   useEffect(() => {
     axios
@@ -90,25 +119,106 @@ export default function AdminOrderDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const fetchTracking = async () => {
-    if (!order?.shiprocketShipmentId && !order?.trackingNumber) {
-      toast.error("No shipment ID or tracking number available");
+  const fetchTracking = useCallback(async () => {
+    if (!order?.awbNumber && !order?.trackingNumber) {
+      toast.error("No AWB number available for tracking");
       return;
     }
     setTrackingLoading(true);
     try {
-      const params = order.shiprocketShipmentId
-        ? `?shipmentId=${order.shiprocketShipmentId}`
-        : `?awb=${order.trackingNumber}`;
-      const res = await axios.get<{ data: { tracking_data?: { shipment_track_activities?: TrackingEvent[] } } }>(
-        `/api/shipping/track${params}`
-      );
-      const activities = res.data.data?.tracking_data?.shipment_track_activities ?? [];
-      setTracking(activities);
+      const awb = order.awbNumber || order.trackingNumber;
+      const res = await axios.get(`/api/shipping/track?awb=${awb}`);
+      const data = res.data?.data;
+      const scanDetails = data?.scan_detail ?? [];
+      setTracking(scanDetails);
     } catch {
       toast.error("Could not fetch tracking info");
     } finally {
       setTrackingLoading(false);
+    }
+  }, [order?.awbNumber, order?.trackingNumber]);
+
+  // Fetch warehouses on mount
+  useEffect(() => {
+    setWarehousesLoading(true);
+    axios
+      .get<{ data: Warehouse[] }>("/api/shipping/warehouses")
+      .then((r) => {
+        const whs = r.data?.data ?? [];
+        setWarehouses(whs);
+        const def = whs.find((w) => w.default === "YES");
+        if (def) setSelectedWarehouseId(String(def.id));
+        else if (whs[0]) setSelectedWarehouseId(String(whs[0].id));
+      })
+      .catch(() => null)
+      .finally(() => setWarehousesLoading(false));
+  }, []);
+
+  const handleCancelShipment = async () => {
+    if (!confirm("Are you sure you want to cancel this shipment?")) return;
+    setCancellingShipment(true);
+    try {
+      const res = await axios.post("/api/shipping/cancel", { orderId: id });
+      setOrder((prev) =>
+        prev ? { ...prev, orderStatus: "cancelled", cancelledAt: new Date().toISOString() } : prev,
+      );
+      toast.success(res.data?.message || "Shipment cancelled");
+    } catch (err) {
+      toast.error(
+        axios.isAxiosError(err)
+          ? (err.response?.data?.message ?? "Failed to cancel shipment")
+          : "Failed to cancel shipment",
+      );
+    } finally {
+      setCancellingShipment(false);
+    }
+  };
+
+  const handleGetLabel = async () => {
+    const awb = order?.awbNumber || order?.trackingNumber;
+    if (!awb) {
+      toast.error("No AWB number available");
+      return;
+    }
+    setLabelLoading(true);
+    try {
+      const res = await axios.get(`/api/shipping/label?awb=${awb}`);
+      const labels = res.data?.data;
+      if (labels?.[0]?.label) {
+        setLabelData(labels[0].label);
+        setShowLabelPreview(true);
+        toast.success("Label loaded");
+      } else {
+        toast.error("No label available");
+      }
+    } catch {
+      toast.error("Failed to get label");
+    } finally {
+      setLabelLoading(false);
+    }
+  };
+
+  const handleDownloadLabel = () => {
+    if (!labelData) return;
+    const link = document.createElement("a");
+    link.href = labelData;
+    link.download = `label-${order?.awbNumber || order?.trackingNumber}.png`;
+    link.click();
+  };
+
+  const handlePrintLabel = () => {
+    if (!labelData) return;
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head><title>Shipping Label - ${order?.awbNumber || order?.trackingNumber}</title></head>
+          <body style="margin:0; display:flex; justify-content:center; align-items:center;">
+            <img src="${labelData}" style="max-width:100%; height:auto;" onload="window.print(); window.close();" />
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
     }
   };
 
@@ -123,6 +233,95 @@ export default function AdminOrderDetailPage() {
       toast.error("Failed to update status");
     } finally {
       setUpdatingStatus(false);
+    }
+  };
+
+  const handlePushOrder = async () => {
+    setPushingOrder(true);
+    try {
+      const res = await axios.post("/api/shipping/push-order", {
+        orderId: id,
+        warehouse_id: selectedWarehouseId || "",
+      });
+      const data = res.data?.data;
+      setOrder((prev) =>
+        prev
+          ? {
+              ...prev,
+              shipmozoOrderId: data.order_id,
+              shipmozoReferenceId: data.reference_id,
+              orderStatus: prev.orderStatus === "placed" ? "confirmed" : prev.orderStatus,
+            }
+          : prev,
+      );
+      toast.success("Order pushed to Shipmozo");
+    } catch (err) {
+      toast.error(
+        axios.isAxiosError(err)
+          ? (err.response?.data?.message ?? "Failed to push order")
+          : "Failed to push order",
+      );
+    } finally {
+      setPushingOrder(false);
+    }
+  };
+
+  const handleAutoAssign = async () => {
+    setAssigningCourier(true);
+    try {
+      const res = await axios.post("/api/shipping/assign-courier", {
+        orderId: id,
+        auto: true,
+      });
+      const data = res.data?.data;
+      setOrder((prev) =>
+        prev
+          ? {
+              ...prev,
+              awbNumber: data.awb_number,
+              trackingNumber: data.awb_number,
+              courierCompany: data.courier_company,
+              orderStatus: "processing",
+            }
+          : prev,
+      );
+      toast.success(`Courier assigned: ${data.courier_company}`);
+    } catch (err) {
+      toast.error(
+        axios.isAxiosError(err)
+          ? (err.response?.data?.message ?? "Failed to assign courier")
+          : "Failed to assign courier",
+      );
+    } finally {
+      setAssigningCourier(false);
+    }
+  };
+
+  const handleSchedulePickup = async () => {
+    setSchedulingPickup(true);
+    try {
+      const res = await axios.post("/api/shipping/schedule-pickup", { orderId: id });
+      const data = res.data?.data;
+      setOrder((prev) =>
+        prev
+          ? {
+              ...prev,
+              awbNumber: data.awb_number,
+              trackingNumber: data.awb_number,
+              courierCompany: data.courier,
+              orderStatus: "shipped",
+            }
+          : prev,
+      );
+      toast.success("Pickup scheduled successfully");
+    } catch (err) {
+      toast.error(
+        axios.isAxiosError(err)
+          ? (err.response?.data?.message ?? "Failed to schedule pickup")
+          : "Failed to schedule pickup",
+      );
+    } finally {
+      setSchedulingPickup(false);
     }
   };
 
@@ -159,7 +358,6 @@ export default function AdminOrderDetailPage() {
 
   return (
     <div className="p-8">
-      
       <Link
         href="/admin/orders"
         className="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-800 transition-colors mb-5"
@@ -180,9 +378,8 @@ export default function AdminOrderDetailPage() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-5">
-        
         <div className="lg:col-span-2 space-y-5">
-          
+          {/* Order Progress */}
           {!isCancelled && (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
@@ -212,12 +409,17 @@ export default function AdminOrderDetailPage() {
                 ))}
               </div>
 
-              {order.trackingNumber && (
+              {(order.awbNumber || order.trackingNumber) && (
                 <div className="mt-5 pt-4 border-t border-[#EBE8D8] flex items-center gap-2 text-sm">
                   <RiTruckLine className="text-[#E84672] shrink-0" size={16} />
                   <span className="text-neutral-600">
-                    AWB: <strong className="text-neutral-800">{order.trackingNumber}</strong>
+                    AWB: <strong className="text-neutral-800">{order.awbNumber || order.trackingNumber}</strong>
                   </span>
+                  {order.courierCompany && (
+                    <span className="text-xs text-neutral-400">
+                      via {order.courierCompany}
+                    </span>
+                  )}
                   {order.estimatedDelivery && (
                     <span className="ml-auto text-xs text-neutral-400 shrink-0">
                       Est. delivery: {formatDate(order.estimatedDelivery)}
@@ -228,7 +430,7 @@ export default function AdminOrderDetailPage() {
             </motion.div>
           )}
 
-          
+          {/* Items */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -242,7 +444,7 @@ export default function AdminOrderDetailPage() {
                   <div>
                     <p className="font-medium text-neutral-800">{item.name}</p>
                     {item.variant && <p className="text-xs text-neutral-400 mt-0.5">{item.variant}</p>}
-                    <p className="text-xs text-neutral-400 mt-0.5">× {item.quantity}</p>
+                    <p className="text-xs text-neutral-400 mt-0.5">x {item.quantity}</p>
                   </div>
                   <span className="font-semibold text-neutral-800">
                     {formatCurrency(item.price * item.quantity)}
@@ -275,7 +477,149 @@ export default function AdminOrderDetailPage() {
             </div>
           </motion.div>
 
-          
+          {/* Shipmozo Actions */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 }}
+            className="bg-white rounded-2xl p-5 border border-neutral-100"
+          >
+            <h2 className="font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+              <RiSendPlaneLine className="text-[#E84672]" size={18} />
+              Shipping Management
+            </h2>
+
+            {order.shipmozoOrderId && (
+              <div className="text-xs text-neutral-400 mb-4 space-y-0.5 bg-neutral-50 rounded-xl p-3">
+                <p>Shipmozo Order: <span className="font-mono text-neutral-600">{order.shipmozoOrderId}</span></p>
+                {order.shipmozoReferenceId && <p>Reference: <span className="font-mono text-neutral-600">{order.shipmozoReferenceId}</span></p>}
+                {order.courierCompany && <p>Courier: <span className="font-mono text-neutral-600">{order.courierCompany}</span></p>}
+                {order.awbNumber && <p>AWB: <span className="font-mono text-neutral-600">{order.awbNumber}</span></p>}
+              </div>
+            )}
+
+            {/* Warehouse Selector */}
+            {!order.shipmozoOrderId && (
+              <div className="mb-4">
+                <label className="text-xs font-medium text-neutral-600 mb-1.5 flex items-center gap-1.5">
+                  <RiBuilding2Line size={13} /> Select Warehouse
+                </label>
+                {warehousesLoading ? (
+                  <div className="h-10 bg-neutral-100 rounded-xl animate-pulse" />
+                ) : warehouses.length > 0 ? (
+                  <select
+                    value={selectedWarehouseId}
+                    onChange={(e) => setSelectedWarehouseId(e.target.value)}
+                    className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#E84672] bg-white"
+                  >
+                    {warehouses.map((wh) => (
+                      <option key={wh.id} value={String(wh.id)}>
+                        {wh.address_title} — {wh.city}, {wh.pincode} {wh.default === "YES" ? "(Default)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <p className="text-xs text-amber-600 bg-amber-50 rounded-xl px-3 py-2">
+                    No warehouses found. Create one from the Warehouses section below.
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-3">
+              {/* Step 1: Push Order */}
+              <Button
+                size="sm"
+                variant={order.shipmozoOrderId ? "outline" : "primary"}
+                onClick={handlePushOrder}
+                isLoading={pushingOrder}
+                disabled={!!order.shipmozoOrderId}
+                fullWidth
+              >
+                {order.shipmozoOrderId ? "Pushed" : "Push to Shipmozo"}
+              </Button>
+
+              {/* Step 2: Auto-assign Courier */}
+              <Button
+                size="sm"
+                variant={order.awbNumber ? "outline" : "primary"}
+                onClick={handleAutoAssign}
+                isLoading={assigningCourier}
+                disabled={!order.shipmozoOrderId || !!order.awbNumber}
+                fullWidth
+              >
+                {order.awbNumber ? "Assigned" : "Auto-Assign Courier"}
+              </Button>
+
+              {/* Step 3: Schedule Pickup */}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleSchedulePickup}
+                isLoading={schedulingPickup}
+                disabled={!order.shipmozoOrderId}
+                fullWidth
+              >
+                Schedule Pickup
+              </Button>
+
+              {/* Step 4: Get Label */}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleGetLabel}
+                isLoading={labelLoading}
+                disabled={!order.awbNumber && !order.trackingNumber}
+                fullWidth
+              >
+                <RiDownloadLine size={14} className="mr-1" />
+                Get Label
+              </Button>
+
+              {/* Step 5: Cancel Shipment */}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleCancelShipment}
+                isLoading={cancellingShipment}
+                disabled={!order.shipmozoOrderId || !order.awbNumber || order.orderStatus === "cancelled"}
+                fullWidth
+                className="!border-red-200 !text-red-600 hover:!bg-red-50"
+              >
+                <RiCloseLine size={14} className="mr-1" />
+                Cancel Shipment
+              </Button>
+            </div>
+
+            {/* Label Preview & Print */}
+            {showLabelPreview && labelData && (
+              <div className="mt-4 pt-4 border-t border-neutral-100">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold text-neutral-700">Shipping Label</h3>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={handlePrintLabel}>
+                      <RiPrinterLine size={14} className="mr-1" /> Print
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={handleDownloadLabel}>
+                      <RiDownloadLine size={14} className="mr-1" /> Download
+                    </Button>
+                    <button
+                      onClick={() => setShowLabelPreview(false)}
+                      className="text-neutral-400 hover:text-neutral-600 transition-colors p-1"
+                    >
+                      <RiCloseLine size={16} />
+                    </button>
+                  </div>
+                </div>
+                <div className="border border-neutral-200 rounded-xl overflow-hidden bg-white">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={labelData} alt="Shipping Label" className="w-full h-auto" />
+                </div>
+              </div>
+            )}
+          </motion.div>
+
+          {/* Shipment Tracking */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -292,17 +636,11 @@ export default function AdminOrderDetailPage() {
                 variant="outline"
                 onClick={fetchTracking}
                 isLoading={trackingLoading}
+                disabled={!order.awbNumber && !order.trackingNumber}
               >
                 {tracking ? "Refresh" : "Fetch Tracking"}
               </Button>
             </div>
-
-            {order.shiprocketOrderId && (
-              <div className="text-xs text-neutral-400 mb-3 space-y-0.5">
-                {order.shiprocketOrderId && <p>Shiprocket Order: <span className="font-mono text-neutral-600">{order.shiprocketOrderId}</span></p>}
-                {order.shiprocketShipmentId && <p>Shipment ID: <span className="font-mono text-neutral-600">{order.shiprocketShipmentId}</span></p>}
-              </div>
-            )}
 
             {tracking === null && !trackingLoading && (
               <p className="text-sm text-neutral-400 text-center py-6">
@@ -333,9 +671,9 @@ export default function AdminOrderDetailPage() {
           </motion.div>
         </div>
 
-        
+        {/* Right Sidebar */}
         <div className="space-y-5">
-          
+          {/* Update Status */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -364,7 +702,7 @@ export default function AdminOrderDetailPage() {
             )}
           </motion.div>
 
-          
+          {/* Customer */}
           {order.user && (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
@@ -395,7 +733,7 @@ export default function AdminOrderDetailPage() {
             </motion.div>
           )}
 
-          
+          {/* Shipping Address */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -416,7 +754,7 @@ export default function AdminOrderDetailPage() {
             <p className="text-xs text-neutral-400 mt-1">{order.shippingAddress.phone}</p>
           </motion.div>
 
-          
+          {/* Payment */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}

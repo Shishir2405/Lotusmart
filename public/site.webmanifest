@@ -1,11 +1,15 @@
 {
-  "name": "LotusMart",
+  "name": "LotusMart — Premium Spices, Dry Fruits & Gifting",
   "short_name": "LotusMart",
-  "description": "Premium spices, dry fruits, and curated gift boxes.",
+  "description": "Shop premium quality spices, dry fruits, and curated gift hampers at LotusMart. Farm-fresh, FSSAI certified, delivered across India.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#FFFDF7",
   "theme_color": "#E8567F",
+  "lang": "en-IN",
+  "categories": ["shopping", "food"],
   "icons": [
     {
       "src": "/favicon-32x32.png",
@@ -16,6 +20,18 @@
       "src": "/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

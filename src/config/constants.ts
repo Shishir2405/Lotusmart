@@ -119,11 +119,10 @@ export const ORDER_STATUS_COLORS: Record<OrderStatus, string> = {
 };
 
 
-export const PAYMENT_METHODS = ["cod", "razorpay"] as const;
+export const PAYMENT_METHODS = ["razorpay"] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
-  cod: "Cash on Delivery",
   razorpay: "Razorpay (UPI / Cards / Net Banking)",
 };
 

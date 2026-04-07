@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { RiAddLine, RiEditLine, RiDeleteBinLine, RiSearchLine } from "react-icons/ri";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { formatCurrency } from "@/utils/helpers";
+import { formatCurrency, normalizeImageUrl } from "@/utils/helpers";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useDebounce } from "@/hooks/useDebounce";
 import axios from "axios";
@@ -124,7 +124,7 @@ export default function AdminProductsPage() {
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-[#F7F6F0] overflow-hidden shrink-0">
                           {product.images?.[0] ? (
-                            <Image src={product.images[0]} alt={product.name} width={40} height={40} className="object-cover w-full h-full" />
+                            <Image src={normalizeImageUrl(product.images[0])} alt={product.name} width={40} height={40} className="object-cover w-full h-full" />
                           ) : <div className="w-full h-full flex items-center justify-center text-xs text-neutral-300 font-bold">N/A</div>}
                         </div>
                         <div>

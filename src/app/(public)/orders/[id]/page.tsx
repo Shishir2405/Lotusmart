@@ -18,7 +18,7 @@ import {
 import { OrderStatusBadge, PaymentStatusBadge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/Button";
-import { formatCurrency, formatDate } from "@/utils/helpers";
+import { formatCurrency, formatDate, normalizeImageUrl } from "@/utils/helpers";
 import axios from "axios";
 import toast from "@/components/ui/toast";
 
@@ -44,8 +44,10 @@ interface OrderDetail {
   razorpayOrderId?: string;
   razorpayPaymentId?: string;
   trackingNumber?: string;
-  shiprocketOrderId?: string;
-  shiprocketShipmentId?: string;
+  shipmozoOrderId?: string;
+  shipmozoReferenceId?: string;
+  awbNumber?: string;
+  courierCompany?: string;
   estimatedDelivery?: string;
   deliveredAt?: string;
   cancelledAt?: string;
@@ -105,35 +107,32 @@ export default function OrderDetailPage() {
 
   
   useEffect(() => {
-    if (!order?.shiprocketShipmentId && !order?.trackingNumber) return;
+    if (!order?.awbNumber && !order?.trackingNumber) return;
     fetchTracking();
-    
-  }, [order?.shiprocketShipmentId, order?.trackingNumber]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [order?.awbNumber, order?.trackingNumber]);
 
   const fetchTracking = async () => {
     if (!order) return;
+    const awb = order.awbNumber || order.trackingNumber;
+    if (!awb) return;
     setTrackingLoading(true);
     try {
-      const params = order.shiprocketShipmentId
-        ? `shipmentId=${order.shiprocketShipmentId}`
-        : `awb=${order.trackingNumber}`;
-      const res = await axios.get(`/api/shipping/track?${params}`);
+      const res = await axios.get(`/api/shipping/track?awb=${awb}`);
       const data = res.data?.data;
 
-      
-      if (data?.tracking_data?.shipment_track_activities) {
+      if (data?.scan_detail) {
         setTrackingData(
-          
-          data.tracking_data.shipment_track_activities.map((a: any) => ({
+          data.scan_detail.map((a: any) => ({
             date: a.date,
-            status: a["sr-status-label"] ?? a.status,
+            status: data.current_status ?? "",
             activity: a.activity,
             location: a.location ?? "",
           })),
         );
       }
     } catch {
-      
+      // silently fail
     } finally {
       setTrackingLoading(false);
     }
@@ -344,7 +343,7 @@ export default function OrderDetailPage() {
                   <div className="w-16 h-16 rounded-xl bg-[#F7F6F0] overflow-hidden shrink-0">
                     {item.image ? (
                       <Image
-                        src={item.image}
+                        src={normalizeImageUrl(item.image)}
                         alt={item.name}
                         width={64}
                         height={64}

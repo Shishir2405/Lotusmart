@@ -12,6 +12,7 @@ import {
   RiMailSendLine,
   RiCheckLine,
 } from "react-icons/ri";
+import { normalizeImageUrl } from "@/utils/helpers";
 
 
 interface Product {
@@ -59,7 +60,7 @@ function ProductCard({ product }: { product: Product }) {
         <div className="relative aspect-square overflow-hidden bg-neutral-50">
           {product.images?.[0] && (
             <Image
-              src={product.images[0]}
+              src={normalizeImageUrl(product.images[0])}
               alt={product.name}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-105"
