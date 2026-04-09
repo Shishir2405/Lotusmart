@@ -268,7 +268,7 @@ function NewsletterRenderer({ section }: SectionProps) {
     try {
       const res = await fetch("/api/newsletter/subscribe", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-Requested-With": "LotusApp" },
         body: JSON.stringify({ email }),
       });
       if (res.ok) {

@@ -74,21 +74,22 @@ function protectApiRoute(request: NextRequest): NextResponse | null {
   // Allow preflight CORS requests
   if (request.method === "OPTIONS") return null;
 
-  // Check for custom header — browsers don't send this from address bar or <img>/<script> tags
+  const origin = request.headers.get("origin");
+  const referer = request.headers.get("referer");
+  const effectiveOrigin = origin || getOriginFromReferer(referer);
   const requestedWith = request.headers.get("x-requested-with");
+
+  // No origin/referer — server-side render or direct navigation.
+  // Allow: server components need this for internal API calls.
+  if (!effectiveOrigin) return null;
+
+  // Client-side XHR/fetch — require the custom header
   if (requestedWith !== "LotusApp") {
     return blockApiRequest("Forbidden");
   }
 
-  // Validate Origin or Referer
-  const origin = request.headers.get("origin");
-  const referer = request.headers.get("referer");
-  const effectiveOrigin = origin || getOriginFromReferer(referer);
-
-  // In server-side rendering (SSR) calls, origin may be absent — allow if the
-  // custom header is present (already checked above) and there's no origin at all.
-  // This covers Next.js server actions and internal SSR fetches.
-  if (effectiveOrigin && !isAllowedOrigin(effectiveOrigin)) {
+  // Validate origin is from an allowed domain
+  if (!isAllowedOrigin(effectiveOrigin)) {
     return blockApiRequest("Forbidden");
   }
 
