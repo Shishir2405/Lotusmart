@@ -1,12 +1,12 @@
 import { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/auth";
-import { uploadFile, type UploadTarget } from "@/services/r2";
+import { uploadFile, type UploadTarget } from "@/services/cloudinary";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import { ApiError } from "@/lib/api-error";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
 const MAX_SIZE_BYTES = 5 * 1024 * 1024; 
-const VALID_TARGETS: UploadTarget[] = ["products", "banners", "categories", "profiles"];
+const VALID_TARGETS: UploadTarget[] = ["products", "banners", "categories", "profiles", "blog"];
 
 // Frontend may send singular form — map to plural
 const TARGET_ALIASES: Record<string, UploadTarget> = {
@@ -14,6 +14,7 @@ const TARGET_ALIASES: Record<string, UploadTarget> = {
   banner: "banners",
   category: "categories",
   profile: "profiles",
+  blog: "blog",
   products: "products",
   banners: "banners",
   categories: "categories",

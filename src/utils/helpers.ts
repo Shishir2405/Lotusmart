@@ -139,18 +139,10 @@ export function safeJsonParse<T = unknown>(json: string): T | null {
 }
 
 
-/**
- * Rewrites legacy R2 public URLs (pub-*.r2.dev) to the local proxy path
- * so Next.js Image can fetch them without hitting a 401.
- */
-const R2_PUBLIC_RE = /^https?:\/\/pub-[a-f0-9]+\.r2\.dev\//;
-
 export function normalizeImageUrl(url: string | undefined | null): string {
   if (!url) return "";
-  if (R2_PUBLIC_RE.test(url)) {
-    const path = new URL(url).pathname.replace(/^\//, "");
-    return `/api/r2/${path}`;
-  }
+  // Strip legacy R2 proxy paths — these images no longer exist
+  if (url.startsWith("/api/r2/")) return "";
   return url;
 }
 

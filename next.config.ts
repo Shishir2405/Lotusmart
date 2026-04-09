@@ -21,24 +21,10 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
-      // Cloudflare R2 — assets bucket (products, banners, categories)
+      // Cloudinary image CDN
       {
         protocol: "https",
-        hostname: "*.r2.cloudflarestorage.com",
-      },
-      // R2 public dev URLs
-      {
-        protocol: "https",
-        hostname: "pub-*.r2.dev",
-      },
-      // Custom CDN domains (set in env)
-      {
-        protocol: "https",
-        hostname: "assets.lotusmart.com",
-      },
-      {
-        protocol: "https",
-        hostname: "profiles.lotusmart.com",
+        hostname: "res.cloudinary.com",
       },
       // Homepage/category placeholder images
       {
