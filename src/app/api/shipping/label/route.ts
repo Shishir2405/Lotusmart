@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
 
     return successResponse(result.data);
   } catch (err) {
+    console.error("[Shipmozo label]", (err as any)?.response?.data ?? (err as Error).message);
     const e = ApiError.from(err);
     return errorResponse(e.message, e.statusCode);
   }

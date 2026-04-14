@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
 
     return successResponse(result.data, "Pickup scheduled");
   } catch (err) {
+    console.error("[Shipmozo schedule-pickup]", (err as any)?.response?.data ?? (err as Error).message);
     const e = ApiError.from(err);
     return errorResponse(e.message, e.statusCode);
   }

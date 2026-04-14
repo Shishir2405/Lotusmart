@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
 
     return successResponse(result.data, "Courier assigned");
   } catch (err) {
+    console.error("[Shipmozo assign-courier]", (err as any)?.response?.data ?? (err as Error).message);
     const e = ApiError.from(err);
     return errorResponse(e.message, e.statusCode);
   }

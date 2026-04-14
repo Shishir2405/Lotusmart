@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
 
     return successResponse(result.data, "Shipmozo order cancelled");
   } catch (err) {
+    console.error("[Shipmozo cancel]", (err as any)?.response?.data ?? (err as Error).message);
     const e = ApiError.from(err);
     return errorResponse(e.message, e.statusCode);
   }

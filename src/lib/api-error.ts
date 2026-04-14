@@ -65,6 +65,24 @@ export class ApiError extends Error {
   static from(error: unknown): ApiError {
     if (ApiError.isApiError(error)) return error;
 
+    // Extract meaningful error message from Axios errors (e.g. Shipmozo API responses)
+    if (
+      error instanceof Error &&
+      "isAxiosError" in error &&
+      (error as any).isAxiosError
+    ) {
+      const axiosErr = error as any;
+      const responseData = axiosErr.response?.data;
+      const status = axiosErr.response?.status ?? 500;
+      // Shipmozo returns { result, message, data } — prefer its message
+      const message =
+        responseData?.message ||
+        responseData?.error ||
+        (typeof responseData === "string" ? responseData : null) ||
+        axiosErr.message;
+      return new ApiError(message, status);
+    }
+
     if (error instanceof Error) {
       return new ApiError(error.message, 500);
     }

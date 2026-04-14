@@ -19,6 +19,7 @@ import {
   RiStackLine,
   RiShieldUserLine,
   RiArticleLine,
+  RiBuilding2Line,
 } from "react-icons/ri";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthStore } from "@/store/auth.store";
@@ -46,6 +47,7 @@ const navGroups = [
     label: "Sales",
     items: [
       { href: "/admin/orders", label: "Orders", icon: RiListUnordered, permission: "orders" },
+      { href: "/admin/warehouses", label: "Warehouses", icon: RiBuilding2Line, permission: "orders" },
       { href: "/admin/users", label: "Customers", icon: RiUserLine, permission: "customers" },
     ],
   },

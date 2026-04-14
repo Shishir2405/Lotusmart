@@ -15,7 +15,6 @@ import {
   RiSendPlaneLine,
   RiDownloadLine,
   RiCloseLine,
-  RiBuilding2Line,
   RiPrinterLine,
 } from "react-icons/ri";
 import { OrderStatusBadge, PaymentStatusBadge } from "@/components/ui/Badge";
@@ -29,18 +28,6 @@ interface TrackingEvent {
   date: string;
   activity: string;
   location: string;
-}
-
-interface Warehouse {
-  id: number;
-  default: string;
-  address_title: string;
-  name: string;
-  phone: string;
-  pincode: string;
-  city: string;
-  state: string;
-  status: string;
 }
 
 interface OrderDetail {
@@ -102,9 +89,6 @@ export default function AdminOrderDetailPage() {
   const [schedulingPickup, setSchedulingPickup] = useState(false);
   const [labelLoading, setLabelLoading] = useState(false);
   const [cancellingShipment, setCancellingShipment] = useState(false);
-  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-  const [selectedWarehouseId, setSelectedWarehouseId] = useState<string>("");
-  const [warehousesLoading, setWarehousesLoading] = useState(false);
   const [labelData, setLabelData] = useState<string | null>(null);
   const [showLabelPreview, setShowLabelPreview] = useState(false);
 
@@ -137,22 +121,6 @@ export default function AdminOrderDetailPage() {
       setTrackingLoading(false);
     }
   }, [order?.awbNumber, order?.trackingNumber]);
-
-  // Fetch warehouses on mount
-  useEffect(() => {
-    setWarehousesLoading(true);
-    axios
-      .get<{ data: Warehouse[] }>("/api/shipping/warehouses")
-      .then((r) => {
-        const whs = r.data?.data ?? [];
-        setWarehouses(whs);
-        const def = whs.find((w) => w.default === "YES");
-        if (def) setSelectedWarehouseId(String(def.id));
-        else if (whs[0]) setSelectedWarehouseId(String(whs[0].id));
-      })
-      .catch(() => null)
-      .finally(() => setWarehousesLoading(false));
-  }, []);
 
   const handleCancelShipment = async () => {
     if (!confirm("Are you sure you want to cancel this shipment?")) return;
@@ -241,7 +209,6 @@ export default function AdminOrderDetailPage() {
     try {
       const res = await axios.post("/api/shipping/push-order", {
         orderId: id,
-        warehouse_id: selectedWarehouseId || "",
       });
       const data = res.data?.data;
       setOrder((prev) =>
@@ -495,34 +462,6 @@ export default function AdminOrderDetailPage() {
                 {order.shipmozoReferenceId && <p>Reference: <span className="font-mono text-neutral-600">{order.shipmozoReferenceId}</span></p>}
                 {order.courierCompany && <p>Courier: <span className="font-mono text-neutral-600">{order.courierCompany}</span></p>}
                 {order.awbNumber && <p>AWB: <span className="font-mono text-neutral-600">{order.awbNumber}</span></p>}
-              </div>
-            )}
-
-            {/* Warehouse Selector */}
-            {!order.shipmozoOrderId && (
-              <div className="mb-4">
-                <label className="text-xs font-medium text-neutral-600 mb-1.5 flex items-center gap-1.5">
-                  <RiBuilding2Line size={13} /> Select Warehouse
-                </label>
-                {warehousesLoading ? (
-                  <div className="h-10 bg-neutral-100 rounded-xl animate-pulse" />
-                ) : warehouses.length > 0 ? (
-                  <select
-                    value={selectedWarehouseId}
-                    onChange={(e) => setSelectedWarehouseId(e.target.value)}
-                    className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#E84672] bg-white"
-                  >
-                    {warehouses.map((wh) => (
-                      <option key={wh.id} value={String(wh.id)}>
-                        {wh.address_title} — {wh.city}, {wh.pincode} {wh.default === "YES" ? "(Default)" : ""}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <p className="text-xs text-amber-600 bg-amber-50 rounded-xl px-3 py-2">
-                    No warehouses found. Create one from the Warehouses section below.
-                  </p>
-                )}
               </div>
             )}
 

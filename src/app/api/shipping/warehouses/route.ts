@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
 
     return successResponse(result.data);
   } catch (err) {
+    console.error("[Shipmozo get-warehouses]", (err as any)?.response?.data ?? (err as Error).message);
     const e = ApiError.from(err);
     return errorResponse(e.message, e.statusCode);
   }
@@ -48,6 +49,7 @@ export async function POST(request: NextRequest) {
 
     return successResponse(result.data, "Warehouse created");
   } catch (err) {
+    console.error("[Shipmozo create-warehouse]", (err as any)?.response?.data ?? (err as Error).message);
     const e = ApiError.from(err);
     return errorResponse(e.message, e.statusCode);
   }
