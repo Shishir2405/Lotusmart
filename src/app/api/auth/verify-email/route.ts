@@ -6,6 +6,7 @@ import { ApiError } from "@/lib/api-error";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import connectDB from "@/lib/db";
 import { verifyEmail } from "@/modules/auth/auth.service";
+import { sendWelcomeEmail } from "@/services/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,6 +20,8 @@ export async function POST(request: NextRequest) {
     }
 
     const user = await verifyEmail(token);
+
+    sendWelcomeEmail(user.email, user.name).catch(() => null);
 
     return successResponse({ user }, "Email verified successfully");
   } catch (error) {

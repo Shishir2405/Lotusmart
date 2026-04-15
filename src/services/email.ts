@@ -68,8 +68,8 @@ function emailWrapper(content: string): string {
           <tr>
             <td style="background:linear-gradient(135deg,${COLOR.oliveHeading} 0%,${COLOR.oliveLight} 100%);
                        padding:36px 48px;text-align:center;">
-              <h1 style="margin:0;color:#FFF9E8;font-size:30px;font-weight:700;letter-spacing:-0.5px;">
-                🌸 LotusMart
+              <h1 style="margin:0;color:#FFF9E8;font-family:'Playfair Display',Georgia,serif;font-size:30px;font-weight:700;letter-spacing:-0.5px;">
+                LotusMart
               </h1>
               <p style="margin:6px 0 0;color:#FFE0B2;font-size:13px;font-weight:400;letter-spacing:0.3px;">
                 Premium Spices &amp; Dry Fruits
@@ -149,7 +149,7 @@ export async function sendVerificationEmail(
   const url = `${APP_URL}/verify-email?token=${encodeURIComponent(token)}`;
 
   const html = emailWrapper(`
-    <h2 style="margin:0 0 10px;font-size:26px;font-weight:700;color:${COLOR.oliveHeading};">
+    <h2 style="margin:0 0 10px;font-family:'Playfair Display',Georgia,serif;font-size:26px;font-weight:700;color:${COLOR.oliveHeading};">
       Verify Your Email Address
     </h2>
     <p style="margin:0 0 28px;color:${COLOR.textMid};font-size:15px;line-height:1.8;">
@@ -178,7 +178,7 @@ export async function sendPasswordResetEmail(
   const url = `${APP_URL}/reset-password?token=${encodeURIComponent(token)}`;
 
   const html = emailWrapper(`
-    <h2 style="margin:0 0 10px;font-size:26px;font-weight:700;color:${COLOR.oliveHeading};">
+    <h2 style="margin:0 0 10px;font-family:'Playfair Display',Georgia,serif;font-size:26px;font-weight:700;color:${COLOR.oliveHeading};">
       Reset Your Password
     </h2>
     <p style="margin:0 0 28px;color:${COLOR.textMid};font-size:15px;line-height:1.8;">
@@ -205,8 +205,7 @@ export async function sendPasswordResetEmail(
 export async function sendWelcomeEmail(email: string, name: string): Promise<void> {
   const html = emailWrapper(`
     <div style="text-align:center;margin-bottom:36px;">
-      <div style="font-size:56px;line-height:1;margin-bottom:16px;">🌸</div>
-      <h2 style="margin:0 0 10px;font-size:28px;font-weight:700;color:${COLOR.oliveHeading};">
+      <h2 style="margin:0 0 10px;font-family:'Playfair Display',Georgia,serif;font-size:28px;font-weight:700;color:${COLOR.oliveHeading};">
         Welcome to LotusMart!
       </h2>
       <p style="margin:0;color:${COLOR.textMid};font-size:16px;line-height:1.7;">
@@ -289,7 +288,7 @@ export async function sendOrderConfirmationEmail(
     .join("<br/>");
 
   const html = emailWrapper(`
-    <h2 style="margin:0 0 6px;font-size:26px;font-weight:700;color:${COLOR.oliveHeading};">
+    <h2 style="margin:0 0 6px;font-family:'Playfair Display',Georgia,serif;font-size:26px;font-weight:700;color:${COLOR.oliveHeading};">
       Order Confirmed
     </h2>
     <p style="margin:0 0 28px;color:${COLOR.textMid};font-size:15px;line-height:1.7;">
@@ -381,7 +380,7 @@ export async function sendShippingUpdateEmail(
   trackingNumber?: string,
 ): Promise<void> {
   const html = emailWrapper(`
-    <h2 style="margin:0 0 10px;font-size:26px;font-weight:700;color:${COLOR.oliveHeading};">
+    <h2 style="margin:0 0 10px;font-family:'Playfair Display',Georgia,serif;font-size:26px;font-weight:700;color:${COLOR.oliveHeading};">
       Shipping Update
     </h2>
     <p style="margin:0 0 28px;color:${COLOR.textMid};font-size:15px;line-height:1.8;">
@@ -448,7 +447,7 @@ export async function sendAdminNewOrderAlert(order: AdminOrderAlert): Promise<vo
   const methodLabel = order.paymentMethod === "cod" ? "Cash on Delivery" : "Online (Razorpay)";
 
   const html = emailWrapper(`
-    <h2 style="margin:0 0 8px;font-size:24px;font-weight:700;color:${COLOR.oliveHeading};">
+    <h2 style="margin:0 0 8px;font-family:'Playfair Display',Georgia,serif;font-size:24px;font-weight:700;color:${COLOR.oliveHeading};">
       New Order Received
     </h2>
     <p style="margin:0 0 28px;color:${COLOR.textMid};font-size:14px;">

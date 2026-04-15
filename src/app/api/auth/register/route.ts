@@ -7,6 +7,7 @@ import { createdResponse, errorResponse } from "@/lib/api-response";
 import { setAuthCookie } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import { register } from "@/modules/auth/auth.service";
+import { sendVerificationEmail } from "@/services/email";
 import { registerSchema } from "@/utils/validators";
 
 export async function POST(request: NextRequest) {
@@ -26,9 +27,10 @@ export async function POST(request: NextRequest) {
     }
 
     
-    const { user, token } = await register(parsed.data);
+    const { user, token, verificationToken } = await register(parsed.data);
 
-    
+    sendVerificationEmail(user.email, user.name, verificationToken).catch(() => null);
+
     const response = createdResponse(
       { user },
       "Registration successful. Please verify your email.",

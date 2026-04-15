@@ -6,6 +6,7 @@ import { ApiError } from "@/lib/api-error";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import connectDB from "@/lib/db";
 import { forgotPassword } from "@/modules/auth/auth.service";
+import { sendPasswordResetEmail } from "@/services/email";
 import { forgotPasswordSchema } from "@/utils/validators";
 
 export async function POST(request: NextRequest) {
@@ -25,9 +26,12 @@ export async function POST(request: NextRequest) {
     }
 
     
-    await forgotPassword(parsed.data.email);
+    const result = await forgotPassword(parsed.data.email);
 
-    
+    if (result) {
+      sendPasswordResetEmail(result.userEmail, result.userName, result.resetToken).catch(() => null);
+    }
+
     return successResponse(
       null,
       "If an account with that email exists, a password reset link has been sent.",

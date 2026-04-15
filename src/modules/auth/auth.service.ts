@@ -102,7 +102,7 @@ export async function register(data: RegisterInput) {
   
   const token = await signToken(buildTokenPayload(user));
 
-  return { user: toSafeUser(user), token };
+  return { user: toSafeUser(user), token, verificationToken };
 }
 
 
@@ -183,11 +183,10 @@ export async function forgotPassword(email: string) {
   const resetTokenHash = crypto.createHash("sha256").update(resetToken).digest("hex");
 
   user.resetPasswordToken = resetTokenHash;
-  user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); 
+  user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000);
   await user.save();
 
-  
-  return resetToken;
+  return { resetToken, userName: user.name, userEmail: user.email };
 }
 
 
