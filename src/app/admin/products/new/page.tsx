@@ -13,6 +13,8 @@ import {
   RiSearchLine,
   RiCheckLine,
   RiArrowRightLine,
+  RiErrorWarningLine,
+  RiCloseLine,
 } from "react-icons/ri";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -36,6 +38,8 @@ const RichTextEditor = dynamic(
 interface Category {
   _id: string;
   name: string;
+  parent?: string | null;
+  children?: Category[];
 }
 
 interface BulkPriceRow {
@@ -142,6 +146,8 @@ export default function NewProductPage() {
   const [skuSearch, setSkuSearch] = useState("");
   const [skuDropdownOpen, setSkuDropdownOpen] = useState(false);
 
+  const [formIssues, setFormIssues] = useState<{ field: string; step: number; message: string }[]>([]);
+
   const filteredHsnCodes = hsnSearch.length >= 2
     ? HSN_OPTIONS.filter((h) => h.hsn.includes(hsnSearch) || h.product_name.toLowerCase().includes(hsnSearch.toLowerCase())).slice(0, 10)
     : [];
@@ -153,7 +159,42 @@ export default function NewProductPage() {
   const { register, handleSubmit, control, watch, setValue, trigger, formState: { errors } } = useForm<ProductFormValues>({ defaultValues: DEFAULTS, mode: "onChange" });
   const w = watch();
 
-  useEffect(() => { axios.get<{ data: Category[] }>("/api/categories").then((r) => setCategories(r.data.data)).catch(() => null); }, []);
+  useEffect(() => { axios.get<{ data: Category[] }>("/api/categories?includeSubcategories=true").then((r: { data: { data: Category[] } }) => setCategories(r.data.data)).catch(() => null); }, []);
+
+  const [subcategoryModalOpen, setSubcategoryModalOpen] = useState(false);
+  const [newSubcategoryName, setNewSubcategoryName] = useState("");
+  const [creatingSubcategory, setCreatingSubcategory] = useState(false);
+
+  const selectedCategory: Category | undefined = categories.find((c: Category) => c._id === w.category);
+  const subcategoryOptions: Category[] = selectedCategory?.children ?? [];
+
+  const handleCreateSubcategory = async () => {
+    if (!w.category) { toast.error("Please select a Category first"); return; }
+    const trimmed = newSubcategoryName.trim();
+    if (trimmed.length < 2) { toast.error("Subcategory name must be at least 2 characters"); return; }
+    setCreatingSubcategory(true);
+    try {
+      const res = await axios.post<{ data: Category }>("/api/admin/categories", {
+        name: trimmed,
+        parent: w.category,
+        isActive: true,
+      });
+      const created = res.data.data;
+      setCategories((prev: Category[]) => prev.map((c: Category) => (
+        c._id === w.category
+          ? { ...c, children: [...(c.children ?? []), created] }
+          : c
+      )));
+      setValue("subcategory", created._id);
+      setNewSubcategoryName("");
+      setSubcategoryModalOpen(false);
+      toast.success("Subcategory created");
+    } catch (err: unknown) {
+      toast.error(axios.isAxiosError(err) ? (err.response?.data?.message ?? "Failed to create subcategory") : "Failed to create subcategory");
+    } finally {
+      setCreatingSubcategory(false);
+    }
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -204,8 +245,56 @@ export default function NewProductPage() {
   const goNext = async () => { if (!(await validateStep(step))) { toast.error("Please fill all required fields"); return; } setStep((s) => Math.min(s + 1, 4)); };
   const goPrev = () => setStep((s) => Math.max(s - 1, 1));
 
+  const collectIssues = (data: ProductFormValues): { field: string; step: number; message: string }[] => {
+    const issues: { field: string; step: number; message: string }[] = [];
+    if (!data.name || data.name.trim().length < 2) {
+      issues.push({ field: "name", step: 1, message: "Product Name is missing. Go to Step 1 → Basic Information and enter a name (at least 2 characters)." });
+    }
+    if (!images || images.length === 0) {
+      issues.push({ field: "images", step: 1, message: "Product Images are missing. Go to Step 1 → Product Images and upload at least 1 photo. The first photo becomes the main image." });
+    }
+    if (!data.description || data.description.replace(/<[^>]*>/g, "").trim().length < 10) {
+      issues.push({ field: "description", step: 1, message: "Description is too short. Go to Step 1 → Description and write at least 10 characters describing the product." });
+    }
+    if (!data.category) {
+      issues.push({ field: "category", step: 1, message: "Category is not selected. Go to Step 1 → Category and pick one from the dropdown." });
+    }
+    if (!data.sku || data.sku.trim().length === 0) {
+      issues.push({ field: "sku", step: 1, message: "SKU is missing. Go to Step 1 → SKU and enter a unique product code (you can search the suggestions or type your own)." });
+    }
+    const priceNum = Number(data.price);
+    if (!data.price || isNaN(priceNum) || priceNum <= 0) {
+      issues.push({ field: "price", step: 2, message: "Price is missing or invalid. Go to Step 2 → Pricing and enter a selling price greater than 0." });
+    }
+    const stockNum = Number(data.stock);
+    if (data.stock === "" || isNaN(stockNum) || stockNum < 0) {
+      issues.push({ field: "stock", step: 2, message: "Stock quantity is missing. Go to Step 2 → Inventory and enter how many units you have (0 or more)." });
+    }
+    return issues;
+  };
+
+  const mapServerErrorToIssue = (message: string): { field: string; step: number; message: string } => {
+    const m = message.toLowerCase();
+    if (m.includes("name")) return { field: "name", step: 1, message: "Product Name — " + message + ". Go to Step 1 → Basic Information to fix this." };
+    if (m.includes("description")) return { field: "description", step: 1, message: "Description — " + message + ". Go to Step 1 → Description to fix this." };
+    if (m.includes("category")) return { field: "category", step: 1, message: "Category — " + message + ". Go to Step 1 → Category to fix this." };
+    if (m.includes("sku")) return { field: "sku", step: 1, message: "SKU — " + message + ". Go to Step 1 → SKU to fix this." };
+    if (m.includes("image")) return { field: "images", step: 1, message: "Images — " + message + ". Go to Step 1 → Product Images to fix this." };
+    if (m.includes("price")) return { field: "price", step: 2, message: "Price — " + message + ". Go to Step 2 → Pricing to fix this." };
+    if (m.includes("stock")) return { field: "stock", step: 2, message: "Stock — " + message + ". Go to Step 2 → Inventory to fix this." };
+    return { field: "general", step: 1, message: message };
+  };
+
   const onSubmit = async (data: ProductFormValues) => {
-    if (!data.name || !data.price || !data.stock) { toast.error("Name, price and stock are required"); return; }
+    const issues = collectIssues(data);
+    if (issues.length > 0) {
+      setFormIssues(issues);
+      setStep(issues[0].step);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      toast.error(`${issues.length} field${issues.length > 1 ? "s need" : " needs"} attention`);
+      return;
+    }
+    setFormIssues([]);
     setSaving(true);
     try {
       await axios.post("/api/products", {
@@ -259,8 +348,31 @@ export default function NewProductPage() {
       toast.success("Product created");
       router.push("/admin/products");
     } catch (err: unknown) {
-      const msg = axios.isAxiosError(err) ? err.response?.data?.message : "Failed to create product";
-      toast.error(msg ?? "Failed to create product");
+      const serverIssues: { field: string; step: number; message: string }[] = [];
+      let headline = "Failed to create product";
+      if (axios.isAxiosError(err)) {
+        const data = err.response?.data;
+        headline = data?.message ?? headline;
+        const fieldErrors = data?.errors as Record<string, string[]> | undefined;
+        if (fieldErrors && typeof fieldErrors === "object") {
+          for (const [fld, msgs] of Object.entries(fieldErrors)) {
+            if (Array.isArray(msgs)) {
+              for (const m of msgs) {
+                serverIssues.push(mapServerErrorToIssue(`${fld}: ${m}`));
+              }
+            }
+          }
+        }
+        if (serverIssues.length === 0 && headline) {
+          serverIssues.push(mapServerErrorToIssue(headline));
+        }
+      } else {
+        serverIssues.push({ field: "general", step: 1, message: "Something went wrong while saving. Please check your internet connection and try again." });
+      }
+      setFormIssues(serverIssues);
+      if (serverIssues[0]) setStep(serverIssues[0].step);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      toast.error(headline);
     } finally { setSaving(false); }
   };
 
@@ -276,7 +388,57 @@ export default function NewProductPage() {
       </Link>
       <h1 className="text-2xl font-bold text-neutral-900 mb-6">Add New Product</h1>
 
-      
+      {formIssues.length > 0 && (
+        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-5" role="alert">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100">
+              <RiErrorWarningLine className="text-red-600" size={18} />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-semibold text-red-800">
+                    We couldn&apos;t save the product yet
+                  </h3>
+                  <p className="mt-0.5 text-xs text-red-700">
+                    Please fix the {formIssues.length === 1 ? "item" : `${formIssues.length} items`} below, then click <span className="font-semibold">Create Product</span> again.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormIssues([])}
+                  className="text-red-400 hover:text-red-600 transition-colors"
+                  aria-label="Dismiss"
+                >
+                  <RiCloseLine size={18} />
+                </button>
+              </div>
+              <ul className="mt-3 space-y-2">
+                {formIssues.map((iss, idx) => (
+                  <li key={idx} className="flex items-start gap-2 rounded-xl bg-white/70 p-3 text-xs text-red-800 border border-red-100">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                      {idx + 1}
+                    </span>
+                    <div className="flex-1">
+                      <p className="leading-relaxed">{iss.message}</p>
+                      <button
+                        type="button"
+                        onClick={() => { setStep(iss.step); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                        className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-red-600 hover:text-red-800 underline underline-offset-2"
+                      >
+                        Take me to Step {iss.step}
+                        <RiArrowRightLine size={12} />
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       <div className="flex items-center gap-2 mb-8">
         {STEPS.map((s) => (
           <button key={s.id} type="button" onClick={() => s.id < step && setStep(s.id)}
@@ -331,9 +493,39 @@ export default function NewProductPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div><label className={lbl}>Category</label>
-                <select {...register("category")} className={sel}><option value="">No category</option>{categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}</select>
+                <select {...register("category", { onChange: () => setValue("subcategory", "") })} className={sel}><option value="">No category</option>{categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}</select>
               </div>
-              <Input label="Subcategory" {...register("subcategory")} placeholder="e.g. Whole Spices" />
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm font-medium text-neutral-700">Subcategory</label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!w.category) { toast.error("Select a Category first"); return; }
+                      setSubcategoryModalOpen(true);
+                    }}
+                    className="inline-flex items-center gap-1 text-xs font-medium text-[#E84672] hover:text-[#d13a64] transition-colors"
+                  >
+                    <RiAddLine size={14} /> New
+                  </button>
+                </div>
+                <select
+                  {...register("subcategory")}
+                  className={sel}
+                  disabled={!w.category}
+                >
+                  <option value="">
+                    {!w.category
+                      ? "Select a category first"
+                      : subcategoryOptions.length === 0
+                        ? "No subcategories — click New to add one"
+                        : "No subcategory"}
+                  </option>
+                  {subcategoryOptions.map((s) => (
+                    <option key={s._id} value={s._id}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="relative">
@@ -563,6 +755,70 @@ export default function NewProductPage() {
           </div>
         </div>
       </form>
+
+      {subcategoryModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => !creatingSubcategory && setSubcategoryModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-bold text-neutral-900">New Subcategory</h3>
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  Under <span className="font-semibold text-neutral-700">{selectedCategory?.name ?? "—"}</span>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => !creatingSubcategory && setSubcategoryModalOpen(false)}
+                className="text-neutral-400 hover:text-neutral-700 transition-colors"
+                aria-label="Close"
+              >
+                <RiCloseLine size={20} />
+              </button>
+            </div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">
+              Subcategory Name
+            </label>
+            <input
+              type="text"
+              value={newSubcategoryName}
+              onChange={(e) => setNewSubcategoryName(e.target.value)}
+              placeholder="e.g. Cashews"
+              autoFocus
+              className={sel}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") { e.preventDefault(); handleCreateSubcategory(); }
+              }}
+            />
+            <p className="text-xs text-neutral-400 mt-2">
+              This will appear in the Subcategory dropdown for products under {selectedCategory?.name ?? "this category"}.
+            </p>
+            <div className="flex items-center justify-end gap-3 mt-5">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setSubcategoryModalOpen(false)}
+                disabled={creatingSubcategory}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={handleCreateSubcategory}
+                isLoading={creatingSubcategory}
+                leftIcon={<RiAddLine />}
+              >
+                Create
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

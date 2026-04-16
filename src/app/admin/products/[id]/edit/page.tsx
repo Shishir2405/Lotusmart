@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { RiArrowLeftLine, RiUploadLine, RiDeleteBinLine, RiAddLine, RiArrowDownSLine } from "react-icons/ri";
+import { RiArrowLeftLine, RiUploadLine, RiDeleteBinLine, RiAddLine, RiArrowDownSLine, RiCloseLine } from "react-icons/ri";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -14,6 +14,8 @@ import { normalizeImageUrl } from "@/utils/helpers";
 interface Category {
   _id: string;
   name: string;
+  parent?: string | null;
+  children?: Category[];
 }
 
 interface BulkPriceRow {
@@ -167,12 +169,15 @@ export default function EditProductPage() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [bulkPricing, setBulkPricing] = useState<BulkPriceRow[]>([]);
   const [nutritionOpen, setNutritionOpen] = useState(false);
+  const [subcategoryModalOpen, setSubcategoryModalOpen] = useState(false);
+  const [newSubcategoryName, setNewSubcategoryName] = useState("");
+  const [creatingSubcategory, setCreatingSubcategory] = useState(false);
 
   useEffect(() => {
     Promise.all([
       axios.get<{ data: ProductData }>(`/api/products/${id}`),
-      axios.get<{ data: Category[] }>("/api/categories"),
-    ]).then(([pRes, cRes]) => {
+      axios.get<{ data: Category[] }>("/api/categories?includeSubcategories=true"),
+    ]).then(([pRes, cRes]: [{ data: { data: ProductData } }, { data: { data: Category[] } }]) => {
       const p = pRes.data.data;
       const catId = typeof p.category === "object" && p.category ? (p.category as { _id: string })._id : p.category ?? "";
       const ni = p.nutritionInfo ?? {};
@@ -317,6 +322,34 @@ export default function EditProductPage() {
         ? f.certifications.filter((c) => c !== cert)
         : [...f.certifications, cert],
     }));
+  };
+
+  const handleCreateSubcategory = async () => {
+    if (!form.category) { toast.error("Please select a Category first"); return; }
+    const trimmed = newSubcategoryName.trim();
+    if (trimmed.length < 2) { toast.error("Subcategory name must be at least 2 characters"); return; }
+    setCreatingSubcategory(true);
+    try {
+      const res = await axios.post<{ data: Category }>("/api/admin/categories", {
+        name: trimmed,
+        parent: form.category,
+        isActive: true,
+      });
+      const created = res.data.data;
+      setCategories((prev) => prev.map((c) => (
+        c._id === form.category
+          ? { ...c, children: [...(c.children ?? []), created] }
+          : c
+      )));
+      setForm((f) => ({ ...f, subcategory: created._id }));
+      setNewSubcategoryName("");
+      setSubcategoryModalOpen(false);
+      toast.success("Subcategory created");
+    } catch (err: unknown) {
+      toast.error(axios.isAxiosError(err) ? (err.response?.data?.message ?? "Failed to create subcategory") : "Failed to create subcategory");
+    } finally {
+      setCreatingSubcategory(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -472,12 +505,57 @@ export default function EditProductPage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Category</label>
-              <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} className={selectClass}>
+              <select
+                value={form.category}
+                onChange={(e) => setForm((f) => ({ ...f, category: e.target.value, subcategory: "" }))}
+                className={selectClass}
+              >
                 <option value="">No category</option>
                 {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
               </select>
             </div>
-            <Input label="Subcategory" value={form.subcategory} onChange={(e) => setForm((f) => ({ ...f, subcategory: e.target.value }))} placeholder="e.g. Whole Spices" />
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-sm font-medium text-neutral-700">Subcategory</label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!form.category) { toast.error("Select a Category first"); return; }
+                    setSubcategoryModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1 text-xs font-medium text-[#E84672] hover:text-[#d13a64] transition-colors"
+                >
+                  <RiAddLine size={14} /> New
+                </button>
+              </div>
+              <select
+                value={form.subcategory}
+                onChange={(e) => setForm((f) => ({ ...f, subcategory: e.target.value }))}
+                className={selectClass}
+                disabled={!form.category}
+              >
+                {(() => {
+                  const selected = categories.find((c) => c._id === form.category);
+                  const options = selected?.children ?? [];
+                  const legacyStored = form.subcategory && !options.some((s) => s._id === form.subcategory);
+                  return (
+                    <>
+                      <option value="">
+                        {!form.category
+                          ? "Select a category first"
+                          : options.length === 0
+                            ? "No subcategories — click New to add one"
+                            : "No subcategory"}
+                      </option>
+                      {options.map((s) => <option key={s._id} value={s._id}>{s.name}</option>)}
+                      {legacyStored && (
+                        <option value={form.subcategory}>{form.subcategory} (legacy)</option>
+                      )}
+                    </>
+                  );
+                })()}
+              </select>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Input label="SKU" value={form.sku} onChange={(e) => setForm((f) => ({ ...f, sku: e.target.value }))} />
@@ -723,6 +801,72 @@ export default function EditProductPage() {
           <Link href="/admin/products"><Button variant="outline">Cancel</Button></Link>
         </div>
       </form>
+
+      {subcategoryModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => !creatingSubcategory && setSubcategoryModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-bold text-neutral-900">New Subcategory</h3>
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  Under <span className="font-semibold text-neutral-700">
+                    {categories.find((c) => c._id === form.category)?.name ?? "—"}
+                  </span>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => !creatingSubcategory && setSubcategoryModalOpen(false)}
+                className="text-neutral-400 hover:text-neutral-700 transition-colors"
+                aria-label="Close"
+              >
+                <RiCloseLine size={20} />
+              </button>
+            </div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">
+              Subcategory Name
+            </label>
+            <input
+              type="text"
+              value={newSubcategoryName}
+              onChange={(e) => setNewSubcategoryName(e.target.value)}
+              placeholder="e.g. Cashews"
+              autoFocus
+              className={selectClass}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") { e.preventDefault(); handleCreateSubcategory(); }
+              }}
+            />
+            <p className="text-xs text-neutral-400 mt-2">
+              This will appear in the Subcategory dropdown for products under this category.
+            </p>
+            <div className="flex items-center justify-end gap-3 mt-5">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setSubcategoryModalOpen(false)}
+                disabled={creatingSubcategory}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={handleCreateSubcategory}
+                isLoading={creatingSubcategory}
+                leftIcon={<RiAddLine />}
+              >
+                Create
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

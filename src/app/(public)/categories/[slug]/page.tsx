@@ -62,7 +62,33 @@ export default async function CategoryPage({ params }: PageProps) {
   const category = await Category.findOne({ slug, isActive: true }).lean();
   if (!category) notFound();
 
-  const products = await Product.find({ category: category._id, isActive: true })
+  const descendantIds = new Set<string>([category._id.toString()]);
+  let frontier: typeof category._id[] = [category._id];
+  while (frontier.length) {
+    const kids = await Category.find({ parent: { $in: frontier }, isActive: true })
+      .select("_id")
+      .lean();
+    const next: typeof frontier = [];
+    for (const k of kids) {
+      const s = k._id.toString();
+      if (!descendantIds.has(s)) {
+        descendantIds.add(s);
+        next.push(k._id);
+      }
+    }
+    frontier = next;
+  }
+
+  const categoryIds = Array.from(descendantIds);
+
+  const products = await Product.find({
+    isActive: true,
+    $or: [
+      { category: { $in: categoryIds } },
+      { subcategory: { $in: categoryIds } },
+      { subcategory: { $in: [category.name, category.slug] } },
+    ],
+  })
     .sort({ isFeatured: -1, createdAt: -1 })
     .limit(48)
     .lean();
