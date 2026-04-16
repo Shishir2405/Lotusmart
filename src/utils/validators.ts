@@ -49,7 +49,7 @@ export const registerSchema = z
   .object({
     name: nameField,
     email: emailField,
-    phone: phoneField.optional().or(z.literal("")),
+    phone: phoneField,
     password: passwordField,
     confirmPassword: z.string().min(1, "Please confirm your password"),
   })

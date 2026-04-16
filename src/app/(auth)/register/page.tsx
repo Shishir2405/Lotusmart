@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
 import {
   RiUserLine,
   RiMailLine,
@@ -17,6 +18,8 @@ import {
   RiGiftLine,
   RiHeartLine,
   RiPercentLine,
+  RiPhoneLine,
+  RiErrorWarningLine,
 } from "react-icons/ri";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -223,14 +226,16 @@ function RegisterForm() {
   const callbackUrl = searchParams.get("callbackUrl") ?? "/";
   const { register, isLoading } = useAuth();
 
-  const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirmPassword: "" });
   const [showPwd, setShowPwd] = useState(false);
   const [errors, setErrors] = useState<Partial<typeof form>>({});
   const [focused, setFocused] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((f) => ({ ...f, [k]: e.target.value }));
     if (errors[k]) setErrors((p) => ({ ...p, [k]: undefined }));
+    if (serverError) setServerError(null);
   };
 
   const validate = () => {
@@ -238,6 +243,12 @@ function RegisterForm() {
     if (!form.name.trim()) errs.name = "Full name is required";
     if (!form.email) errs.email = "Email is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = "Enter a valid email";
+    if (!form.phone.trim()) errs.phone = "Mobile number is required";
+    else {
+      const digits = form.phone.replace(/\D/g, "");
+      if (digits.length < 10) errs.phone = "Enter a valid 10-digit mobile number";
+      else if (digits.length > 15) errs.phone = "Mobile number is too long";
+    }
     if (form.password.length < 8) errs.password = "Minimum 8 characters required";
     if (form.password !== form.confirmPassword) errs.confirmPassword = "Passwords don't match";
     setErrors(errs);
@@ -246,11 +257,27 @@ function RegisterForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setServerError(null);
     if (!validate()) return;
     try {
       await register(form, callbackUrl);
-    } catch {
-      
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const data = err.response?.data;
+        const fieldErrors = data?.errors as Record<string, string[]> | undefined;
+        if (fieldErrors && typeof fieldErrors === "object") {
+          const next: Partial<typeof form> = {};
+          for (const [k, msgs] of Object.entries(fieldErrors)) {
+            if (k in form && Array.isArray(msgs) && msgs[0]) {
+              (next as Record<string, string>)[k] = msgs[0];
+            }
+          }
+          if (Object.keys(next).length) setErrors((p) => ({ ...p, ...next }));
+        }
+        setServerError(data?.message ?? "Registration failed. Please check the fields above and try again.");
+      } else {
+        setServerError("Something went wrong. Please try again.");
+      }
     }
   };
 
@@ -289,7 +316,25 @@ function RegisterForm() {
           </p>
         </div>
 
-        
+
+        <AnimatePresence>
+          {serverError && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              className="mb-4 flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3"
+              role="alert"
+            >
+              <RiErrorWarningLine className="mt-0.5 shrink-0 text-red-500" size={16} />
+              <div>
+                <p className="text-xs font-semibold text-red-700">We couldn&apos;t create your account</p>
+                <p className="mt-0.5 text-xs text-red-600">{serverError}</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <form onSubmit={handleSubmit} noValidate className="space-y-3.5">
           
           <div className="space-y-1.5">
@@ -351,7 +396,39 @@ function RegisterForm() {
             </AnimatePresence>
           </div>
 
-          
+
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
+              Mobile Number
+            </label>
+            <div className="relative">
+              <RiPhoneLine
+                size={15}
+                className={`pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors ${focused === "phone" ? "text-[#E84672]" : "text-neutral-300"}`}
+              />
+              <input
+                type="tel"
+                inputMode="tel"
+                value={form.phone}
+                onChange={set("phone")}
+                onFocus={() => setFocused("phone")}
+                onBlur={() => setFocused(null)}
+                placeholder="10-digit mobile number"
+                autoComplete="tel"
+                maxLength={15}
+                className={inputCls("phone", errors.phone)}
+              />
+            </div>
+            <AnimatePresence>
+              {errors.phone && (
+                <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="text-xs font-medium text-red-500">
+                  {errors.phone}
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </div>
+
+
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
               Password
