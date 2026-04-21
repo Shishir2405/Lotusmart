@@ -19,6 +19,7 @@ import {
   RiSeedlingLine,
 } from "react-icons/ri";
 import { useAuth } from "@/hooks/useAuth";
+import axios from "axios";
 
 
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -272,6 +273,7 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [focused, setFocused] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const validate = () => {
     const errs: typeof errors = {};
@@ -284,11 +286,17 @@ function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
     if (!validate()) return;
     try {
       await login({ email, password }, callbackUrl);
-    } catch {
-      
+    } catch (err) {
+      const msg = axios.isAxiosError(err)
+        ? err.response?.data?.message ?? err.message ?? "Unable to sign in. Please try again."
+        : err instanceof Error
+          ? err.message
+          : "Unable to sign in. Please try again.";
+      setFormError(msg);
     }
   };
 
@@ -334,9 +342,22 @@ function LoginForm() {
           </p>
         </div>
 
-        
+
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
-          
+          <AnimatePresence>
+            {formError && (
+              <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                role="alert"
+                className="rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm font-medium text-red-600"
+              >
+                {formError}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
               Email
