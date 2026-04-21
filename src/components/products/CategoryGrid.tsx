@@ -1,86 +1,111 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { RiArrowRightLine, RiLeafLine } from "react-icons/ri";
 import { normalizeImageUrl } from "@/utils/helpers";
 
+interface ApiCategory {
+  _id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  image?: string;
+  children?: ApiCategory[];
+}
 
-const categories = [
-  {
-    name: "Whole\nSpices",
-    slug: "whole-spices",
-    image: "/images/spices/whole-spices.jpg",
-    count: "40+ items",
-    label: "Bestseller",
-    accentColor: "#E84672",
-    accentLight: "rgba(232,70,114,0.18)",
-    desc: "Sun-dried & handpicked from Kerala, Rajasthan, and the Nilgiris.",
-  },
-  {
-    name: "Ground\nSpices",
-    slug: "ground-spices",
-    image: "/images/spices/ground-spices.jpg",
-    count: "30+ items",
-    label: "Popular",
-    accentColor: "#D97706",
-    accentLight: "rgba(217,119,6,0.18)",
-    desc: "Stone-ground in small batches to preserve aroma and potency.",
-  },
-  {
-    name: "Dry\nFruits",
-    slug: "dry-fruits",
-    image: "/images/hero/dryfruits-hero.jpg",
-    count: "25+ items",
-    label: "Premium",
-    accentColor: "#7A6E42",
-    accentLight: "rgba(122,110,66,0.18)",
-    desc: "Sourced from Afghanistan, Kashmir & California for the finest grade.",
-  },
-  {
-    name: "Nuts &\nSeeds",
-    slug: "nuts-seeds",
-    image: "/images/categories/nuts-seeds.jpg",
-    count: "20+ items",
-    label: "Organic",
-    accentColor: "#615834",
-    accentLight: "rgba(97,88,52,0.18)",
-    desc: "Raw, roasted & trail mixes — all without additives or preservatives.",
-  },
-  {
-    name: "Gift\nBoxes",
-    slug: "gift-boxes",
-    image: "/images/gifts/gift-box-1.jpg",
-    count: "15+ sets",
-    label: "Trending",
-    accentColor: "#E84672",
-    accentLight: "rgba(232,70,114,0.18)",
-    desc: "Thoughtfully curated for weddings, festivals & corporate gifting.",
-  },
-  {
-    name: "Organic\nRange",
-    slug: "organic",
-    image: "/images/spices/organic-spices.jpg",
-    count: "10+ items",
-    label: "Certified",
-    accentColor: "#16A34A",
-    accentLight: "rgba(22,163,74,0.18)",
-    desc: "FSSAI-certified organic produce, free from pesticides and chemicals.",
-  },
+const palette = [
+  { accentColor: "#E84672", accentLight: "rgba(232,70,114,0.18)", label: "Bestseller" },
+  { accentColor: "#D97706", accentLight: "rgba(217,119,6,0.18)", label: "Popular" },
+  { accentColor: "#7A6E42", accentLight: "rgba(122,110,66,0.18)", label: "Premium" },
+  { accentColor: "#615834", accentLight: "rgba(97,88,52,0.18)", label: "Organic" },
+  { accentColor: "#16A34A", accentLight: "rgba(22,163,74,0.18)", label: "Certified" },
+  { accentColor: "#0891B2", accentLight: "rgba(8,145,178,0.18)", label: "Fresh" },
 ];
+
+const FALLBACK_IMAGE = "/images/categories/nuts-seeds.jpg";
 
 const ease: [number, number, number, number] = [0.4, 0, 0.2, 1];
 
+interface DecoratedCategory extends ApiCategory {
+  accentColor: string;
+  accentLight: string;
+  label: string;
+  displayImage: string;
+  displayDesc: string;
+  childCount: number;
+}
+
+function decorate(cats: ApiCategory[]): DecoratedCategory[] {
+  return cats.map((c, i) => {
+    const tone = palette[i % palette.length];
+    return {
+      ...c,
+      accentColor: tone.accentColor,
+      accentLight: tone.accentLight,
+      label: tone.label,
+      displayImage: c.image ? normalizeImageUrl(c.image) : FALLBACK_IMAGE,
+      displayDesc: c.description?.trim() || "Explore our curated selection.",
+      childCount: c.children?.length ?? 0,
+    };
+  });
+}
 
 export function CategoryGrid() {
+  const [categories, setCategories] = useState<DecoratedCategory[]>([]);
+  const [loading, setLoading] = useState(true);
   const [active, setActive] = useState<number>(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    axios
+      .get<{ data: ApiCategory[] }>("/api/categories?includeSubcategories=true")
+      .then((r) => {
+        if (cancelled) return;
+        setCategories(decorate(r.data.data ?? []));
+      })
+      .catch(() => {
+        if (!cancelled) setCategories([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="overflow-hidden bg-white py-16 lg:py-24">
+        <div className="mx-auto w-full max-w-[1400px] px-6 md:px-8 lg:px-12">
+          <div className="mb-10 h-8 w-64 animate-pulse rounded bg-neutral-100" />
+          <div className="hidden gap-2 lg:flex" style={{ height: "440px" }}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex-1 animate-pulse rounded-3xl bg-neutral-100"
+              />
+            ))}
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:hidden">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-40 animate-pulse rounded-2xl bg-neutral-100" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (categories.length === 0) return null;
 
   return (
     <section className="overflow-hidden bg-white py-16 lg:py-24">
       <div className="mx-auto w-full max-w-[1400px] px-6 md:px-8 lg:px-12">
-        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -134,7 +159,6 @@ export function CategoryGrid() {
           </Link>
         </motion.div>
 
-        
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -148,20 +172,17 @@ export function CategoryGrid() {
 
             return (
               <motion.div
-                key={cat.slug}
-                animate={{
-                  flex: isActive ? 5 : 1,
-                }}
+                key={cat._id}
+                animate={{ flex: isActive ? 5 : 1 }}
                 transition={{ duration: 0.45, ease }}
                 className="relative flex-shrink-0 cursor-pointer overflow-hidden rounded-3xl"
                 onHoverStart={() => setActive(i)}
                 onClick={() => setActive(i)}
                 style={{ minWidth: "3.5rem" }}
               >
-                
                 <div className="absolute inset-0">
                   <Image
-                    src={normalizeImageUrl(cat.image)}
+                    src={cat.displayImage}
                     alt={cat.name}
                     fill
                     className="object-cover transition-transform duration-700"
@@ -170,7 +191,6 @@ export function CategoryGrid() {
                   />
                 </div>
 
-                
                 <div
                   className="absolute inset-0 transition-opacity duration-300"
                   style={{
@@ -180,7 +200,6 @@ export function CategoryGrid() {
                   }}
                 />
 
-                
                 <AnimatePresence>
                   {!isActive && (
                     <motion.div
@@ -198,7 +217,6 @@ export function CategoryGrid() {
                   )}
                 </AnimatePresence>
 
-                
                 <AnimatePresence>
                   {!isActive && (
                     <motion.div
@@ -217,7 +235,7 @@ export function CategoryGrid() {
                         }}
                       >
                         <span className="text-[0.72rem] font-black tracking-widest whitespace-nowrap text-white/90 uppercase">
-                          {cat.name.replace("\n", " ")}
+                          {cat.name}
                         </span>
                       </div>
                       <span
@@ -228,7 +246,6 @@ export function CategoryGrid() {
                   )}
                 </AnimatePresence>
 
-                
                 <AnimatePresence>
                   {isActive && (
                     <motion.div
@@ -238,7 +255,6 @@ export function CategoryGrid() {
                       transition={{ duration: 0.3, delay: 0.1 }}
                       className="absolute inset-0 flex flex-col justify-between p-6"
                     >
-                      
                       <div className="flex items-start justify-between">
                         <motion.span
                           initial={{ opacity: 0, y: -8 }}
@@ -255,23 +271,24 @@ export function CategoryGrid() {
                           {cat.label}
                         </motion.span>
 
-                        <motion.span
-                          initial={{ opacity: 0, scale: 0 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.22, type: "spring", stiffness: 300, damping: 20 }}
-                          className="text-[0.65rem] font-bold tracking-widest text-white/60 uppercase"
-                        >
-                          {cat.count}
-                        </motion.span>
+                        {cat.childCount > 0 && (
+                          <motion.span
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.22, type: "spring", stiffness: 300, damping: 20 }}
+                            className="text-[0.65rem] font-bold tracking-widest text-white/60 uppercase"
+                          >
+                            {cat.childCount} sub{cat.childCount === 1 ? "" : "s"}
+                          </motion.span>
+                        )}
                       </div>
 
-                      
                       <div>
                         <motion.h3
                           initial={{ opacity: 0, y: 12 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.15, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                          className="mb-2 text-[1.7rem] leading-tight font-black tracking-tight whitespace-pre-line text-white"
+                          className="mb-2 text-[1.7rem] leading-tight font-black tracking-tight text-white"
                         >
                           {cat.name}
                         </motion.h3>
@@ -280,11 +297,35 @@ export function CategoryGrid() {
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.22, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                          className="mb-5 max-w-[240px] text-[0.8rem] leading-relaxed"
-                          style={{ color: "rgba(255,255,255,0.65)" }}
+                          className="mb-4 max-w-[260px] text-[0.8rem] leading-relaxed"
+                          style={{ color: "rgba(255,255,255,0.7)" }}
                         >
-                          {cat.desc}
+                          {cat.displayDesc}
                         </motion.p>
+
+                        {cat.children && cat.children.length > 0 && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.25, duration: 0.3 }}
+                            className="mb-4 flex flex-wrap gap-1.5"
+                          >
+                            {cat.children.map((child) => (
+                              <Link
+                                key={child._id}
+                                href={`/categories/${child.slug}`}
+                                className="inline-flex items-center rounded-full border px-2.5 py-1 text-[0.7rem] font-semibold text-white/85 transition-colors hover:bg-white/15"
+                                style={{
+                                  backgroundColor: "rgba(255,255,255,0.08)",
+                                  borderColor: "rgba(255,255,255,0.18)",
+                                  backdropFilter: "blur(6px)",
+                                }}
+                              >
+                                {child.name}
+                              </Link>
+                            ))}
+                          </motion.div>
+                        )}
 
                         <motion.div
                           initial={{ opacity: 0, y: 8 }}
@@ -300,7 +341,7 @@ export function CategoryGrid() {
                                 backdropFilter: "blur(8px)",
                               }}
                             >
-                              Explore {cat.name.split("\n")[0]}
+                              Explore {cat.name}
                               <motion.span
                                 animate={{ x: [0, 3, 0] }}
                                 transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
@@ -315,7 +356,6 @@ export function CategoryGrid() {
                   )}
                 </AnimatePresence>
 
-                
                 <motion.div
                   className="absolute top-0 bottom-0 left-0 w-[3px] rounded-full"
                   animate={{ opacity: isActive ? 1 : 0, scaleY: isActive ? 1 : 0 }}
@@ -327,11 +367,10 @@ export function CategoryGrid() {
           })}
         </motion.div>
 
-        
         <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:hidden">
           {categories.map((cat, i) => (
             <motion.div
-              key={cat.slug}
+              key={cat._id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -344,7 +383,7 @@ export function CategoryGrid() {
                   className="relative h-40 cursor-pointer overflow-hidden rounded-2xl"
                 >
                   <Image
-                    src={normalizeImageUrl(cat.image)}
+                    src={cat.displayImage}
                     alt={cat.name}
                     fill
                     className="object-cover"
@@ -359,12 +398,29 @@ export function CategoryGrid() {
                       {cat.label}
                     </p>
                     <p className="text-[0.85rem] leading-tight font-black text-white">
-                      {cat.name.replace("\n", " ")}
+                      {cat.name}
                     </p>
-                    <p className="mt-0.5 text-[0.65rem] font-semibold text-white/50">{cat.count}</p>
+                    {cat.childCount > 0 && (
+                      <p className="mt-0.5 text-[0.65rem] font-semibold text-white/50">
+                        {cat.childCount} sub{cat.childCount === 1 ? "" : "s"}
+                      </p>
+                    )}
                   </div>
                 </motion.div>
               </Link>
+              {cat.children && cat.children.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {cat.children.slice(0, 4).map((child) => (
+                    <Link
+                      key={child._id}
+                      href={`/categories/${child.slug}`}
+                      className="inline-flex items-center rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-[0.65rem] font-semibold text-neutral-600 transition-colors hover:border-neutral-300 hover:bg-white"
+                    >
+                      {child.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
             </motion.div>
           ))}
         </div>
