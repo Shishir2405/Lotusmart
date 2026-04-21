@@ -84,7 +84,14 @@ export default async function HomePage() {
           case "why_choose_us":
             return <WhyChooseUs key={section._id} settings={section.settings} />;
           case "faq":
-            return <FAQSection key={section._id} />;
+            return (
+              <FAQSection
+                key={section._id}
+                title={section.title}
+                subtitle={section.subtitle}
+                settings={section.settings}
+              />
+            );
           case "newsletter":
             return (
               <DynamicLandingSections key={section._id} section={section} />

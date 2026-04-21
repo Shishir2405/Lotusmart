@@ -144,12 +144,38 @@ function AccordionItem({
   );
 }
 
-export function FAQSection() {
+interface FAQSectionProps {
+  title?: string;
+  subtitle?: string;
+  settings?: Record<string, unknown>;
+}
+
+export function FAQSection({ title, subtitle, settings }: FAQSectionProps = {}) {
   const [openKey, setOpenKey] = useState<string>("0-0");
   const [activeCategory, setActiveCategory] = useState(0);
 
   const toggle = (key: string) => setOpenKey(openKey === key ? "" : key);
-  const activeData = faqs[activeCategory];
+
+  const adminItems = Array.isArray(settings?.items)
+    ? (settings!.items as { q: string; a: string }[]).filter(
+        (i) => i && typeof i.q === "string" && typeof i.a === "string" && i.q.trim() && i.a.trim(),
+      )
+    : [];
+
+  const data = adminItems.length > 0
+    ? [
+        {
+          category: title?.trim() || "Questions",
+          icon: RiQuestionLine,
+          color: "#E84672",
+          colorLight: "#FFF1F3",
+          colorBorder: "#FECDD3",
+          questions: adminItems,
+        },
+      ]
+    : faqs;
+
+  const activeData = data[activeCategory] ?? data[0];
 
   return (
     <section className="relative overflow-hidden py-16 lg:py-24 bg-white">
@@ -174,8 +200,14 @@ export function FAQSection() {
               </span>
             </div>
             <h2 className="text-[clamp(1.9rem,3.8vw,3rem)] font-black leading-[0.96] tracking-[-0.04em] text-neutral-900">
-              Frequently{" "}
-              <span style={{ color: "#E84672" }}>Asked.</span>
+              {title?.trim() ? (
+                title
+              ) : (
+                <>
+                  Frequently{" "}
+                  <span style={{ color: "#E84672" }}>Asked.</span>
+                </>
+              )}
             </h2>
           </motion.div>
 
@@ -203,7 +235,7 @@ export function FAQSection() {
             transition={{ duration: 0.5, ease }}
             className="flex flex-row lg:flex-col gap-1.5"
           >
-            {faqs.map((cat, i) => {
+            {data.map((cat, i) => {
               const isActive = activeCategory === i;
               return (
                 <motion.button

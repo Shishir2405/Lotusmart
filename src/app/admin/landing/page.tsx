@@ -21,6 +21,8 @@ import {
   RiEyeLine,
   RiEyeOffLine,
   RiLayoutLine,
+  RiQuestionLine,
+  RiMailSendLine,
 } from "react-icons/ri";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
@@ -38,6 +40,8 @@ type SectionType =
   | "product_carousel"
   | "banner_strip"
   | "why_choose_us"
+  | "faq"
+  | "newsletter"
   | "custom_html";
 
 interface PopulatedProduct {
@@ -84,6 +88,11 @@ interface WhyChooseUsItem {
   description: string;
 }
 
+interface FaqItem {
+  q: string;
+  a: string;
+}
+
 interface SectionForm {
   type: SectionType;
   title: string;
@@ -98,6 +107,10 @@ interface SectionForm {
   bannerSubtitle: string;
   bannerLink: string;
   whyItems: WhyChooseUsItem[];
+  faqItems: FaqItem[];
+  newsletterHeadline: string;
+  newsletterDescription: string;
+  newsletterCtaText: string;
 }
 
 
@@ -141,6 +154,18 @@ const SECTION_TYPE_META: Record<
     color: "#0891B2",
     bgColor: "#ECFEFF",
   },
+  faq: {
+    label: "FAQ",
+    icon: <RiQuestionLine size={18} />,
+    color: "#16A34A",
+    bgColor: "#F0FDF4",
+  },
+  newsletter: {
+    label: "Newsletter",
+    icon: <RiMailSendLine size={18} />,
+    color: "#DB2777",
+    bgColor: "#FDF2F8",
+  },
   custom_html: {
     label: "Custom HTML",
     icon: <RiCodeSSlashLine size={18} />,
@@ -163,6 +188,11 @@ const EMPTY_WHY_ITEM: WhyChooseUsItem = {
   description: "",
 };
 
+const EMPTY_FAQ_ITEM: FaqItem = {
+  q: "",
+  a: "",
+};
+
 const EMPTY_FORM: SectionForm = {
   type: "hero_banners",
   title: "",
@@ -177,6 +207,10 @@ const EMPTY_FORM: SectionForm = {
   bannerSubtitle: "",
   bannerLink: "",
   whyItems: [{ ...EMPTY_WHY_ITEM }],
+  faqItems: [{ ...EMPTY_FAQ_ITEM }],
+  newsletterHeadline: "",
+  newsletterDescription: "",
+  newsletterCtaText: "",
 };
 
 
@@ -291,6 +325,18 @@ export default function AdminLandingPage() {
       case "why_choose_us":
         base.settings = { items: form.whyItems };
         break;
+      case "faq":
+        base.settings = {
+          items: form.faqItems.filter((i) => i.q.trim() && i.a.trim()),
+        };
+        break;
+      case "newsletter":
+        base.settings = {
+          headline: form.newsletterHeadline,
+          description: form.newsletterDescription,
+          ctaText: form.newsletterCtaText,
+        };
+        break;
       case "custom_html":
         base.settings = { html: form.htmlContent };
         break;
@@ -315,7 +361,16 @@ export default function AdminLandingPage() {
       bannerSubtitle: (section.settings?.subtitle as string) ?? "",
       bannerLink: (section.settings?.link as string) ?? "",
       whyItems:
-        (section.settings?.items as WhyChooseUsItem[]) ?? [{ ...EMPTY_WHY_ITEM }],
+        section.type === "why_choose_us"
+          ? ((section.settings?.items as WhyChooseUsItem[]) ?? [{ ...EMPTY_WHY_ITEM }])
+          : [{ ...EMPTY_WHY_ITEM }],
+      faqItems:
+        section.type === "faq"
+          ? ((section.settings?.items as FaqItem[]) ?? [{ ...EMPTY_FAQ_ITEM }])
+          : [{ ...EMPTY_FAQ_ITEM }],
+      newsletterHeadline: (section.settings?.headline as string) ?? "",
+      newsletterDescription: (section.settings?.description as string) ?? "",
+      newsletterCtaText: (section.settings?.ctaText as string) ?? "",
     };
     setForm(f);
   };
@@ -326,6 +381,7 @@ export default function AdminLandingPage() {
       ...EMPTY_FORM,
       bannerSlides: [{ ...EMPTY_SLIDE }],
       whyItems: [{ ...EMPTY_WHY_ITEM }],
+      faqItems: [{ ...EMPTY_FAQ_ITEM }],
     });
     setProductSearch("");
     setProductResults([]);
@@ -515,6 +571,28 @@ export default function AdminLandingPage() {
     setForm((f) => ({
       ...f,
       whyItems: f.whyItems.filter((_, i) => i !== idx),
+    }));
+  };
+
+  const updateFaqItem = (idx: number, field: keyof FaqItem, value: string) => {
+    setForm((f) => {
+      const items = [...f.faqItems];
+      items[idx] = { ...items[idx], [field]: value };
+      return { ...f, faqItems: items };
+    });
+  };
+
+  const addFaqItem = () => {
+    setForm((f) => ({
+      ...f,
+      faqItems: [...f.faqItems, { ...EMPTY_FAQ_ITEM }],
+    }));
+  };
+
+  const removeFaqItem = (idx: number) => {
+    setForm((f) => ({
+      ...f,
+      faqItems: f.faqItems.filter((_, i) => i !== idx),
     }));
   };
 
@@ -1171,6 +1249,92 @@ export default function AdminLandingPage() {
           )}
 
           
+          {form.type === "faq" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-neutral-700">
+                  FAQ Items
+                </label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  leftIcon={<RiAddLine />}
+                  onClick={addFaqItem}
+                >
+                  Add Question
+                </Button>
+              </div>
+              {form.faqItems.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="border border-neutral-100 rounded-xl p-4 space-y-3"
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-semibold text-neutral-400">
+                      Q{idx + 1}
+                    </span>
+                    {form.faqItems.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeFaqItem(idx)}
+                        className="p-1 rounded hover:bg-red-50 text-neutral-300 hover:text-red-500 transition-colors"
+                      >
+                        <RiCloseLine size={16} />
+                      </button>
+                    )}
+                  </div>
+                  <Input
+                    label="Question"
+                    value={item.q}
+                    onChange={(e) => updateFaqItem(idx, "q", e.target.value)}
+                    placeholder="What is your return policy?"
+                  />
+                  <Textarea
+                    label="Answer"
+                    value={item.a}
+                    onChange={(e) => updateFaqItem(idx, "a", e.target.value)}
+                    placeholder="Answer..."
+                    className="min-h-[80px]"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {form.type === "newsletter" && (
+            <div className="space-y-3">
+              <Input
+                label="Headline"
+                value={form.newsletterHeadline}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, newsletterHeadline: e.target.value }))
+                }
+                placeholder="Join our newsletter"
+              />
+              <Textarea
+                label="Description"
+                value={form.newsletterDescription}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    newsletterDescription: e.target.value,
+                  }))
+                }
+                placeholder="Get offers, recipes, and more in your inbox."
+                className="min-h-[60px]"
+              />
+              <Input
+                label="Button Text"
+                value={form.newsletterCtaText}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, newsletterCtaText: e.target.value }))
+                }
+                placeholder="Subscribe"
+              />
+            </div>
+          )}
+
           {form.type === "custom_html" && (
             <div>
               <Textarea
