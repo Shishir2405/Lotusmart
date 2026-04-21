@@ -120,18 +120,13 @@ export async function login(email: string, password: string) {
     throw ApiError.unauthorized("Invalid email or password");
   }
 
-  
+
   const isMatch = await user.comparePassword(password);
   if (!isMatch) {
     throw ApiError.unauthorized("Invalid email or password");
   }
 
-  
-  if (!user.isVerified) {
-    throw ApiError.forbidden("Please verify your email address before logging in");
-  }
 
-  
   let permissions: string[] | undefined;
   if (user.role === "admin") {
     const populated = await User.findById(user._id).populate("adminRole");
