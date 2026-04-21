@@ -1,6 +1,7 @@
 
 
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { ApiError } from "@/lib/api-error";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import { requireAdmin } from "@/lib/auth";
@@ -35,6 +36,7 @@ export async function PUT(request: NextRequest) {
       .populate("categories", "name slug image")
       .lean();
 
+    revalidatePath("/");
     return successResponse(sections, "Order updated");
   } catch (error) {
     const e = ApiError.from(error);

@@ -1,6 +1,7 @@
 
 
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { ApiError } from "@/lib/api-error";
 import { successResponse, createdResponse, errorResponse } from "@/lib/api-response";
 import { requireAdmin } from "@/lib/auth";
@@ -36,6 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     const section = await LandingSection.create(body);
+    revalidatePath("/");
     return createdResponse(section, "Section created");
   } catch (error) {
     const e = ApiError.from(error);

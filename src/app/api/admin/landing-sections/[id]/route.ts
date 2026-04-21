@@ -1,6 +1,7 @@
 
 
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { ApiError } from "@/lib/api-error";
 import { successResponse, errorResponse, noContentResponse } from "@/lib/api-response";
 import { requireAdmin } from "@/lib/auth";
@@ -38,6 +39,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
       .populate("products", "name slug images price compareAtPrice")
       .populate("categories", "name slug image");
     if (!section) throw ApiError.notFound("Section not found");
+    revalidatePath("/");
     return successResponse(section, "Section updated");
   } catch (error) {
     const e = ApiError.from(error);
@@ -52,6 +54,7 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     const { id } = await params;
     const section = await LandingSection.findByIdAndDelete(id);
     if (!section) throw ApiError.notFound("Section not found");
+    revalidatePath("/");
     return noContentResponse();
   } catch (error) {
     const e = ApiError.from(error);
