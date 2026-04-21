@@ -35,23 +35,25 @@ async function getLandingSections() {
 export default async function HomePage() {
   const sections = await getLandingSections();
 
-  
   if (!sections || sections.length === 0) {
     return (
-      <>
-        <HeroSection />
-        <CategoryGrid />
-        <Suspense fallback={<ProductGridSkeleton />}>
-          <FeaturedProducts />
-        </Suspense>
-        <BannerStrip />
-        <WhyChooseUs />
-        <FAQSection />
-      </>
+      <section className="flex min-h-[50vh] items-center justify-center px-6 py-24">
+        <div className="max-w-md text-center">
+          <p className="mb-2 text-[0.65rem] font-black tracking-[0.22em] uppercase text-neutral-300">
+            Landing page
+          </p>
+          <h1 className="mb-3 text-2xl font-black tracking-tight text-neutral-700">
+            Nothing to show yet
+          </h1>
+          <p className="text-sm text-neutral-400">
+            An admin hasn&apos;t added any sections to the landing page.
+            Build it from the admin panel.
+          </p>
+        </div>
+      </section>
     );
   }
 
-  
   return (
     <>
       
@@ -80,9 +82,23 @@ export default async function HomePage() {
               </Suspense>
             );
           case "banner_strip":
-            return <BannerStrip key={section._id} settings={section.settings} />;
+            return (
+              <BannerStrip
+                key={section._id}
+                title={section.title}
+                subtitle={section.subtitle}
+                settings={section.settings}
+              />
+            );
           case "why_choose_us":
-            return <WhyChooseUs key={section._id} settings={section.settings} />;
+            return (
+              <WhyChooseUs
+                key={section._id}
+                title={section.title}
+                subtitle={section.subtitle}
+                settings={section.settings}
+              />
+            );
           case "faq":
             return (
               <FAQSection
