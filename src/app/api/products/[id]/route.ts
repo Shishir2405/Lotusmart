@@ -2,12 +2,19 @@
 
 import mongoose from "mongoose";
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 
 import { ApiError } from "@/lib/api-error";
 import { errorResponse, successResponse } from "@/lib/api-response";
 import { requireAdmin } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import Product from "@/modules/products/product.model";
+
+function revalidateProductSurfaces(slug?: string) {
+  revalidatePath("/");
+  revalidatePath("/products");
+  if (slug) revalidatePath(`/products/${slug}`);
+}
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -58,6 +65,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       throw ApiError.notFound("Product not found");
     }
 
+    revalidateProductSurfaces(product.slug);
+
     return successResponse(product, "Product updated successfully");
   } catch (error) {
     const apiError = ApiError.from(error);
@@ -82,6 +91,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     if (!product) {
       throw ApiError.notFound("Product not found");
     }
+
+    revalidateProductSurfaces(product.slug);
 
     return successResponse(
       { id: product._id },

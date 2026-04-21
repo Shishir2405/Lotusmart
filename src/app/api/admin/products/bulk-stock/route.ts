@@ -1,6 +1,7 @@
 
 
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import connectDB from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { ApiError } from "@/lib/api-error";
@@ -34,6 +35,15 @@ export async function POST(request: NextRequest) {
       );
 
       const result = await Product.bulkWrite(bulkOps);
+
+      const slugs = await Product.find({
+        _id: { $in: body.updates.map((u: { id: string }) => new mongoose.Types.ObjectId(u.id)) },
+      })
+        .select("slug")
+        .lean();
+      revalidatePath("/");
+      revalidatePath("/products");
+      slugs.forEach((p) => p.slug && revalidatePath(`/products/${p.slug}`));
 
       return successResponse(
         { modifiedCount: result.modifiedCount },
@@ -106,6 +116,13 @@ export async function POST(request: NextRequest) {
       }
 
       const result = await Product.bulkWrite(bulkOps);
+
+      const slugs = await Product.find({ _id: { $in: objectIds } })
+        .select("slug")
+        .lean();
+      revalidatePath("/");
+      revalidatePath("/products");
+      slugs.forEach((p) => p.slug && revalidatePath(`/products/${p.slug}`));
 
       return successResponse(
         { modifiedCount: result.modifiedCount },
