@@ -2,6 +2,7 @@ import Link from "next/link";
 import { RiHomeLine, RiTruckLine, RiCalendarLine } from "react-icons/ri";
 import type { Metadata } from "next";
 import { getContactInfo } from "@/lib/get-contact-info";
+import { PolicyEmptyState } from "@/components/shared/PolicyEmptyState";
 
 export const metadata: Metadata = {
   title: "Shipping Policy — LotusMart | Free Delivery on Orders Above ₹499",
@@ -109,34 +110,6 @@ export default async function ShippingPolicyPage() {
 
       
       <div className="max-w-4xl mx-auto px-6 py-10 md:py-14">
-        
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-          {[
-            { stat: "2-5 Days", label: "Standard delivery across India" },
-            { stat: "19,000+", label: "Pin codes covered" },
-            { stat: "Free", label: "Shipping above Rs.499" },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="rounded-xl p-4 text-center bg-white"
-              style={{ border: "1px solid #EBE8D8" }}
-            >
-              <p
-                className="text-xl font-black tracking-tight mb-1"
-                style={{ color: "#D97706" }}
-              >
-                {item.stat}
-              </p>
-              <p
-                className="text-[0.78rem] font-medium"
-                style={{ color: "#a8a29e" }}
-              >
-                {item.label}
-              </p>
-            </div>
-          ))}
-        </div>
-
         <div
           className="rounded-2xl bg-white p-6 md:p-10"
           style={{ border: "1px solid #EBE8D8" }}
@@ -156,93 +129,10 @@ export default async function ShippingPolicyPage() {
               dangerouslySetInnerHTML={{ __html: content }}
             />
           ) : (
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  1. Delivery Coverage
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  We deliver across India, covering 19,000+ pin codes through our trusted logistics partners.
-                  You can check if your pin code is serviceable at checkout before placing your order.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  2. Delivery Timelines
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium mb-3" style={{ color: "#78716c" }}>
-                  Estimated delivery times from the date of order confirmation:
-                </p>
-                <ul className="list-disc pl-6 space-y-2">
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}><strong className="text-neutral-700">Metro cities</strong> (Mumbai, Delhi, Bangalore, Chennai, Hyderabad, Kolkata): 2-3 business days</li>
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}><strong className="text-neutral-700">Tier-2 cities:</strong> 3-4 business days</li>
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}><strong className="text-neutral-700">Other locations:</strong> 4-5 business days</li>
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}><strong className="text-neutral-700">Remote areas:</strong> 5-7 business days</li>
-                </ul>
-                <p className="text-[0.9rem] leading-[1.85] font-medium mt-3" style={{ color: "#78716c" }}>
-                  Please note these are estimated timelines and may vary during festive seasons, adverse weather conditions,
-                  or due to unforeseen circumstances.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  3. Shipping Charges
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium mb-3" style={{ color: "#78716c" }}>
-                  We offer competitive shipping rates:
-                </p>
-                <ul className="list-disc pl-6 space-y-2">
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}><strong className="text-neutral-700">Free shipping</strong> on all orders above Rs.499</li>
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}><strong className="text-neutral-700">Standard shipping:</strong> Rs.49 for orders below Rs.499</li>
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}><strong className="text-neutral-700">Express shipping:</strong> Rs.99 (delivery within 2 business days for metro cities)</li>
-                </ul>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  4. Order Tracking
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  Once your order is dispatched, you will receive an SMS and email notification with a tracking link.
-                  You can also track your order in real time from the My Orders section of your account. If you face
-                  any issues with tracking, please do not hesitate to{" "}
-                  <Link href="/contact" className="underline underline-offset-2" style={{ color: "#E84672" }}>
-                    contact us
-                  </Link>.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  5. Packaging
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  All products are carefully packed to ensure they reach you in perfect condition. Spices are vacuum-sealed
-                  within 48 hours of packing. Dry fruits are stored in food-grade, airtight packaging. Gift boxes are
-                  wrapped with protective layers to prevent damage during transit.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  6. Delivery Issues
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  If your order is delayed, damaged during transit, or you face any delivery-related issues, please
-                  contact us within 48 hours of the expected delivery date. We will work with our logistics partner
-                  to resolve the issue promptly.{contactInfo && (<>{" "}You can reach us at{" "}
-                  <a href={`mailto:${contactInfo.email}`} className="underline underline-offset-2" style={{ color: "#E84672" }}>
-                    {contactInfo.email}
-                  </a>{" "}
-                  or call{" "}
-                  <a href={`tel:${contactInfo.phone.replace(/[^+\d]/g, "")}`} className="underline underline-offset-2" style={{ color: "#E84672" }}>
-                    {contactInfo.phone}
-                  </a>.</>)}
-                </p>
-              </div>
-            </div>
+            <PolicyEmptyState
+              pageLabel="Shipping Policy"
+              contactEmail={contactInfo?.email}
+            />
           )}
         </div>
       </div>

@@ -2,55 +2,42 @@ import Link from "next/link";
 import {
   RiHomeLine,
   RiRefund2Line,
-  RiCheckboxCircleLine,
   RiMailLine,
   RiArrowRightLine,
 } from "react-icons/ri";
 import type { Metadata } from "next";
 import { getContactInfo } from "@/lib/get-contact-info";
+import { PolicyEmptyState } from "@/components/shared/PolicyEmptyState";
 
 export const metadata: Metadata = {
   title: "Returns — LotusMart | How to Return an Order",
   description:
-    "Start a return in 3 simple steps. LotusMart offers a 7-day return window with free pickup and full refund within 3-5 business days.",
+    "Start a return. Contact LotusMart support to initiate a return and receive a refund.",
   alternates: {
     canonical: "https://lotusmart.in/returns",
   },
 };
 
+async function getRefundData() {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/site-config?key=refund`,
+      { next: { revalidate: 300 } },
+    );
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json?.data?.value ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export default async function ReturnsPage() {
-  const contactInfo = await getContactInfo();
-
-  const steps = [
-    {
-      n: 1,
-      title: "Reach out within 7 days",
-      desc: "Contact our support team within 7 days of delivery with your order number and the reason for return.",
-    },
-    {
-      n: 2,
-      title: "We arrange free pickup",
-      desc: "Once your return is approved, we schedule a free pickup from your address — no shipping charges on your side.",
-    },
-    {
-      n: 3,
-      title: "Refund within 3-5 days",
-      desc: "After we inspect the returned product, your refund is credited to the original payment method within 3-5 business days.",
-    },
-  ];
-
-  const eligibility = [
-    "Request raised within 7 days of delivery",
-    "Product is in its original, unopened packaging (unless damaged or defective)",
-    "Product has not been used or consumed beyond a reasonable inspection",
-    "Order number and proof of purchase are available",
-  ];
-
-  const nonReturnable = [
-    "Custom or personalised gift hampers",
-    "Products with broken seals that have been consumed",
-    "Items purchased during clearance or final sale",
-  ];
+  const [contactInfo, refundData] = await Promise.all([
+    getContactInfo(),
+    getRefundData(),
+  ]);
+  const content: string | null = refundData?.content || null;
 
   return (
     <section className="min-h-screen bg-[#FFFDF7]">
@@ -89,150 +76,56 @@ export default async function ReturnsPage() {
           </div>
           <div className="flex items-start gap-4 mb-4">
             <div
-              className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 mt-1"
+              className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 mt-1"
               style={{ backgroundColor: "#F0FDF4", border: "1px solid #BBF7D0" }}
             >
               <RiRefund2Line size={20} style={{ color: "#16A34A" }} />
             </div>
             <div>
               <h1 className="text-[clamp(1.6rem,3.5vw,2.4rem)] font-black leading-[1.1] tracking-[-0.03em] text-neutral-900">
-                Hassle-free returns, on us
+                {refundData?.title || "Returns"}
               </h1>
-              <p
-                className="text-[0.88rem] leading-relaxed font-medium max-w-2xl mt-3"
-                style={{ color: "#a8a29e" }}
-              >
-                Not happy with your order? We&apos;ll make it right. Start a
-                return in 3 simple steps and get your refund within a week.
-              </p>
             </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-6 py-10 md:py-14">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-          {[
-            { stat: "7 Days", label: "Return window from delivery" },
-            { stat: "3-5 Days", label: "Refund processing time" },
-            { stat: "Free", label: "Return pickup on us" },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="rounded-xl p-4 text-center bg-white"
-              style={{ border: "1px solid #EBE8D8" }}
-            >
-              <p
-                className="text-xl font-black tracking-tight mb-1"
-                style={{ color: "#E84672" }}
-              >
-                {item.stat}
-              </p>
-              <p
-                className="text-[0.78rem] font-medium"
-                style={{ color: "#a8a29e" }}
-              >
-                {item.label}
-              </p>
-            </div>
-          ))}
-        </div>
-
         <div
           className="rounded-2xl bg-white p-6 md:p-10 mb-8"
           style={{ border: "1px solid #EBE8D8" }}
         >
-          <h2 className="text-xl font-bold text-neutral-800 mb-6">
-            How to return an order
-          </h2>
-          <div className="space-y-5">
-            {steps.map((step) => (
-              <div key={step.n} className="flex gap-4">
-                <div
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-black text-white"
-                  style={{ backgroundColor: "#E84672" }}
-                >
-                  {step.n}
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-neutral-800">
-                    {step.title}
-                  </h3>
-                  <p
-                    className="text-[0.88rem] leading-[1.75] font-medium mt-1"
-                    style={{ color: "#78716c" }}
-                  >
-                    {step.desc}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div
-            className="rounded-2xl bg-white p-6"
-            style={{ border: "1px solid #EBE8D8" }}
-          >
-            <h3 className="text-base font-bold text-neutral-800 mb-3">
-              Eligible for return
-            </h3>
-            <ul className="space-y-2.5">
-              {eligibility.map((item) => (
-                <li key={item} className="flex items-start gap-2">
-                  <RiCheckboxCircleLine
-                    className="mt-0.5 shrink-0"
-                    size={16}
-                    style={{ color: "#16A34A" }}
-                  />
-                  <span
-                    className="text-[0.85rem] leading-[1.6] font-medium"
-                    style={{ color: "#57534e" }}
-                  >
-                    {item}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div
-            className="rounded-2xl bg-white p-6"
-            style={{ border: "1px solid #EBE8D8" }}
-          >
-            <h3 className="text-base font-bold text-neutral-800 mb-3">
-              Not eligible for return
-            </h3>
-            <ul className="space-y-2.5">
-              {nonReturnable.map((item) => (
-                <li key={item} className="flex items-start gap-2">
-                  <span
-                    className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: "#DC2626" }}
-                  />
-                  <span
-                    className="text-[0.85rem] leading-[1.6] font-medium"
-                    style={{ color: "#57534e" }}
-                  >
-                    {item}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {content ? (
+            <div
+              className="prose prose-neutral max-w-none
+                prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-neutral-800
+                prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-[#F0EDE6]
+                prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3
+                prose-p:text-[0.9rem] prose-p:leading-[1.85] prose-p:text-neutral-600 prose-p:font-medium
+                prose-li:text-[0.88rem] prose-li:leading-[1.85] prose-li:text-neutral-600 prose-li:font-medium
+                prose-strong:text-neutral-700 prose-strong:font-bold
+                prose-a:text-[#E84672] prose-a:no-underline hover:prose-a:underline
+                prose-ul:my-4 prose-ol:my-4
+              "
+              dangerouslySetInnerHTML={{ __html: content }}
+            />
+          ) : (
+            <PolicyEmptyState
+              pageLabel="Return Policy"
+              contactEmail={contactInfo?.email}
+            />
+          )}
         </div>
 
         <div
           className="rounded-2xl p-6 md:p-8"
           style={{
-            background:
-              "linear-gradient(135deg, #FFF8F0 0%, #FFF1F3 100%)",
+            background: "linear-gradient(135deg, #FFF8F0 0%, #FFF1F3 100%)",
             border: "1px solid #F0EDE6",
           }}
         >
           <h3 className="text-lg font-bold text-neutral-800 mb-2">
-            Ready to start a return?
+            Start a return
           </h3>
           <p
             className="text-[0.88rem] leading-relaxed font-medium mb-5"

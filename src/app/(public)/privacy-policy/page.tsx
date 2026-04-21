@@ -2,6 +2,7 @@ import Link from "next/link";
 import { RiHomeLine, RiShieldCheckLine, RiCalendarLine } from "react-icons/ri";
 import type { Metadata } from "next";
 import { getContactInfo } from "@/lib/get-contact-info";
+import { PolicyEmptyState } from "@/components/shared/PolicyEmptyState";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — LotusMart",
@@ -128,111 +129,10 @@ export default async function PrivacyPolicyPage() {
               dangerouslySetInnerHTML={{ __html: content }}
             />
           ) : (
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  1. Information We Collect
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  We collect information you provide directly when you create an account, place an order, or contact us.
-                  This includes your name, email address, phone number, shipping address, and payment details. We also
-                  automatically collect certain information such as your IP address, browser type, device information,
-                  and browsing activity on our website through cookies and similar technologies.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  2. How We Use Your Information
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium mb-3" style={{ color: "#78716c" }}>
-                  We use the information we collect to:
-                </p>
-                <ul className="list-disc pl-6 space-y-2">
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>Process and fulfill your orders</li>
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>Communicate order updates and delivery status</li>
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>Send promotional offers and newsletters (with your consent)</li>
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>Improve our website, products, and customer experience</li>
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>Prevent fraud and ensure security</li>
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>Comply with legal obligations</li>
-                </ul>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  3. Information Sharing
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  We do not sell your personal information to third parties. We may share your information with trusted
-                  service providers who assist us in operating our business, such as payment processors, shipping partners,
-                  and analytics providers. These partners are contractually obligated to protect your data and use it
-                  only for the purposes we specify.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  4. Data Security
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  We implement industry-standard security measures to protect your personal information, including
-                  SSL encryption, secure payment gateways, and regular security audits. However, no method of
-                  transmission over the internet is 100% secure, and we cannot guarantee absolute security.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  5. Cookies
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  We use cookies and similar tracking technologies to enhance your browsing experience, remember your
-                  preferences, and analyze site traffic. You can manage cookie preferences through your browser settings.
-                  Disabling cookies may affect certain features of our website.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  6. Your Rights
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  You have the right to access, correct, or delete your personal information at any time. You may also
-                  opt out of marketing communications by clicking the unsubscribe link in any email or contacting us
-                  directly.{contactInfo && (<>{" "}To exercise any of these rights, please reach out to us at{" "}
-                  <a href={`mailto:${contactInfo.email}`} className="underline underline-offset-2" style={{ color: "#E84672" }}>
-                    {contactInfo.email}
-                  </a>.</>)}
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  7. Changes to This Policy
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  We may update this Privacy Policy from time to time. Any changes will be posted on this page with
-                  an updated revision date. We encourage you to review this policy periodically to stay informed about
-                  how we are protecting your information.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  8. Contact Us
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  If you have any questions or concerns about this Privacy Policy, please{" "}
-                  <Link href="/contact" className="underline underline-offset-2" style={{ color: "#E84672" }}>
-                    contact us
-                  </Link>
-                  {contactInfo && (<>{" "}or email us at{" "}
-                  <a href={`mailto:${contactInfo.email}`} className="underline underline-offset-2" style={{ color: "#E84672" }}>
-                    {contactInfo.email}
-                  </a></>)}.
-                </p>
-              </div>
-            </div>
+            <PolicyEmptyState
+              pageLabel="Privacy Policy"
+              contactEmail={contactInfo?.email}
+            />
           )}
         </div>
       </div>

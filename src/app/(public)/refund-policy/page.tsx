@@ -2,6 +2,7 @@ import Link from "next/link";
 import { RiHomeLine, RiRefund2Line, RiCalendarLine } from "react-icons/ri";
 import type { Metadata } from "next";
 import { getContactInfo } from "@/lib/get-contact-info";
+import { PolicyEmptyState } from "@/components/shared/PolicyEmptyState";
 
 export const metadata: Metadata = {
   title: "Refund & Return Policy — LotusMart | 7-Day Hassle-Free Returns",
@@ -109,34 +110,6 @@ export default async function RefundPolicyPage() {
 
       
       <div className="max-w-4xl mx-auto px-6 py-10 md:py-14">
-        
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-          {[
-            { stat: "7 Days", label: "Return window from delivery" },
-            { stat: "3-5 Days", label: "Refund processing time" },
-            { stat: "Free", label: "Return shipping on us" },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="rounded-xl p-4 text-center bg-white"
-              style={{ border: "1px solid #EBE8D8" }}
-            >
-              <p
-                className="text-xl font-black tracking-tight mb-1"
-                style={{ color: "#E84672" }}
-              >
-                {item.stat}
-              </p>
-              <p
-                className="text-[0.78rem] font-medium"
-                style={{ color: "#a8a29e" }}
-              >
-                {item.label}
-              </p>
-            </div>
-          ))}
-        </div>
-
         <div
           className="rounded-2xl bg-white p-6 md:p-10"
           style={{ border: "1px solid #EBE8D8" }}
@@ -156,85 +129,10 @@ export default async function RefundPolicyPage() {
               dangerouslySetInnerHTML={{ __html: content }}
             />
           ) : (
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  1. Return Window
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  We offer a no-questions-asked 7-day return window from the date of delivery. If you are not satisfied
-                  with your purchase for any reason, simply reach out to our support team and we will arrange a pickup
-                  at no extra cost to you.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  2. Eligibility for Returns
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium mb-3" style={{ color: "#78716c" }}>
-                  To be eligible for a return, the following conditions must be met:
-                </p>
-                <ul className="list-disc pl-6 space-y-2">
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>The return request is raised within 7 days of delivery</li>
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>The product is in its original, unopened packaging (unless the product is damaged or defective)</li>
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>The product has not been used or consumed beyond a reasonable inspection</li>
-                </ul>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  3. Damaged or Defective Products
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  If your product arrives damaged, tampered, or defective, please report it within 48 hours of delivery
-                  with a photograph. We will send a free replacement within 2 business days, or issue a full refund
-                  as per your preference. Your trust matters more to us than the cost of a replacement.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  4. Refund Process
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  Once we receive and inspect the returned product, we will process your refund within 3-5 business days.
-                  Refunds will be credited to the original payment method. For Cash on Delivery orders, refunds will
-                  be processed via bank transfer to the account details you provide.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  5. Non-Returnable Items
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium mb-3" style={{ color: "#78716c" }}>
-                  The following items are not eligible for returns:
-                </p>
-                <ul className="list-disc pl-6 space-y-2">
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>Custom or personalised gift hampers</li>
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>Products with broken seals that have been consumed</li>
-                  <li className="text-[0.88rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>Items purchased during clearance or final sale</li>
-                </ul>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  6. How to Initiate a Return
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  To initiate a return, contact our support team{contactInfo && (<>{" "}via email at{" "}
-                  <a href={`mailto:${contactInfo.email}`} className="underline underline-offset-2" style={{ color: "#E84672" }}>
-                    {contactInfo.email}
-                  </a></>)}{" "}
-                  or through the{" "}
-                  <Link href="/contact" className="underline underline-offset-2" style={{ color: "#E84672" }}>
-                    Contact Us
-                  </Link>{" "}
-                  page with your order number and reason for return. Our team will guide you through the process.
-                </p>
-              </div>
-            </div>
+            <PolicyEmptyState
+              pageLabel="Refund & Return Policy"
+              contactEmail={contactInfo?.email}
+            />
           )}
         </div>
       </div>

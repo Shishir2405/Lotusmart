@@ -2,6 +2,7 @@ import Link from "next/link";
 import { RiHomeLine, RiFileTextLine, RiCalendarLine } from "react-icons/ri";
 import type { Metadata } from "next";
 import { getContactInfo } from "@/lib/get-contact-info";
+import { PolicyEmptyState } from "@/components/shared/PolicyEmptyState";
 
 export const metadata: Metadata = {
   title: "Terms & Conditions — LotusMart",
@@ -120,105 +121,10 @@ export default async function TermsPage() {
               dangerouslySetInnerHTML={{ __html: content }}
             />
           ) : (
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  1. Acceptance of Terms
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  By accessing and using the LotusMart website and services, you acknowledge that you have read, understood,
-                  and agree to be bound by these Terms & Conditions. If you do not agree with any part of these terms,
-                  please do not use our services.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  2. Account Registration
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  To place orders on LotusMart, you may need to create an account. You are responsible for maintaining
-                  the confidentiality of your account credentials and for all activities that occur under your account.
-                  You must provide accurate, current, and complete information during registration.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  3. Products & Pricing
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  All product descriptions, images, and prices are provided in good faith and are subject to change without
-                  prior notice. We make every effort to ensure accuracy, but errors may occasionally occur. In such cases,
-                  we reserve the right to cancel orders and issue full refunds. All prices are displayed in Indian Rupees (INR)
-                  and are inclusive of applicable taxes unless stated otherwise.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  4. Orders & Payment
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  By placing an order, you make an offer to purchase the selected products. We reserve the right to accept
-                  or decline any order. Payment can be made via UPI, credit/debit cards, net banking, or cash on delivery
-                  where available. All online payments are processed securely through our payment gateway partner.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  5. Shipping & Delivery
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  We aim to deliver all orders within the estimated delivery timeframe. Delivery timelines are estimates
-                  and may vary depending on your location and other factors. Please refer to our{" "}
-                  <Link href="/shipping-policy" className="underline underline-offset-2" style={{ color: "#E84672" }}>
-                    Shipping Policy
-                  </Link>{" "}
-                  for detailed information.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  6. Returns & Refunds
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  We offer a 7-day return window from the date of delivery. For complete details, please review our{" "}
-                  <Link href="/refund-policy" className="underline underline-offset-2" style={{ color: "#E84672" }}>
-                    Refund & Return Policy
-                  </Link>.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  7. Intellectual Property
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  All content on the LotusMart website, including text, graphics, logos, images, and software, is the
-                  property of LotusMart and is protected by applicable intellectual property laws. You may not reproduce,
-                  distribute, or use any content without our prior written consent.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-neutral-800 mb-3 pb-2" style={{ borderBottom: "1px solid #F0EDE6" }}>
-                  8. Contact Information
-                </h2>
-                <p className="text-[0.9rem] leading-[1.85] font-medium" style={{ color: "#78716c" }}>
-                  If you have any questions about these Terms & Conditions, please{" "}
-                  <Link href="/contact" className="underline underline-offset-2" style={{ color: "#E84672" }}>
-                    contact us
-                  </Link>
-                  {contactInfo && (<>{" "}or email us at{" "}
-                  <a href={`mailto:${contactInfo.email}`} className="underline underline-offset-2" style={{ color: "#E84672" }}>
-                    {contactInfo.email}
-                  </a></>)}.
-                </p>
-              </div>
-            </div>
+            <PolicyEmptyState
+              pageLabel="Terms & Conditions"
+              contactEmail={contactInfo?.email}
+            />
           )}
         </div>
       </div>
