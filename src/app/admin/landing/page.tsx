@@ -315,12 +315,7 @@ export default function AdminLandingPage() {
         base.products = form.selectedProducts.map((p) => p._id);
         break;
       case "banner_strip":
-        base.settings = {
-          image: form.bannerImage,
-          title: form.bannerTitle,
-          subtitle: form.bannerSubtitle,
-          link: form.bannerLink,
-        };
+        base.settings = { slides: form.bannerSlides };
         break;
       case "why_choose_us":
         base.settings = { items: form.whyItems };
@@ -354,7 +349,18 @@ export default function AdminLandingPage() {
       selectedProducts: section.products ?? [],
       selectedCategories: section.categories ?? [],
       bannerSlides:
-        (section.settings?.slides as HeroBannerSlide[]) ?? [{ ...EMPTY_SLIDE }],
+        (section.settings?.slides as HeroBannerSlide[]) ??
+        (section.type === "banner_strip" && (section.settings?.image as string)
+          ? [
+              {
+                image: (section.settings?.image as string) ?? "",
+                title: (section.settings?.title as string) ?? "",
+                subtitle: (section.settings?.subtitle as string) ?? "",
+                ctaText: "",
+                ctaLink: (section.settings?.link as string) ?? "",
+              },
+            ]
+          : [{ ...EMPTY_SLIDE }]),
       htmlContent: (section.settings?.html as string) ?? "",
       bannerImage: (section.settings?.image as string) ?? "",
       bannerTitle: (section.settings?.title as string) ?? "",
@@ -1129,56 +1135,86 @@ export default function AdminLandingPage() {
           )}
 
           
-          {form.type === "banner_strip" && (
-            <div className="space-y-3">
-              <Input
-                label="Banner Image URL"
-                value={form.bannerImage}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    bannerImage: e.target.value,
-                  }))
-                }
-                placeholder="https://..."
-              />
-              <div className="grid grid-cols-2 gap-3">
-                <Input
-                  label="Banner Title"
-                  value={form.bannerTitle}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      bannerTitle: e.target.value,
-                    }))
-                  }
-                  placeholder="Promotion title"
-                />
-                <Input
-                  label="Banner Subtitle"
-                  value={form.bannerSubtitle}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      bannerSubtitle: e.target.value,
-                    }))
-                  }
-                  placeholder="Promotion subtitle"
-                />
+          {(form.type === "hero_banners" || form.type === "banner_strip") &&
+            form.type === "banner_strip" && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-neutral-700">
+                    Banner Slides
+                  </label>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    leftIcon={<RiAddLine />}
+                    onClick={addSlide}
+                  >
+                    Add Slide
+                  </Button>
+                </div>
+                {form.bannerSlides.map((slide, idx) => (
+                  <div
+                    key={idx}
+                    className="border border-neutral-100 rounded-xl p-4 space-y-3"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-semibold text-neutral-400">
+                        Slide {idx + 1}
+                      </span>
+                      {form.bannerSlides.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeSlide(idx)}
+                          className="p-1 rounded hover:bg-red-50 text-neutral-300 hover:text-red-500 transition-colors"
+                        >
+                          <RiCloseLine size={16} />
+                        </button>
+                      )}
+                    </div>
+                    <Input
+                      label="Image URL"
+                      value={slide.image}
+                      onChange={(e) => updateSlide(idx, "image", e.target.value)}
+                      placeholder="https://..."
+                    />
+                    <div className="grid grid-cols-2 gap-3">
+                      <Input
+                        label="Title"
+                        value={slide.title}
+                        onChange={(e) => updateSlide(idx, "title", e.target.value)}
+                        placeholder="Banner title"
+                      />
+                      <Input
+                        label="Subtitle"
+                        value={slide.subtitle}
+                        onChange={(e) =>
+                          updateSlide(idx, "subtitle", e.target.value)
+                        }
+                        placeholder="Banner subtitle"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Input
+                        label="CTA Text"
+                        value={slide.ctaText}
+                        onChange={(e) =>
+                          updateSlide(idx, "ctaText", e.target.value)
+                        }
+                        placeholder="Shop Now"
+                      />
+                      <Input
+                        label="Link"
+                        value={slide.ctaLink}
+                        onChange={(e) =>
+                          updateSlide(idx, "ctaLink", e.target.value)
+                        }
+                        placeholder="/sale"
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
-              <Input
-                label="Link"
-                value={form.bannerLink}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    bannerLink: e.target.value,
-                  }))
-                }
-                placeholder="/sale"
-              />
-            </div>
-          )}
+            )}
 
           
           {form.type === "why_choose_us" && (
