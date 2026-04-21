@@ -87,6 +87,8 @@ export default function CheckoutPage() {
   const [paymentMethod] = useState<"razorpay">("razorpay");
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [placedOrderId, setPlacedOrderId] = useState<string | null>(null);
+  const [razorpayStatus, setRazorpayStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
   
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
@@ -104,14 +106,20 @@ export default function CheckoutPage() {
     if (items.length === 0 && !placedOrderId) router.replace("/cart");
   }, [items, placedOrderId, router]);
 
-  
+
   useEffect(() => {
+    if (typeof window !== "undefined" && window.Razorpay) {
+      setRazorpayStatus("ready");
+      return;
+    }
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.async = true;
+    script.onload = () => setRazorpayStatus("ready");
+    script.onerror = () => setRazorpayStatus("error");
     document.head.appendChild(script);
     return () => {
-      document.head.removeChild(script);
+      if (script.parentNode) script.parentNode.removeChild(script);
     };
   }, []);
 
@@ -256,6 +264,16 @@ export default function CheckoutPage() {
   };
 
   const handlePayment = async () => {
+    setPaymentError(null);
+    if (typeof window === "undefined" || !window.Razorpay) {
+      const msg =
+        razorpayStatus === "error"
+          ? "We couldn't load the payment provider. Please check your internet connection or disable any ad/script blockers and try again."
+          : "The payment provider is still loading. Please wait a moment and try again.";
+      setPaymentError(msg);
+      toast.error(msg);
+      return;
+    }
     try {
       const shippingAddress = getSelectedAddress();
       const orderRes = await axios.post<{ data: { _id: string } }>(
@@ -319,14 +337,23 @@ export default function CheckoutPage() {
         },
       };
 
-      const rz = new window.Razorpay(rzOptions);
-      rz.open();
+      try {
+        const rz = new window.Razorpay(rzOptions);
+        rz.open();
+      } catch (openErr) {
+        const msg =
+          openErr instanceof Error
+            ? openErr.message
+            : "Unable to open payment window. Please refresh and try again.";
+        setPaymentError(msg);
+        toast.error(msg);
+      }
     } catch (err) {
-      toast.error(
-        axios.isAxiosError(err)
-          ? (err.response?.data?.message ?? "Payment initiation failed")
-          : "Payment initiation failed",
-      );
+      const msg = axios.isAxiosError(err)
+        ? (err.response?.data?.message ?? "Payment initiation failed")
+        : "Payment initiation failed";
+      setPaymentError(msg);
+      toast.error(msg);
     }
   };
 
@@ -869,15 +896,41 @@ export default function CheckoutPage() {
                     secure
                   </div>
 
+                  {razorpayStatus === "loading" && (
+                    <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-sm font-medium text-amber-700">
+                      Loading secure payment provider…
+                    </div>
+                  )}
+                  {razorpayStatus === "error" && (
+                    <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm font-medium text-red-600">
+                      We couldn't load the payment provider. Disable any
+                      ad/script blocker, check your connection, and refresh
+                      this page.
+                    </div>
+                  )}
+                  {paymentError && (
+                    <div
+                      role="alert"
+                      className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm font-medium text-red-600"
+                    >
+                      {paymentError}
+                    </div>
+                  )}
+
                   <Button
                     fullWidth
                     size="lg"
                     className="mt-6"
+                    disabled={razorpayStatus !== "ready"}
                     isLoading={isPlacingOrder}
                     onClick={handlePayment}
                     rightIcon={<RiArrowRightLine />}
                   >
-{`Pay ${formatCurrency(total)}`}
+{razorpayStatus === "ready"
+                      ? `Pay ${formatCurrency(total)}`
+                      : razorpayStatus === "loading"
+                        ? "Preparing payment…"
+                        : "Payment unavailable"}
                   </Button>
                 </div>
               </motion.div>
