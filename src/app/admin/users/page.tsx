@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { formatDate } from "@/utils/helpers";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useAuthStore } from "@/store/auth.store";
+import CustomerDetailModal from "@/components/admin/CustomerDetailModal";
 import axios from "axios";
 import toast from "@/components/ui/toast";
 
@@ -29,6 +31,8 @@ export default function AdminUsersPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const debouncedSearch = useDebounce(search, 400);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const adminId = useAuthStore((s) => s.user?.id);
 
   useEffect(() => {
     setLoading(true);
@@ -110,7 +114,13 @@ export default function AdminUsersPage() {
                   </tr>
                 ))
               : users.map((user) => (
-                  <motion.tr key={user._id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="hover:bg-[#FAFAF9] transition-colors">
+                  <motion.tr
+                    key={user._id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    onClick={() => setSelectedUserId(user._id)}
+                    className="cursor-pointer hover:bg-[#FAFAF9] transition-colors"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#E84672] to-[#C9305A] flex items-center justify-center text-sm font-bold text-white shrink-0">
@@ -147,6 +157,34 @@ export default function AdminUsersPage() {
           <span className="text-sm text-neutral-500">Page {page} of {totalPages}</span>
           <button disabled={page === totalPages} onClick={() => setPage((p) => p + 1)} className="px-4 py-2 rounded-xl border border-neutral-200 text-sm disabled:opacity-40 hover:border-neutral-300 transition-colors">Next</button>
         </div>
+      )}
+
+      {selectedUserId && (
+        <CustomerDetailModal
+          userId={selectedUserId}
+          isOpen={Boolean(selectedUserId)}
+          onClose={() => setSelectedUserId(null)}
+          currentAdminId={adminId}
+          onUpdated={(updated) => {
+            setUsers((prev) =>
+              prev.map((u) =>
+                u._id === updated._id
+                  ? {
+                      ...u,
+                      name: updated.name,
+                      phone: updated.phone,
+                      role: updated.role,
+                      isVerified: updated.isVerified,
+                    }
+                  : u,
+              ),
+            );
+          }}
+          onDeleted={(id) => {
+            setUsers((prev) => prev.filter((u) => u._id !== id));
+            setTotal((t) => Math.max(0, t - 1));
+          }}
+        />
       )}
     </div>
   );
