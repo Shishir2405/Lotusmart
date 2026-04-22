@@ -12,11 +12,24 @@ interface Props {
 async function getProduct(slug: string) {
   try {
     await connectDB();
-    const product = await Product.findOne({ slug, isActive: true })
+    const normalized = decodeURIComponent(slug).trim().toLowerCase();
+
+    let product = await Product.findOne({ slug: normalized, isActive: true })
       .populate("category", "name slug")
       .lean();
+
+    if (!product) {
+      product = await Product.findOne({
+        slug: { $regex: `^${normalized.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, $options: "i" },
+        isActive: true,
+      })
+        .populate("category", "name slug")
+        .lean();
+    }
+
     return product ? JSON.parse(JSON.stringify(product)) : null;
-  } catch {
+  } catch (err) {
+    console.error("[ProductDetail] Failed to load product", slug, err);
     return null;
   }
 }
