@@ -77,7 +77,9 @@ export async function PATCH(
         order.orderNumber,
         orderStatus,
         trackingNumber,
-      ).catch(() => null);
+      ).catch((err) => {
+        console.error("[orders/:id] shipping update email failed", err instanceof Error ? err.message : err);
+      });
     }
 
     return successResponse(order, "Order updated");

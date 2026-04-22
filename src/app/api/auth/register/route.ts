@@ -29,7 +29,9 @@ export async function POST(request: NextRequest) {
     
     const { user, token, verificationToken } = await register(parsed.data);
 
-    sendVerificationEmail(user.email, user.name, verificationToken).catch(() => null);
+    sendVerificationEmail(user.email, user.name, verificationToken).catch((err) => {
+      console.error("[auth/register] verification email failed", err instanceof Error ? err.message : err);
+    });
 
     const response = createdResponse(
       { user },

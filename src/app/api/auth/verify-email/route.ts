@@ -21,7 +21,9 @@ export async function POST(request: NextRequest) {
 
     const user = await verifyEmail(token);
 
-    sendWelcomeEmail(user.email, user.name).catch(() => null);
+    sendWelcomeEmail(user.email, user.name).catch((err) => {
+      console.error("[auth/verify-email] welcome email failed", err instanceof Error ? err.message : err);
+    });
 
     return successResponse({ user }, "Email verified successfully");
   } catch (error) {

@@ -139,7 +139,9 @@ export async function POST(request: NextRequest) {
       tax,
       total: order.total,
       shippingAddress,
-    }).catch(() => null);
+    }).catch((err) => {
+      console.error("[orders] order confirmation email failed", err instanceof Error ? err.message : err);
+    });
 
     sendAdminNewOrderAlert({
       orderNumber: order.orderNumber,
@@ -147,7 +149,9 @@ export async function POST(request: NextRequest) {
       customerName: authUser.name ?? authUser.email,
       paymentMethod,
       itemCount: orderItems.length,
-    }).catch(() => null);
+    }).catch((err) => {
+      console.error("[orders] admin new-order alert failed", err instanceof Error ? err.message : err);
+    });
 
     return successResponse(order, "Order placed successfully", 201);
   } catch (err) {

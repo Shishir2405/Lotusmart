@@ -98,7 +98,9 @@ export async function POST(request: NextRequest) {
       tax,
       total,
       shippingAddress,
-    }).catch(() => null);
+    }).catch((err) => {
+      console.error("[checkout/buy-now] order confirmation email failed", err instanceof Error ? err.message : err);
+    });
 
     sendAdminNewOrderAlert({
       orderNumber: order.orderNumber,
@@ -106,7 +108,9 @@ export async function POST(request: NextRequest) {
       customerName: authUser.name ?? authUser.email,
       paymentMethod,
       itemCount: 1,
-    }).catch(() => null);
+    }).catch((err) => {
+      console.error("[checkout/buy-now] admin new-order alert failed", err instanceof Error ? err.message : err);
+    });
 
     return successResponse(order, "Order placed successfully", 201);
   } catch (err) {

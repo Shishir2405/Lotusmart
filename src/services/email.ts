@@ -122,22 +122,39 @@ export async function sendEmail(
     return;
   }
 
-  await axios.post(
-    BREVO_API_URL,
-    {
-      sender: { name: SENDER_NAME, email: SENDER_EMAIL },
-      to: [{ email: to.email, name: to.name ?? to.email }],
-      subject,
-      htmlContent,
-    },
-    {
-      headers: {
-        "api-key": API_KEY,
-        "Content-Type": "application/json",
-        Accept: "application/json",
+  try {
+    await axios.post(
+      BREVO_API_URL,
+      {
+        sender: { name: SENDER_NAME, email: SENDER_EMAIL },
+        to: [{ email: to.email, name: to.name ?? to.email }],
+        subject,
+        htmlContent,
       },
-    },
-  );
+      {
+        headers: {
+          "api-key": API_KEY,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      },
+    );
+  } catch (err) {
+    // Preserve a real diagnostic when Brevo rejects a call. The old
+    // fire-and-forget `.catch(() => null)` on every call site hid
+    // rejections like "sender is not valid", leaving no server signal.
+    if (axios.isAxiosError(err)) {
+      console.error(
+        "[email] Brevo send failed",
+        err.response?.status,
+        err.response?.data,
+        `to=${to.email} subject="${subject}" sender=${SENDER_EMAIL}`,
+      );
+    } else {
+      console.error("[email] Brevo send failed", err);
+    }
+    throw err;
+  }
 }
 
 

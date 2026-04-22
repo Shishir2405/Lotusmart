@@ -29,7 +29,9 @@ export async function POST(request: NextRequest) {
     const result = await forgotPassword(parsed.data.email);
 
     if (result) {
-      sendPasswordResetEmail(result.userEmail, result.userName, result.resetToken).catch(() => null);
+      sendPasswordResetEmail(result.userEmail, result.userName, result.resetToken).catch((err) => {
+        console.error("[auth/forgot-password] reset email failed", err instanceof Error ? err.message : err);
+      });
     }
 
     return successResponse(
