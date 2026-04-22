@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { RiAddLine, RiDeleteBinLine, RiUploadLine, RiDraggable } from "react-icons/ri";
+import { RiAddLine, RiDeleteBinLine, RiUploadLine, RiDraggable, RiEditLine } from "react-icons/ri";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
@@ -52,11 +52,46 @@ export default function AdminBannersPage() {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [imageUrl, setImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const resetForm = () => {
+    setEditingId(null);
+    setForm(EMPTY_FORM);
+    setImageUrl("");
+  };
+
+  const openCreate = () => {
+    resetForm();
+    setShowForm(true);
+  };
+
+  const openEdit = (banner: Banner) => {
+    setEditingId(banner._id);
+    setForm({
+      title: banner.title,
+      subtitle: banner.subtitle ?? "",
+      link: banner.link ?? "",
+      position: banner.position,
+      sortOrder: banner.sortOrder,
+      isActive: banner.isActive,
+      colorScheme: banner.colorScheme ?? "amber",
+    });
+    setImageUrl(banner.image);
+    setShowForm(true);
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const closeForm = () => {
+    setShowForm(false);
+    resetForm();
+  };
 
   const fetchBanners = () => {
     setLoading(true);
@@ -92,19 +127,23 @@ export default function AdminBannersPage() {
     }
   };
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!imageUrl) { toast.error("Please upload a banner image"); return; }
     setSaving(true);
     try {
-      await axios.post("/api/admin/banners", { ...form, image: imageUrl });
-      toast.success("Banner created");
-      setShowForm(false);
-      setForm(EMPTY_FORM);
-      setImageUrl("");
+      const payload = { ...form, image: imageUrl };
+      if (editingId) {
+        await axios.patch(`/api/admin/banners/${editingId}`, payload);
+        toast.success("Banner updated");
+      } else {
+        await axios.post("/api/admin/banners", payload);
+        toast.success("Banner created");
+      }
+      closeForm();
       fetchBanners();
     } catch {
-      toast.error("Failed to create banner");
+      toast.error(editingId ? "Failed to update banner" : "Failed to create banner");
     } finally {
       setSaving(false);
     }
@@ -135,7 +174,7 @@ export default function AdminBannersPage() {
           <p className="text-sm text-neutral-400 mt-0.5">Manage hero and promotional banners</p>
         </div>
         {!showForm && (
-          <Button leftIcon={<RiAddLine />} onClick={() => setShowForm(true)}>Add Banner</Button>
+          <Button leftIcon={<RiAddLine />} onClick={openCreate}>Add Banner</Button>
         )}
       </div>
 
@@ -148,8 +187,10 @@ export default function AdminBannersPage() {
             exit={{ opacity: 0, y: -8 }}
             className="bg-white rounded-2xl p-6 border border-neutral-100 mb-6"
           >
-            <h2 className="font-semibold text-neutral-800 mb-5">New Banner</h2>
-            <form onSubmit={handleCreate} className="space-y-4">
+            <h2 className="font-semibold text-neutral-800 mb-5">
+              {editingId ? "Edit Banner" : "New Banner"}
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
               
               <div>
                 <label className="block text-sm font-medium text-neutral-700 mb-2">Banner Image *</label>
@@ -243,8 +284,12 @@ export default function AdminBannersPage() {
                 </div>
               </div>
               <div className="flex gap-3 pt-1">
-                <Button type="submit" isLoading={saving}>Create Banner</Button>
-                <Button type="button" variant="outline" onClick={() => { setShowForm(false); setImageUrl(""); }}>Cancel</Button>
+                <Button type="submit" isLoading={saving}>
+                  {editingId ? "Save Changes" : "Create Banner"}
+                </Button>
+                <Button type="button" variant="outline" onClick={closeForm}>
+                  Cancel
+                </Button>
               </div>
             </form>
           </motion.div>
@@ -288,15 +333,23 @@ export default function AdminBannersPage() {
                     {banner.link && <span className="text-xs text-neutral-400 truncate max-w-xs">→ {banner.link}</span>}
                   </div>
                 </div>
-                <div className="flex items-center gap-3 px-4">
+                <div className="flex items-center gap-2 px-4">
                   <button onClick={() => toggleActive(banner._id, banner.isActive)}>
                     <Badge variant={banner.isActive ? "success" : "neutral"} dot>
                       {banner.isActive ? "Active" : "Inactive"}
                     </Badge>
                   </button>
                   <button
+                    onClick={() => openEdit(banner)}
+                    title="Edit banner"
+                    className="p-1.5 rounded-lg hover:bg-blue-50 text-neutral-400 hover:text-blue-600 transition-colors"
+                  >
+                    <RiEditLine size={15} />
+                  </button>
+                  <button
                     onClick={() => handleDelete(banner._id)}
                     disabled={deletingId === banner._id}
+                    title="Delete banner"
                     className="p-1.5 rounded-lg hover:bg-red-50 text-neutral-400 hover:text-red-500 transition-colors disabled:opacity-40"
                   >
                     <RiDeleteBinLine size={15} />
