@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   },
 };
 
+type ColorScheme = "amber" | "olive" | "rose" | "emerald" | "sky";
+
 interface BannerRecord {
   _id: string;
   image: string;
@@ -26,6 +28,7 @@ interface BannerRecord {
   position: string;
   isActive: boolean;
   sortOrder: number;
+  colorScheme?: ColorScheme;
 }
 
 interface HeroSlide {
@@ -34,6 +37,7 @@ interface HeroSlide {
   subtitle: string;
   ctaText: string;
   ctaLink: string;
+  colorScheme?: ColorScheme;
 }
 
 const baseUrl = () =>
@@ -60,6 +64,7 @@ function bannersToSlides(banners: BannerRecord[] | null): HeroSlide[] {
       subtitle: b.subtitle ?? "",
       ctaText: "",
       ctaLink: b.link ?? "/products",
+      colorScheme: b.colorScheme,
     }));
 }
 

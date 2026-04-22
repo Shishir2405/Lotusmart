@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
-import type { IBanner, BannerPosition } from "@/types";
+import type { IBanner, BannerPosition, BannerColorScheme } from "@/types";
 
 
 export interface IBannerDocument extends Omit<IBanner, "_id">, Document {}
@@ -17,6 +17,11 @@ const BannerSchema = new Schema<IBannerDocument>(
       type: String,
       enum: ["hero", "sidebar", "category"] satisfies BannerPosition[],
       required: true,
+    },
+    colorScheme: {
+      type: String,
+      enum: ["amber", "olive", "rose", "emerald", "sky"] satisfies BannerColorScheme[],
+      default: "amber",
     },
   },
   {

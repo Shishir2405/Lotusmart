@@ -24,6 +24,7 @@ export type OrderStatus =
   | "cancelled"
   | "returned";
 export type BannerPosition = "hero" | "sidebar" | "category";
+export type BannerColorScheme = "amber" | "olive" | "rose" | "emerald" | "sky";
 export type BlogStatus = "draft" | "published" | "archived";
 
 
@@ -262,6 +263,7 @@ export interface IBanner extends Timestamps {
   isActive: boolean;
   sortOrder: number;
   position: BannerPosition;
+  colorScheme?: BannerColorScheme;
 }
 
 

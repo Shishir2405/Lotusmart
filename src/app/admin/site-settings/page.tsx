@@ -390,42 +390,6 @@ export default function AdminSiteSettingsPage() {
   const removeWhyItem = (idx: number) =>
     setWhyItems((prev) => prev.filter((_, i) => i !== idx));
 
-  const handleSaveWhy = async () => {
-    setSavingWhy(true);
-    try {
-      await axios.post("/api/admin/site-config", {
-        key: "why_choose_us",
-        value: { items: whyItems },
-      });
-      setWhySnapshot(JSON.stringify(whyItems));
-      toast.success("Why Choose Us saved");
-    } catch {
-      toast.error("Failed to save Why Choose Us");
-    } finally {
-      setSavingWhy(false);
-    }
-  };
-
-  const addWhyItem = () => {
-    setWhyItems((items) => [
-      ...items,
-      { title: "", description: "", icon: "leaf" },
-    ]);
-  };
-
-  const updateWhyItem = (idx: number, field: keyof WhyItem, value: string) => {
-    setWhyItems((items) => {
-      const next = [...items];
-      next[idx] = { ...next[idx], [field]: value };
-      return next;
-    });
-  };
-
-  const removeWhyItem = (idx: number) => {
-    setWhyItems((items) => items.filter((_, i) => i !== idx));
-  };
-
-
   const handleSavePage = async (key: PageKey) => {
     const page = pages[key];
     if (!page.content.trim()) {

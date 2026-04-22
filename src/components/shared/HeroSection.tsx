@@ -80,12 +80,15 @@ const imageVariant: Variants = {
   exit: { opacity: 0, x: -24, transition: { duration: 0.3, ease: exitEase } },
 };
 
+type ColorScheme = "amber" | "olive" | "rose" | "emerald" | "sky";
+
 interface HeroBannerSlide {
   image: string;
   title: string;
   subtitle: string;
   ctaText: string;
   ctaLink: string;
+  colorScheme?: ColorScheme;
 }
 
 interface HeroSectionProps {
@@ -95,17 +98,23 @@ interface HeroSectionProps {
   };
 }
 
-function mapAPISlides(apiSlides: HeroBannerSlide[]) {
-  const colorRotation = [
-    { accentColor: "#E84672", bgFrom: "#FFF9E8", bgTo: "#FFE8C8" },
-    { accentColor: "#7A6E42", bgFrom: "#F7F6F0", bgTo: "#EBE8D8" },
-    { accentColor: "#E84672", bgFrom: "#FFF1F3", bgTo: "#FFE0E6" },
-    { accentColor: "#D97706", bgFrom: "#FFFBEB", bgTo: "#FFF3CD" },
-    { accentColor: "#16A34A", bgFrom: "#F0FDF4", bgTo: "#DCFCE7" },
-  ];
+const COLOR_PALETTE: Record<
+  ColorScheme,
+  { accentColor: string; bgFrom: string; bgTo: string }
+> = {
+  amber:   { accentColor: "#E84672", bgFrom: "#FFF9E8", bgTo: "#FFE8C8" },
+  olive:   { accentColor: "#7A6E42", bgFrom: "#F7F6F0", bgTo: "#EBE8D8" },
+  rose:    { accentColor: "#E84672", bgFrom: "#FFF1F3", bgTo: "#FFE0E6" },
+  emerald: { accentColor: "#16A34A", bgFrom: "#F0FDF4", bgTo: "#DCFCE7" },
+  sky:     { accentColor: "#2563EB", bgFrom: "#EFF6FF", bgTo: "#DBEAFE" },
+};
 
+const SCHEME_ROTATION: ColorScheme[] = ["amber", "olive", "rose", "emerald", "sky"];
+
+function mapAPISlides(apiSlides: HeroBannerSlide[]) {
   return apiSlides.map((s, i) => {
-    const colors = colorRotation[i % colorRotation.length];
+    const scheme = s.colorScheme ?? SCHEME_ROTATION[i % SCHEME_ROTATION.length];
+    const colors = COLOR_PALETTE[scheme];
     const titleParts = s.title ? s.title.split("\n") : ["Welcome"];
     return {
       id: i,

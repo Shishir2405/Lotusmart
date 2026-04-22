@@ -10,6 +10,8 @@ import axios from "axios";
 import toast from "@/components/ui/toast";
 import { normalizeImageUrl } from "@/utils/helpers";
 
+type ColorScheme = "amber" | "olive" | "rose" | "emerald" | "sky";
+
 interface Banner {
   _id: string;
   title: string;
@@ -19,9 +21,32 @@ interface Banner {
   isActive: boolean;
   sortOrder: number;
   position: "hero" | "sidebar" | "category";
+  colorScheme?: ColorScheme;
 }
 
-const EMPTY_FORM = { title: "", subtitle: "", link: "", position: "hero" as const, sortOrder: 0, isActive: true };
+const COLOR_SCHEMES: {
+  id: ColorScheme;
+  label: string;
+  bgFrom: string;
+  bgTo: string;
+  accent: string;
+}[] = [
+  { id: "amber",   label: "Amber",   bgFrom: "#FFF9E8", bgTo: "#FFE8C8", accent: "#E84672" },
+  { id: "olive",   label: "Olive",   bgFrom: "#F7F6F0", bgTo: "#EBE8D8", accent: "#7A6E42" },
+  { id: "rose",    label: "Rose",    bgFrom: "#FFF1F3", bgTo: "#FFE0E6", accent: "#E84672" },
+  { id: "emerald", label: "Emerald", bgFrom: "#F0FDF4", bgTo: "#DCFCE7", accent: "#16A34A" },
+  { id: "sky",     label: "Sky",     bgFrom: "#EFF6FF", bgTo: "#DBEAFE", accent: "#2563EB" },
+];
+
+const EMPTY_FORM = {
+  title: "",
+  subtitle: "",
+  link: "",
+  position: "hero" as const,
+  sortOrder: 0,
+  isActive: true,
+  colorScheme: "amber" as ColorScheme,
+};
 
 export default function AdminBannersPage() {
   const [banners, setBanners] = useState<Banner[]>([]);
@@ -159,6 +184,55 @@ export default function AdminBannersPage() {
                   </select>
                 </div>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                  Background Colour
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {COLOR_SCHEMES.map((scheme) => {
+                    const selected = form.colorScheme === scheme.id;
+                    return (
+                      <button
+                        key={scheme.id}
+                        type="button"
+                        onClick={() =>
+                          setForm((f) => ({ ...f, colorScheme: scheme.id }))
+                        }
+                        className="group flex items-center gap-2 rounded-xl border px-2.5 py-2 text-xs font-medium transition-all"
+                        style={{
+                          borderColor: selected ? scheme.accent : "#e5e5e5",
+                          backgroundColor: selected ? "#fff" : "#fafafa",
+                          boxShadow: selected
+                            ? `0 0 0 2px ${scheme.accent}22`
+                            : "none",
+                        }}
+                      >
+                        <span
+                          className="h-6 w-10 rounded-md border border-black/5"
+                          style={{
+                            background: `linear-gradient(135deg, ${scheme.bgFrom} 0%, ${scheme.bgTo} 100%)`,
+                          }}
+                        />
+                        <span
+                          className="h-2 w-2 rounded-full"
+                          style={{ backgroundColor: scheme.accent }}
+                        />
+                        <span
+                          className="pr-1"
+                          style={{ color: selected ? scheme.accent : "#737373" }}
+                        >
+                          {scheme.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-1.5 text-xs text-neutral-400">
+                  Used as the background gradient and accent colour on the hero
+                  section.
+                </p>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <Input label="Sort Order" type="number" value={String(form.sortOrder)} onChange={(e) => setForm((f) => ({ ...f, sortOrder: Number(e.target.value) }))} />
                 <div className="flex items-end pb-2.5">
