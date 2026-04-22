@@ -7,10 +7,64 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { Variants } from "framer-motion";
 import {
   RiArrowRightLine,
+  RiLeafLine,
+  RiShieldCheckLine,
+  RiTruckLine,
   RiArrowLeftSLine,
   RiArrowRightSLine,
 } from "react-icons/ri";
 import { normalizeImageUrl } from "@/utils/helpers";
+
+const slides = [
+  {
+    id: 0,
+    tag: "Farm to Kitchen",
+    headline: ["Pure Spices,", "Authentic Flavours"],
+    subtext:
+      "Handpicked from trusted farms across India. No additives, no compromises, just authentic flavour.",
+    cta: { label: "Shop Spices", href: "/categories/spices" },
+    secondaryCta: { label: "Explore All", href: "/products" },
+    image: "/images/hero/spices-hero.jpg",
+    accentColor: "#E84672",
+    bgFrom: "#FFF9E8",
+    bgTo: "#FFE8C8",
+    highlight: "4.9 Rating",
+  },
+  {
+    id: 1,
+    tag: "Direct Sourced",
+    headline: ["Premium Dry", "Fruits & Nuts"],
+    subtext:
+      "Rich in nutrition and taste, sourced from leading regions including Afghanistan, Kashmir, and California.",
+    cta: { label: "Explore Nuts", href: "/categories/dry-fruits" },
+    secondaryCta: { label: "View Bundles", href: "/bundles" },
+    image: "/images/hero/dryfruits-hero.jpg",
+    accentColor: "#7A6E42",
+    bgFrom: "#F7F6F0",
+    bgTo: "#EBE8D8",
+    highlight: "200+ Varieties",
+  },
+  {
+    id: 2,
+    tag: "Gifting Collection",
+    headline: ["Thoughtful Gift", "Boxes & Hampers"],
+    subtext:
+      "Curated gift boxes for weddings, festivals, and corporate occasions, beautifully packed and ready to send.",
+    cta: { label: "Shop Gift Boxes", href: "/categories/gift-boxes" },
+    secondaryCta: { label: "Customize Box", href: "/customize" },
+    image: "/images/hero/gifts-hero.jpg",
+    accentColor: "#E84672",
+    bgFrom: "#FFF1F3",
+    bgTo: "#FFE0E6",
+    highlight: "Starts at Rs 799",
+  },
+];
+
+const trustItems = [
+  { icon: RiLeafLine, label: "100% Natural" },
+  { icon: RiShieldCheckLine, label: "FSSAI Certified" },
+  { icon: RiTruckLine, label: "Free Shipping Rs 500+" },
+];
 
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 const exitEase: [number, number, number, number] = [0.55, 0, 1, 0.45];
@@ -59,7 +113,8 @@ function mapAPISlides(apiSlides: HeroBannerSlide[]) {
       headline: titleParts.length > 1 ? titleParts : [titleParts[0], ""],
       subtext: s.subtitle || "",
       cta: { label: s.ctaText || "Shop Now", href: s.ctaLink || "/products" },
-      image: normalizeImageUrl(s.image) || "",
+      secondaryCta: { label: "Explore All", href: "/products" },
+      image: normalizeImageUrl(s.image) || "/images/hero/spices-hero.jpg",
       accentColor: colors.accentColor,
       bgFrom: colors.bgFrom,
       bgTo: colors.bgTo,
@@ -69,13 +124,16 @@ function mapAPISlides(apiSlides: HeroBannerSlide[]) {
 }
 
 export function HeroSection({ settings }: HeroSectionProps = {}) {
-  const hasAdminSlides = Array.isArray(settings?.slides) && settings!.slides!.length > 0;
-  const activeSlides = hasAdminSlides ? mapAPISlides(settings!.slides!) : [];
+  const activeSlides =
+    settings?.slides && settings.slides.length > 0
+      ? mapAPISlides(settings.slides)
+      : slides;
 
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const slide = activeSlides[current];
 
   const startInterval = () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
@@ -83,13 +141,12 @@ export function HeroSection({ settings }: HeroSectionProps = {}) {
   };
 
   useEffect(() => {
-    if (!hasAdminSlides) return;
     if (!isPaused) startInterval();
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-
-  }, [isPaused, hasAdminSlides]);
+    
+  }, [isPaused]);
 
   useEffect(() => {
     setProgress(0);
@@ -104,9 +161,6 @@ export function HeroSection({ settings }: HeroSectionProps = {}) {
     setCurrent(i);
     startInterval();
   };
-
-  if (!hasAdminSlides) return null;
-  const slide = activeSlides[current];
 
   return (
     <section
@@ -158,27 +212,25 @@ export function HeroSection({ settings }: HeroSectionProps = {}) {
               exit={{ opacity: 0, transition: { duration: 0.18 } }}
               style={{ display: "flex", flexDirection: "column" }}
             >
-              {slide.tag && (
-                <motion.div variants={textItem} style={{ marginBottom: "1rem" }}>
-                  <span
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      borderRadius: "9999px",
-                      padding: "0.35rem 0.9rem",
-                      fontSize: "0.68rem",
-                      fontWeight: 800,
-                      letterSpacing: "0.08em",
-                      textTransform: "uppercase",
-                      color: slide.accentColor,
-                      backgroundColor: "rgba(255,255,255,0.55)",
-                      border: "1px solid rgba(255,255,255,0.75)",
-                    }}
-                  >
-                    {slide.tag}
-                  </span>
-                </motion.div>
-              )}
+              <motion.div variants={textItem} style={{ marginBottom: "1rem" }}>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    borderRadius: "9999px",
+                    padding: "0.35rem 0.9rem",
+                    fontSize: "0.68rem",
+                    fontWeight: 800,
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    color: slide.accentColor,
+                    backgroundColor: "rgba(255,255,255,0.55)",
+                    border: "1px solid rgba(255,255,255,0.75)",
+                  }}
+                >
+                  {slide.tag}
+                </span>
+              </motion.div>
 
               <div style={{ marginBottom: "1.25rem" }}>
                 {slide.headline.map((line, i) => (
@@ -211,24 +263,22 @@ export function HeroSection({ settings }: HeroSectionProps = {}) {
                 {slide.subtext}
               </motion.p>
 
-              {slide.highlight && (
-                <motion.div variants={textItem} style={{ marginBottom: "1.7rem" }}>
-                  <span
-                    style={{
-                      display: "inline-flex",
-                      borderRadius: "0.75rem",
-                      padding: "0.45rem 0.7rem",
-                      fontSize: "0.72rem",
-                      fontWeight: 700,
-                      color: "#44403c",
-                      backgroundColor: "rgba(255,255,255,0.75)",
-                      border: "1px solid rgba(0,0,0,0.06)",
-                    }}
-                  >
-                    {slide.highlight}
-                  </span>
-                </motion.div>
-              )}
+              <motion.div variants={textItem} style={{ marginBottom: "1.7rem" }}>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    borderRadius: "0.75rem",
+                    padding: "0.45rem 0.7rem",
+                    fontSize: "0.72rem",
+                    fontWeight: 700,
+                    color: "#44403c",
+                    backgroundColor: "rgba(255,255,255,0.75)",
+                    border: "1px solid rgba(0,0,0,0.06)",
+                  }}
+                >
+                  {slide.highlight}
+                </span>
+              </motion.div>
 
               <motion.div
                 variants={textItem}
@@ -256,8 +306,68 @@ export function HeroSection({ settings }: HeroSectionProps = {}) {
                     <RiArrowRightLine size={16} />
                   </motion.span>
                 </Link>
+                <Link href={slide.secondaryCta.href}>
+                  <motion.span
+                    whileHover={{ y: -2, backgroundColor: "#ffffff" }}
+                    whileTap={{ scale: 0.97 }}
+                    style={{
+                      display: "inline-flex",
+                      cursor: "pointer",
+                      alignItems: "center",
+                      borderRadius: "0.9rem",
+                      border: "1.5px solid #E5E7EB",
+                      backgroundColor: "rgba(255,255,255,0.65)",
+                      padding: "0.82rem 1.4rem",
+                      fontSize: "0.88rem",
+                      fontWeight: 700,
+                      color: "#404040",
+                      backdropFilter: "blur(3px)",
+                      userSelect: "none",
+                    }}
+                  >
+                    {slide.secondaryCta.label}
+                  </motion.span>
+                </Link>
               </motion.div>
 
+              <motion.div
+                variants={textItem}
+                style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "1.25rem" }}
+              >
+                {trustItems.map(({ icon: Icon, label }, i) => (
+                  <motion.div
+                    key={label}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 + i * 0.08 }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.375rem",
+                      fontSize: "0.75rem",
+                      fontWeight: 600,
+                      color: "#57534e",
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "flex",
+                        width: "20px",
+                        height: "20px",
+                        flexShrink: 0,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: "50%",
+                        backgroundColor: "rgba(255,255,255,0.8)",
+                        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+                      }}
+                    >
+                      <Icon size={11} style={{ color: slide.accentColor }} />
+                    </span>
+                    {label}
+                  </motion.div>
+                ))}
+              </motion.div>
             </motion.div>
           </AnimatePresence>
 
@@ -300,25 +410,23 @@ export function HeroSection({ settings }: HeroSectionProps = {}) {
                         "linear-gradient(to top, rgba(0,0,0,0.22), rgba(0,0,0,0.04) 45%, transparent)",
                     }}
                   />
-                  {slide.tag && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "1rem",
-                        left: "1rem",
-                        borderRadius: "0.7rem",
-                        padding: "0.28rem 0.6rem",
-                        fontSize: "0.62rem",
-                        fontWeight: 800,
-                        letterSpacing: "0.08em",
-                        textTransform: "uppercase",
-                        backgroundColor: "rgba(255,255,255,0.86)",
-                        color: "#44403c",
-                      }}
-                    >
-                      {slide.tag}
-                    </div>
-                  )}
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "1rem",
+                      left: "1rem",
+                      borderRadius: "0.7rem",
+                      padding: "0.28rem 0.6rem",
+                      fontSize: "0.62rem",
+                      fontWeight: 800,
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      backgroundColor: "rgba(255,255,255,0.86)",
+                      color: "#44403c",
+                    }}
+                  >
+                    {slide.tag}
+                  </div>
                 </div>
               </motion.div>
             </AnimatePresence>

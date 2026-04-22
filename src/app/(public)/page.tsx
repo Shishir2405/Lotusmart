@@ -80,6 +80,8 @@ export default async function HomePage() {
   const faqItems = faqConfig?.value?.items ?? [];
   const whyItems = whyConfig?.value?.items ?? [];
 
+  const primaryPromo = promoSlides[0];
+
   return (
     <>
       <HeroSection settings={{ slides: heroSlides }} />
@@ -90,17 +92,26 @@ export default async function HomePage() {
         <FeaturedProducts />
       </Suspense>
 
-      <BannerStrip settings={{ slides: promoSlides }} />
+      <BannerStrip
+        settings={
+          primaryPromo
+            ? {
+                image: primaryPromo.image,
+                title: primaryPromo.title,
+                subtitle: primaryPromo.subtitle,
+                link: primaryPromo.ctaLink,
+              }
+            : undefined
+        }
+      />
 
       <WhyChooseUs
-        title="Why LotusMart is Different."
-        subtitle="We are obsessive about quality, transparency, and what you eat."
-        settings={{ items: whyItems }}
+        settings={{
+          items: whyItems as { icon: string; title: string; description: string }[],
+        }}
       />
 
       <FAQSection
-        title="Frequently Asked"
-        subtitle="Questions answered by our team."
         settings={{
           items: (faqItems as { question?: string; answer?: string }[])
             .map((i) => ({

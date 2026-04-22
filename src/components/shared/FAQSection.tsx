@@ -5,8 +5,71 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   RiAddLine, RiSubtractLine, RiArrowRightLine,
-  RiPhoneLine, RiQuestionLine,
+  RiLeafLine, RiTruckLine, RiShieldCheckLine,
+  RiPhoneLine, RiQuestionLine, RiMailLine,
 } from "react-icons/ri";
+
+const faqs = [
+  {
+    category: "Products",
+    icon: RiLeafLine,
+    color: "#16A34A",
+    colorLight: "#F0FDF4",
+    colorBorder: "#BBF7D0",
+    questions: [
+      {
+        q: "Are all your products 100% natural with no additives?",
+        a: "Yes, every product we sell is free from artificial colours, flavours, preservatives, and fillers. We source directly from farms and small-batch processors who share our no-compromise philosophy. What's on the label is exactly what's inside.",
+      },
+      {
+        q: "How do you ensure freshness across all products?",
+        a: "We operate on a tight rotation — products are replenished in small batches weekly. Whole spices are vacuum-sealed within 48 hours of packing. Dry fruits are stored in climate-controlled facilities to preserve texture and nutrition.",
+      },
+      {
+        q: "Do you offer organic-certified variants?",
+        a: "Yes. Our Organic Range carries full FSSAI organic certification. These are grown without synthetic pesticides, fertilisers, or GMOs — verified at the source. Look for the green 'Certified' badge on product pages.",
+      },
+    ],
+  },
+  {
+    category: "Shipping",
+    icon: RiTruckLine,
+    color: "#D97706",
+    colorLight: "#FFFBEB",
+    colorBorder: "#FDE68A",
+    questions: [
+      {
+        q: "What is the delivery timeframe and cost?",
+        a: "Standard delivery takes 2–5 business days across India. Orders above ₹500 ship free. For orders below ₹500, a flat ₹49 fee applies. Metro cities typically receive orders within 2 days.",
+      },
+      {
+        q: "Do you ship to all pin codes in India?",
+        a: "We cover 19,000+ pin codes through our logistics partners. You can check your pin code eligibility at checkout before placing an order — no surprises at the last step.",
+      },
+      {
+        q: "Can I track my order in real time?",
+        a: "Yes. Once dispatched you'll receive an SMS and email with a tracking link. You can also track directly from the 'My Orders' section of your account at any time.",
+      },
+    ],
+  },
+  {
+    category: "Returns",
+    icon: RiShieldCheckLine,
+    color: "#E84672",
+    colorLight: "#FFF1F3",
+    colorBorder: "#FECDD3",
+    questions: [
+      {
+        q: "What is your return and refund policy?",
+        a: "We offer a no-questions-asked 7-day return window from the date of delivery. If you're unsatisfied for any reason, reach out and we'll arrange a pickup and full refund within 3–5 business days.",
+      },
+      {
+        q: "What if my product arrives damaged or tampered?",
+        a: "Report it within 48 hours with a photo and we'll send a replacement at no cost, typically within 2 days. Your trust is more important than the cost of a replacement.",
+      },
+    ],
+  },
+];
 
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -99,18 +162,18 @@ export function FAQSection({ title, subtitle, settings }: FAQSectionProps = {}) 
       )
     : [];
 
-  if (adminItems.length === 0) return null;
-
-  const data = [
-    {
-      category: title?.trim() || "Questions",
-      icon: RiQuestionLine,
-      color: "#E84672",
-      colorLight: "#FFF1F3",
-      colorBorder: "#FECDD3",
-      questions: adminItems,
-    },
-  ];
+  const data = adminItems.length > 0
+    ? [
+        {
+          category: title?.trim() || "Questions",
+          icon: RiQuestionLine,
+          color: "#E84672",
+          colorLight: "#FFF1F3",
+          colorBorder: "#FECDD3",
+          questions: adminItems,
+        },
+      ]
+    : faqs;
 
   const activeData = data[activeCategory] ?? data[0];
 

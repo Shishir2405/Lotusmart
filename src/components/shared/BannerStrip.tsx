@@ -1,32 +1,63 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   RiArrowRightLine,
-  RiArrowLeftSLine,
-  RiArrowRightSLine,
+  RiTimeLine,
+  RiGiftLine,
+  RiLeafLine,
+  RiFlashlightLine,
 } from "react-icons/ri";
 import { normalizeImageUrl } from "@/utils/helpers";
 
+
+const primary = {
+  id: "spice-bundle",
+  eyebrow: "Limited Time",
+  tag: "This Week Only",
+  headline: "Spice\nBundle",
+  highlight: "20% Off",
+  body: "Any 5-spice combo box. Handpicked, freshly packed, zero additives.",
+  cta: { label: "Shop the Deal", href: "/products?category=spices" },
+  image: "/images/hero/spices-hero.jpg",
+  accentColor: "#FFE08A",
+  textDark: "#2a2518",
+  bg: "linear-gradient(145deg, #1c1610 0%, #3a2e10 100%)",
+  stat: "Save ₹120 avg",
+};
+
+const secondaries = [
+  {
+    id: "gift-boxes",
+    eyebrow: "Gifting",
+    headline: "Custom\nHampers",
+    body: "From ₹799. Same-day dispatch. Built to impress.",
+    cta: { label: "Explore", href: "/categories/gift-boxes" },
+    image: "/images/hero/gifts-hero.jpg",
+    accentColor: "#FFD6E0",
+    bg: "linear-gradient(145deg, #4a0f1e 0%, #8b1e3e 100%)",
+    icon: RiGiftLine,
+  },
+  {
+    id: "organic",
+    eyebrow: "New In",
+    headline: "Organic\nRange",
+    body: "FSSAI-certified. No pesticides. Just honest food.",
+    cta: { label: "Discover", href: "/categories/organic" },
+    image: "/images/spices/organic-spices.jpg",
+    accentColor: "#BBF7D0",
+    bg: "linear-gradient(145deg, #052e16 0%, #14532d 100%)",
+    icon: RiLeafLine,
+  },
+];
+
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-interface BannerSlide {
-  image: string;
-  title: string;
-  subtitle: string;
-  ctaText: string;
-  ctaLink: string;
-}
 
 interface BannerStripProps {
-  title?: string;
-  subtitle?: string;
   settings?: {
-    slides?: BannerSlide[];
-    // legacy single-banner shape
     image?: string;
     title?: string;
     subtitle?: string;
@@ -35,177 +66,299 @@ interface BannerStripProps {
   };
 }
 
-function readSlides(settings: BannerStripProps["settings"]): BannerSlide[] {
-  if (Array.isArray(settings?.slides) && settings!.slides!.length > 0) {
-    return settings!.slides!.filter((s) => s && s.image);
-  }
-  if (settings?.image) {
-    return [
-      {
+export function BannerStrip({ settings }: BannerStripProps = {}) {
+  
+  const activePrimary = settings?.image
+    ? {
+        ...primary,
         image: settings.image,
-        title: settings.title || "",
-        subtitle: settings.subtitle || "",
-        ctaText: "",
-        ctaLink: settings.link || "",
-      },
-    ];
-  }
-  return [];
-}
-
-export function BannerStrip({ title, subtitle, settings }: BannerStripProps = {}) {
-  const slides = readSlides(settings);
-  const [current, setCurrent] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    if (slides.length <= 1 || isPaused) return;
-    intervalRef.current = setInterval(() => {
-      setCurrent((c) => (c + 1) % slides.length);
-    }, 5500);
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [slides.length, isPaused]);
-
-  if (slides.length === 0) return null;
-
-  const slide = slides[current];
-  const goTo = (i: number) => setCurrent((i + slides.length) % slides.length);
-
+        headline: settings.title || primary.headline,
+        body: settings.subtitle || primary.body,
+        cta: {
+          label: primary.cta.label,
+          href: settings.link || primary.cta.href,
+        },
+      }
+    : primary;
   return (
     <section className="py-16 lg:py-24" style={{ backgroundColor: "#FAFAF9" }}>
       <div className="mx-auto w-full max-w-[1400px] px-6 md:px-8 lg:px-12">
-        {(title || subtitle) && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.55, ease }}
-            className="mb-10"
-          >
-            {title && (
-              <h2 className="text-[clamp(1.9rem,3.5vw,2.8rem)] leading-tight font-black tracking-[-0.03em] text-neutral-900">
-                {title}
-              </h2>
-            )}
-            {subtitle && (
-              <p className="mt-2 text-sm text-neutral-400">{subtitle}</p>
-            )}
-          </motion.div>
-        )}
-
-        <div
-          className="relative"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.55, ease }}
+          className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"
         >
-          <div className="relative h-[320px] overflow-hidden rounded-3xl md:h-[420px] lg:h-[480px]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`slide-${current}`}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5, ease }}
-                className="absolute inset-0"
+          <div>
+            <div className="mb-2 flex items-center gap-3">
+              <span className="h-px w-8" style={{ backgroundColor: "#E84672" }} />
+              <span
+                className="text-[0.62rem] font-black tracking-[0.22em] uppercase"
+                style={{ color: "#B8AE86" }}
               >
-                <Link
-                  href={slide.ctaLink || "/products"}
-                  className="group block h-full"
-                >
-                  <div className="relative h-full w-full overflow-hidden">
-                    <Image
-                      src={normalizeImageUrl(slide.image)}
-                      alt={slide.title || "Promotional banner"}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      sizes="100vw"
-                      priority={current === 0}
-                    />
+                This Season
+              </span>
+            </div>
+            <h2 className="text-[clamp(1.9rem,3.5vw,2.8rem)] leading-tight font-black tracking-[-0.03em] text-neutral-900">
+              Deals & <span style={{ color: "#E84672" }}>Collections</span>
+            </h2>
+          </div>
+          <Link href="/offers">
+            <motion.span
+              whileHover={{ x: 4 }}
+              transition={{ duration: 0.15 }}
+              className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-bold"
+              style={{ color: "#E84672" }}
+            >
+              See all offers <RiArrowRightLine size={15} />
+            </motion.span>
+          </Link>
+        </motion.div>
 
-                    <div
-                      className="absolute inset-0"
+        
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[3fr_2fr]">
+          
+          <motion.div
+            initial={{ opacity: 0, x: -24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.65, ease }}
+          >
+            <Link href={activePrimary.cta.href} className="group block h-full">
+              <motion.div
+                whileHover={{ boxShadow: "0 32px 80px rgba(0,0,0,0.2)" }}
+                whileTap={{ scale: 0.99 }}
+                transition={{ duration: 0.3, ease }}
+                className="relative h-[420px] cursor-pointer overflow-hidden rounded-3xl lg:h-[560px]"
+              >
+                
+                <Image
+                  src={normalizeImageUrl(activePrimary.image)}
+                  alt={activePrimary.headline}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  sizes="(max-width: 1024px) 100vw, 60vw"
+                  priority
+                />
+
+                
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: `linear-gradient(160deg, ${activePrimary.bg.match(/#[a-f0-9]+/gi)?.[0]}F0 0%, transparent 55%, rgba(0,0,0,0.6) 100%)`,
+                  }}
+                />
+                <div
+                  className="absolute inset-0"
+                  style={{ background: activePrimary.bg, opacity: 0.75 }}
+                />
+
+                
+                <div className="absolute inset-0 z-10 flex flex-col justify-between p-8">
+                  
+                  <div className="flex items-start justify-between">
+                    <motion.span
+                      initial={{ opacity: 0, y: -8 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.2 }}
+                      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[0.62rem] font-black tracking-[0.15em] uppercase"
                       style={{
-                        background:
-                          "linear-gradient(110deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.2) 45%, transparent 75%)",
+                        backgroundColor: "rgba(255,224,138,0.15)",
+                        border: "1px solid rgba(255,224,138,0.25)",
+                        color: activePrimary.accentColor,
                       }}
-                    />
+                    >
+                      <RiTimeLine size={10} />
+                      {activePrimary.eyebrow}
+                    </motion.span>
 
-                    <div className="absolute inset-0 z-10 flex flex-col justify-end p-8 md:p-10">
-                      {slide.title && (
-                        <h3
-                          className="mb-2 max-w-2xl leading-[0.95] font-black tracking-[-0.03em] whitespace-pre-line text-white"
-                          style={{ fontSize: "clamp(1.8rem, 3.6vw, 3rem)" }}
-                        >
-                          {slide.title}
-                        </h3>
-                      )}
+                    
+                    <motion.div
+                      initial={{ scale: 0, rotate: -12 }}
+                      whileInView={{ scale: 1, rotate: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.3, type: "spring", stiffness: 280, damping: 18 }}
+                      className="flex h-16 w-16 flex-col items-center justify-center rounded-2xl"
+                      style={{ backgroundColor: activePrimary.accentColor }}
+                    >
+                      <span
+                        className="text-[1.1rem] leading-none font-black"
+                        style={{ color: activePrimary.textDark }}
+                      >
+                        20%
+                      </span>
+                      <span
+                        className="text-[0.55rem] font-black tracking-wider uppercase"
+                        style={{ color: activePrimary.textDark }}
+                      >
+                        OFF
+                      </span>
+                    </motion.div>
+                  </div>
 
-                      {slide.subtitle && (
-                        <p className="mb-5 max-w-xl text-[0.9rem] leading-relaxed text-white/75">
-                          {slide.subtitle}
-                        </p>
-                      )}
+                  
+                  <div>
+                    
+                    <p
+                      className="mb-2 text-[0.62rem] font-black tracking-[0.2em] uppercase"
+                      style={{ color: `${activePrimary.accentColor}80` }}
+                    >
+                      {activePrimary.tag}
+                    </p>
 
-                      {(slide.ctaText || slide.ctaLink) && (
-                        <motion.span
-                          whileHover={{ x: 4 }}
-                          className="inline-flex w-fit items-center gap-2 rounded-2xl bg-white px-5 py-3 text-[0.85rem] font-black text-neutral-900"
-                        >
-                          {slide.ctaText || "Explore"}
-                          <RiArrowRightLine size={15} />
-                        </motion.span>
-                      )}
+                    
+                    <h3
+                      className="mb-4 leading-[0.92] font-black tracking-[-0.04em] whitespace-pre-line"
+                      style={{
+                        fontSize: "clamp(3rem, 6vw, 4.5rem)",
+                        color: activePrimary.accentColor,
+                      }}
+                    >
+                      {activePrimary.headline}
+                    </h3>
+
+                    <p
+                      className="mb-6 max-w-xs text-[0.85rem] leading-relaxed"
+                      style={{ color: "rgba(255,224,138,0.6)" }}
+                    >
+                      {activePrimary.body}
+                    </p>
+
+                    
+                    <div className="flex items-center gap-4">
+                      <motion.span
+                        whileHover={{ x: 4 }}
+                        className="inline-flex cursor-pointer items-center gap-2.5 rounded-2xl px-5 py-3 text-[0.85rem] font-black"
+                        style={{ backgroundColor: activePrimary.accentColor, color: activePrimary.textDark }}
+                      >
+                        {activePrimary.cta.label}
+                        <RiArrowRightLine size={15} />
+                      </motion.span>
+                      <span
+                        className="text-[0.7rem] font-bold"
+                        style={{ color: `${activePrimary.accentColor}60` }}
+                      >
+                        {activePrimary.stat}
+                      </span>
                     </div>
                   </div>
+                </div>
+
+                
+                <motion.div
+                  initial={{ x: "-100%", opacity: 0 }}
+                  whileHover={{ x: "200%", opacity: 1 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className="pointer-events-none absolute inset-0 skew-x-12 bg-gradient-to-r from-transparent via-white/6 to-transparent"
+                />
+              </motion.div>
+            </Link>
+          </motion.div>
+
+          
+          <div className="flex flex-col gap-4">
+            {secondaries.map((b, i) => (
+              <motion.div
+                key={b.id}
+                initial={{ opacity: 0, x: 24 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.12, duration: 0.6, ease }}
+                className="flex-1"
+              >
+                <Link href={b.cta.href} className="group block h-full">
+                  <motion.div
+                    whileHover={{ boxShadow: "0 24px 60px rgba(0,0,0,0.18)" }}
+                    whileTap={{ scale: 0.99 }}
+                    transition={{ duration: 0.3, ease }}
+                    className="relative h-[200px] min-h-[200px] cursor-pointer overflow-hidden rounded-3xl lg:h-full"
+                  >
+                    <Image
+                      src={normalizeImageUrl(b.image)}
+                      alt={b.headline}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      sizes="(max-width: 1024px) 100vw, 40vw"
+                    />
+                    <div className="absolute inset-0" style={{ background: b.bg, opacity: 0.82 }} />
+
+                    <div className="absolute inset-0 z-10 flex flex-col justify-between p-6">
+                      
+                      <div className="flex items-center justify-between">
+                        <span
+                          className="inline-flex items-center gap-1.5 text-[0.6rem] font-black tracking-[0.18em] uppercase"
+                          style={{ color: `${b.accentColor}80` }}
+                        >
+                          <b.icon size={10} style={{ color: b.accentColor }} />
+                          {b.eyebrow}
+                        </span>
+                        <motion.span
+                          whileHover={{ scale: 1.1 }}
+                          className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-xl"
+                          style={{ backgroundColor: "rgba(255,255,255,0.1)" }}
+                        >
+                          <RiArrowRightLine size={13} style={{ color: b.accentColor }} />
+                        </motion.span>
+                      </div>
+
+                      
+                      <div>
+                        <h3
+                          className="mb-2 leading-[0.9] font-black tracking-[-0.03em] whitespace-pre-line"
+                          style={{ fontSize: "clamp(1.6rem, 3vw, 2rem)", color: b.accentColor }}
+                        >
+                          {b.headline}
+                        </h3>
+                        <p
+                          className="text-[0.75rem] leading-relaxed"
+                          style={{ color: `${b.accentColor}70` }}
+                        >
+                          {b.body}
+                        </p>
+                      </div>
+                    </div>
+
+                    
+                    <motion.div
+                      initial={{ x: "-100%", opacity: 0 }}
+                      whileHover={{ x: "200%", opacity: 1 }}
+                      transition={{ duration: 0.5, ease: "easeOut" }}
+                      className="pointer-events-none absolute inset-0 skew-x-12 bg-gradient-to-r from-transparent via-white/6 to-transparent"
+                    />
+                  </motion.div>
                 </Link>
               </motion.div>
-            </AnimatePresence>
+            ))}
           </div>
-
-          {slides.length > 1 && (
-            <div className="mt-4 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                {slides.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => goTo(i)}
-                    aria-label={`Go to slide ${i + 1}`}
-                    className="h-1.5 rounded-full transition-all"
-                    style={{
-                      width: i === current ? "2rem" : "0.5rem",
-                      backgroundColor: i === current ? "#E84672" : "#D1D5DB",
-                    }}
-                  />
-                ))}
-                <span className="ml-2 text-[0.66rem] font-bold tabular-nums text-neutral-400">
-                  {String(current + 1).padStart(2, "0")} /{" "}
-                  {String(slides.length).padStart(2, "0")}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => goTo(current - 1)}
-                  aria-label="Previous slide"
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-600 hover:text-[#E84672] transition-colors"
-                >
-                  <RiArrowLeftSLine size={18} />
-                </button>
-                <button
-                  onClick={() => goTo(current + 1)}
-                  aria-label="Next slide"
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-white transition-colors"
-                  style={{ backgroundColor: "#E84672" }}
-                >
-                  <RiArrowRightSLine size={18} />
-                </button>
-              </div>
-            </div>
-          )}
         </div>
+
+        
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="mt-5 flex flex-wrap items-center justify-center gap-4"
+        >
+          {[
+            "Free shipping ₹500+",
+            "Pan-India delivery",
+            "Bulk order discounts",
+            "Same-day dispatch",
+          ].map((item, i) => (
+            <span
+              key={i}
+              className="flex items-center gap-1.5 text-[0.68rem] font-bold tracking-wide"
+              style={{ color: "#B8AE86" }}
+            >
+              <RiFlashlightLine size={10} style={{ color: "#E84672" }} />
+              {item}
+            </span>
+          ))}
+        </motion.div>
       </div>
     </section>
   );
