@@ -26,7 +26,19 @@ export async function POST(request: NextRequest) {
     const authUser = await requireAuth(request);
     const body = await request.json();
 
-    const { fullName, phone, addressLine1, addressLine2, city, state, pincode, label, isDefault } = body;
+    const {
+      fullName,
+      phone,
+      addressLine1,
+      addressLine2,
+      city,
+      state,
+      pincode,
+      label,
+      isDefault,
+      coordinates,
+      formattedAddress,
+    } = body;
     if (!fullName || !phone || !addressLine1 || !city || !state || !pincode) {
       throw ApiError.badRequest("Required fields: fullName, phone, addressLine1, city, state, pincode");
     }
@@ -34,13 +46,26 @@ export async function POST(request: NextRequest) {
     const user = await User.findById(authUser.userId);
     if (!user) throw ApiError.notFound("User not found");
 
-    
     if (isDefault) {
       user.addresses.forEach((a: { isDefault: boolean }) => { a.isDefault = false; });
     }
 
-    
-    (user.addresses as any[]).push({ fullName, phone, addressLine1, addressLine2, city, state, pincode, label: label ?? "home", isDefault: isDefault ?? user.addresses.length === 0 });
+    (user.addresses as any[]).push({
+      fullName,
+      phone,
+      addressLine1,
+      addressLine2,
+      city,
+      state,
+      pincode,
+      label: label ?? "home",
+      isDefault: isDefault ?? user.addresses.length === 0,
+      coordinates:
+        coordinates && typeof coordinates.lat === "number" && typeof coordinates.lng === "number"
+          ? coordinates
+          : undefined,
+      formattedAddress,
+    });
     await user.save();
 
     return successResponse(user.addresses, "Address added", 201);

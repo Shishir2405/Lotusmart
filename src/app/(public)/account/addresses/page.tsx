@@ -6,6 +6,7 @@ import { RiAddLine, RiEditLine, RiDeleteBinLine, RiHomeSmileLine, RiBriefcaseLin
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { LocationSelector } from "@/components/ui/LocationSelector";
+import LocationPicker, { type LocationPickerValue } from "@/components/shared/LocationPicker";
 import axios from "axios";
 import toast from "@/components/ui/toast";
 
@@ -20,12 +21,27 @@ interface Address {
   pincode: string;
   label: "home" | "work" | "other";
   isDefault: boolean;
+  coordinates?: { lat: number; lng: number };
+  formattedAddress?: string;
 }
 
 const LABEL_ICONS = { home: <RiHomeSmileLine size={14} />, work: <RiBriefcaseLine size={14} />, other: <RiMapPinLine size={14} /> };
 
 type AddressLabel = "home" | "work" | "other";
-const EMPTY_FORM: { fullName: string; phone: string; addressLine1: string; addressLine2: string; city: string; state: string; pincode: string; label: AddressLabel; isDefault: boolean } = { fullName: "", phone: "", addressLine1: "", addressLine2: "", city: "", state: "", pincode: "", label: "home", isDefault: false };
+interface FormState {
+  fullName: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  state: string;
+  pincode: string;
+  label: AddressLabel;
+  isDefault: boolean;
+  coordinates?: { lat: number; lng: number };
+  formattedAddress?: string;
+}
+const EMPTY_FORM: FormState = { fullName: "", phone: "", addressLine1: "", addressLine2: "", city: "", state: "", pincode: "", label: "home", isDefault: false };
 
 export default function AddressesPage() {
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -50,9 +66,34 @@ export default function AddressesPage() {
   const openAdd = () => { setForm(EMPTY_FORM); setEditId(null); setShowForm(true); };
 
   const openEdit = (addr: Address) => {
-    setForm({ fullName: addr.fullName, phone: addr.phone, addressLine1: addr.addressLine1, addressLine2: addr.addressLine2 ?? "", city: addr.city, state: addr.state, pincode: addr.pincode, label: addr.label, isDefault: addr.isDefault });
+    setForm({
+      fullName: addr.fullName,
+      phone: addr.phone,
+      addressLine1: addr.addressLine1,
+      addressLine2: addr.addressLine2 ?? "",
+      city: addr.city,
+      state: addr.state,
+      pincode: addr.pincode,
+      label: addr.label,
+      isDefault: addr.isDefault,
+      coordinates: addr.coordinates,
+      formattedAddress: addr.formattedAddress,
+    });
     setEditId(addr._id);
     setShowForm(true);
+  };
+
+  const onLocation = (value: LocationPickerValue) => {
+    setForm((f) => ({
+      ...f,
+      addressLine1: value.addressLine1 || f.addressLine1,
+      addressLine2: value.addressLine2 ?? f.addressLine2,
+      city: value.city || f.city,
+      state: value.state || f.state,
+      pincode: value.pincode || f.pincode,
+      coordinates: value.coordinates ?? f.coordinates,
+      formattedAddress: value.formattedAddress ?? f.formattedAddress,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,6 +159,19 @@ export default function AddressesPage() {
           >
             <h2 className="font-semibold text-neutral-900 mb-5">{editId ? "Edit Address" : "Add New Address"}</h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <LocationPicker
+                  initialValue={{
+                    addressLine1: form.addressLine1,
+                    city: form.city,
+                    state: form.state,
+                    pincode: form.pincode,
+                    coordinates: form.coordinates,
+                    formattedAddress: form.formattedAddress,
+                  }}
+                  onChange={onLocation}
+                />
+              </div>
               <Input label="Full Name" value={form.fullName} onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))} required />
               <Input label="Phone" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} required />
               <div className="sm:col-span-2">

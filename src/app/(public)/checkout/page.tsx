@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/Button";
 import { formatCurrency, normalizeImageUrl } from "@/utils/helpers";
 import axios from "axios";
 import toast from "@/components/ui/toast";
+import LocationPicker, { type LocationPickerValue } from "@/components/shared/LocationPicker";
 
 type Step = "cart" | "address" | "account" | "payment" | "confirm";
 
@@ -39,6 +40,8 @@ interface AddressForm {
   state: string;
   pincode: string;
   label: string;
+  coordinates?: { lat: number; lng: number };
+  formattedAddress?: string;
 }
 
 interface SavedAddress extends AddressForm {
@@ -65,9 +68,19 @@ const STEPS: { key: Step; label: string }[] = [
   { key: "confirm", label: "Confirm" },
 ];
 
+interface RazorpayInstance {
+  open: () => void;
+  on: (
+    event: "payment.failed",
+    handler: (resp: {
+      error: { code?: string; description?: string; reason?: string; source?: string };
+    }) => void,
+  ) => void;
+}
+
 declare global {
   interface Window {
-    Razorpay: new (options: Record<string, unknown>) => { open: () => void };
+    Razorpay: new (options: Record<string, unknown>) => RazorpayInstance;
   }
 }
 
@@ -348,27 +361,67 @@ export default function CheckoutPage() {
           contact: shippingAddress.phone,
           email: user?.email ?? guestForm.email,
         },
+        // Explicitly enable all payment methods so UPI collect/intent/QR
+        // show up alongside cards, wallets and net banking.
+        method: {
+          upi: true,
+          card: true,
+          netbanking: true,
+          wallet: true,
+          paylater: true,
+          emi: true,
+        },
+        config: {
+          display: {
+            preferences: { show_default_blocks: true },
+          },
+        },
+        notes: { internalOrderId },
         theme: { color: "#E84672" },
         handler: async (response: {
           razorpay_order_id: string;
           razorpay_payment_id: string;
           razorpay_signature: string;
         }) => {
-          await axios.post("/api/payments/verify", {
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
-            internalOrderId,
-          });
-          setPlacedOrderId(internalOrderId);
-          clearCart();
-          setStep("confirm");
-          toast.success("Payment successful!");
+          try {
+            await axios.post("/api/payments/verify", {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              internalOrderId,
+            });
+            setPlacedOrderId(internalOrderId);
+            clearCart();
+            setStep("confirm");
+            toast.success("Payment successful!");
+          } catch (verifyErr) {
+            const msg = axios.isAxiosError(verifyErr)
+              ? verifyErr.response?.data?.message ?? "Payment verification failed"
+              : "Payment verification failed";
+            setPaymentError(msg);
+            toast.error(msg);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setPaymentError("Payment cancelled. You can retry anytime.");
+            toast.info("Payment cancelled");
+          },
+          escape: true,
+          confirm_close: true,
         },
       };
 
       try {
         const rz = new window.Razorpay(rzOptions);
+        rz.on("payment.failed", (resp) => {
+          const msg =
+            resp.error?.description ||
+            resp.error?.reason ||
+            "Payment failed. Please try a different method.";
+          setPaymentError(msg);
+          toast.error(msg);
+        });
         rz.open();
       } catch (openErr) {
         const msg =
@@ -703,6 +756,30 @@ export default function CheckoutPage() {
                           <RiArrowLeftLine size={14} /> Use saved address
                         </button>
                       )}
+                      <div className="mb-4">
+                        <LocationPicker
+                          initialValue={{
+                            addressLine1: address.addressLine1,
+                            city: address.city,
+                            state: address.state,
+                            pincode: address.pincode,
+                            coordinates: address.coordinates,
+                            formattedAddress: address.formattedAddress,
+                          }}
+                          onChange={(v: LocationPickerValue) =>
+                            setAddress((a) => ({
+                              ...a,
+                              addressLine1: v.addressLine1 || a.addressLine1,
+                              addressLine2: v.addressLine2 ?? a.addressLine2,
+                              city: v.city || a.city,
+                              state: v.state || a.state,
+                              pincode: v.pincode || a.pincode,
+                              coordinates: v.coordinates ?? a.coordinates,
+                              formattedAddress: v.formattedAddress ?? a.formattedAddress,
+                            }))
+                          }
+                        />
+                      </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Input
                           label="Full Name"

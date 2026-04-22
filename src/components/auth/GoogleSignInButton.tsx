@@ -7,37 +7,36 @@ import { useAuthStore } from "@/store/auth.store";
 import { usePostLoginMerge } from "@/hooks/usePostLoginMerge";
 import toast from "@/components/ui/toast";
 
-declare global {
-  interface Window {
-    google?: {
-      accounts: {
-        id: {
-          initialize: (config: {
-            client_id: string;
-            callback: (response: { credential: string }) => void;
-            ux_mode?: "popup" | "redirect";
-            auto_select?: boolean;
-            itp_support?: boolean;
-          }) => void;
-          renderButton: (
-            parent: HTMLElement,
-            options: {
-              type?: "standard" | "icon";
-              theme?: "outline" | "filled_blue" | "filled_black";
-              size?: "large" | "medium" | "small";
-              text?: "signin_with" | "signup_with" | "continue_with" | "signin";
-              shape?: "rectangular" | "pill" | "circle" | "square";
-              logo_alignment?: "left" | "center";
-              width?: string | number;
-            },
-          ) => void;
-          prompt: () => void;
-          cancel: () => void;
-          disableAutoSelect: () => void;
-        };
-      };
-    };
-  }
+interface GsiId {
+  initialize: (config: {
+    client_id: string;
+    callback: (response: { credential: string }) => void;
+    ux_mode?: "popup" | "redirect";
+    auto_select?: boolean;
+    itp_support?: boolean;
+  }) => void;
+  renderButton: (
+    parent: HTMLElement,
+    options: {
+      type?: "standard" | "icon";
+      theme?: "outline" | "filled_blue" | "filled_black";
+      size?: "large" | "medium" | "small";
+      text?: "signin_with" | "signup_with" | "continue_with" | "signin";
+      shape?: "rectangular" | "pill" | "circle" | "square";
+      logo_alignment?: "left" | "center";
+      width?: string | number;
+    },
+  ) => void;
+  prompt: () => void;
+  cancel: () => void;
+  disableAutoSelect: () => void;
+}
+
+// window.google is declared globally (typed as any) in LocationPicker.tsx —
+// we use a narrow helper instead of redeclaring to avoid TS merge conflicts.
+function getGisId(): GsiId | undefined {
+  const g = (window as { google?: { accounts?: { id?: GsiId } } }).google;
+  return g?.accounts?.id;
 }
 
 const GIS_SCRIPT_SRC = "https://accounts.google.com/gsi/client";
@@ -45,7 +44,7 @@ const GIS_SCRIPT_SRC = "https://accounts.google.com/gsi/client";
 let scriptLoadPromise: Promise<void> | null = null;
 function loadGoogleScript(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
-  if (window.google?.accounts?.id) return Promise.resolve();
+  if (getGisId()) return Promise.resolve();
   if (scriptLoadPromise) return scriptLoadPromise;
 
   scriptLoadPromise = new Promise((resolve, reject) => {
@@ -129,14 +128,15 @@ export default function GoogleSignInButton({
     let cancelled = false;
     loadGoogleScript()
       .then(() => {
-        if (cancelled || !window.google?.accounts?.id || !containerRef.current) return;
-        window.google.accounts.id.initialize({
+        const gis = getGisId();
+        if (cancelled || !gis || !containerRef.current) return;
+        gis.initialize({
           client_id: clientId,
           callback: handleCredential,
           itp_support: true,
         });
         containerRef.current.innerHTML = "";
-        window.google.accounts.id.renderButton(containerRef.current, {
+        gis.renderButton(containerRef.current, {
           type: "standard",
           theme: "outline",
           size: "large",
