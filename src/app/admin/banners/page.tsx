@@ -38,14 +38,24 @@ const COLOR_SCHEMES: {
   { id: "sky",     label: "Sky",     bgFrom: "#EFF6FF", bgTo: "#DBEAFE", accent: "#2563EB" },
 ];
 
-const EMPTY_FORM = {
+type BannerForm = {
+  title: string;
+  subtitle: string;
+  link: string;
+  position: "hero" | "sidebar" | "category";
+  sortOrder: number;
+  isActive: boolean;
+  colorScheme: ColorScheme;
+};
+
+const EMPTY_FORM: BannerForm = {
   title: "",
   subtitle: "",
   link: "",
-  position: "hero" as const,
+  position: "hero",
   sortOrder: 0,
   isActive: true,
-  colorScheme: "amber" as ColorScheme,
+  colorScheme: "amber",
 };
 
 export default function AdminBannersPage() {
