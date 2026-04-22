@@ -15,6 +15,9 @@ import {
   RiMapPinLine,
   RiAddCircleLine,
   RiEditLine,
+  RiCoupon3Line,
+  RiCloseLine,
+  RiPriceTag3Line,
 } from "react-icons/ri";
 import { useCartStore } from "@/store/cart.store";
 import { useAuthStore } from "@/store/auth.store";
@@ -41,6 +44,17 @@ interface AddressForm {
 interface SavedAddress extends AddressForm {
   _id: string;
   isDefault: boolean;
+}
+
+interface AvailableCoupon {
+  _id: string;
+  code: string;
+  description?: string;
+  discountType: "percentage" | "fixed";
+  discountValue: number;
+  minOrderValue?: number;
+  maxDiscountAmount?: number;
+  validUntil: string;
 }
 
 const STEPS: { key: Step; label: string }[] = [
@@ -76,6 +90,9 @@ export default function CheckoutPage() {
   const removeItem = useCartStore((s) => s.removeItem);
   const getSubtotal = useCartStore((s) => s.getSubtotal);
   const discount = useCartStore((s) => s.discount);
+  const couponCode = useCartStore((s) => s.couponCode);
+  const applyCoupon = useCartStore((s) => s.applyCoupon);
+  const removeCoupon = useCartStore((s) => s.removeCoupon);
   const user = useAuthStore((s) => s.user);
   const { register, isLoading: authLoading } = useAuth();
 
@@ -89,6 +106,13 @@ export default function CheckoutPage() {
   const [placedOrderId, setPlacedOrderId] = useState<string | null>(null);
   const [razorpayStatus, setRazorpayStatus] = useState<"loading" | "ready" | "error">("loading");
   const [paymentError, setPaymentError] = useState<string | null>(null);
+
+  const [couponInput, setCouponInput] = useState("");
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const [showCouponList, setShowCouponList] = useState(false);
+  const [availableCoupons, setAvailableCoupons] = useState<AvailableCoupon[]>([]);
+  const [loadingCoupons, setLoadingCoupons] = useState(false);
 
   
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
@@ -245,6 +269,9 @@ export default function CheckoutPage() {
           variant: i.variant,
           sku: i.productId,
         })),
+        ...(couponCode && discount > 0
+          ? { couponCode, discount }
+          : {}),
         ...extraPaymentFields,
       });
 
@@ -291,6 +318,9 @@ export default function CheckoutPage() {
             variant: i.variant,
             sku: i.productId,
           })),
+          ...(couponCode && discount > 0
+            ? { couponCode, discount }
+            : {}),
         },
       );
       const internalOrderId = orderRes.data.data._id;
@@ -355,6 +385,65 @@ export default function CheckoutPage() {
       setPaymentError(msg);
       toast.error(msg);
     }
+  };
+
+  const loadAvailableCoupons = async () => {
+    setLoadingCoupons(true);
+    try {
+      const res = await axios.get<{ data: AvailableCoupon[] }>(
+        "/api/coupons/available",
+      );
+      setAvailableCoupons(res.data.data ?? []);
+    } catch {
+      setAvailableCoupons([]);
+    } finally {
+      setLoadingCoupons(false);
+    }
+  };
+
+  const openCouponList = () => {
+    setShowCouponList(true);
+    if (availableCoupons.length === 0) loadAvailableCoupons();
+  };
+
+  const applyCouponCode = async (rawCode: string) => {
+    const code = rawCode.trim().toUpperCase();
+    if (!code) {
+      setCouponError("Enter a coupon code");
+      return;
+    }
+    if (subtotal <= 0) {
+      setCouponError("Add items to your cart first");
+      return;
+    }
+    setApplyingCoupon(true);
+    setCouponError(null);
+    try {
+      const res = await axios.post<{
+        data: { code: string; discount: number };
+      }>("/api/coupons/validate", {
+        code,
+        orderTotal: subtotal,
+      });
+      const { code: validatedCode, discount: amt } = res.data.data;
+      applyCoupon(validatedCode, amt);
+      setCouponInput("");
+      setShowCouponList(false);
+      toast.success(`Coupon ${validatedCode} applied`);
+    } catch (err) {
+      const msg = axios.isAxiosError(err)
+        ? (err.response?.data?.message ?? "Invalid coupon code")
+        : "Invalid coupon code";
+      setCouponError(msg);
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    removeCoupon();
+    setCouponError(null);
+    toast.success("Coupon removed");
   };
 
   const goBack = () => {
@@ -1020,6 +1109,78 @@ export default function CheckoutPage() {
                   </div>
                 ))}
               </div>
+              <div className="border-t border-[#EBE8D8] pt-3 mb-3">
+                {couponCode ? (
+                  <div className="flex items-center justify-between rounded-xl border border-green-200 bg-green-50 px-3 py-2.5">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-green-100">
+                        <RiCoupon3Line size={14} className="text-green-700" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-green-800 truncate">
+                          {couponCode}
+                        </p>
+                        <p className="text-[0.68rem] text-green-700">
+                          −{formatCurrency(discount)} applied
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveCoupon}
+                      className="p-1 rounded-lg hover:bg-green-100 text-green-700 transition-colors"
+                      title="Remove coupon"
+                    >
+                      <RiCloseLine size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <RiCoupon3Line
+                          size={14}
+                          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-300"
+                        />
+                        <input
+                          type="text"
+                          value={couponInput}
+                          onChange={(e) => {
+                            setCouponInput(e.target.value.toUpperCase());
+                            if (couponError) setCouponError(null);
+                          }}
+                          placeholder="Coupon code"
+                          className="w-full rounded-xl border border-neutral-200 bg-white py-2 pl-9 pr-3 text-sm font-medium text-neutral-700 outline-none placeholder:text-neutral-400 focus:border-[#E84672] focus:ring-2 focus:ring-[#E84672]/10"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => applyCouponCode(couponInput)}
+                        disabled={applyingCoupon || !couponInput.trim()}
+                        className="rounded-xl bg-[#E84672] px-3 py-2 text-xs font-bold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {applyingCoupon ? "…" : "Apply"}
+                      </button>
+                    </div>
+                    <div className="mt-1.5 flex items-center justify-between">
+                      <button
+                        type="button"
+                        onClick={openCouponList}
+                        className="inline-flex items-center gap-1 text-[0.72rem] font-semibold text-[#E84672] hover:text-[#C9305A] transition-colors"
+                      >
+                        <RiPriceTag3Line size={11} />
+                        View available coupons
+                      </button>
+                      {couponError && (
+                        <span className="text-[0.72rem] font-medium text-red-500">
+                          {couponError}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="border-t border-[#EBE8D8] pt-3 space-y-2 text-sm">
                 <div className="flex justify-between text-neutral-500">
                   <span>Subtotal</span>
@@ -1060,6 +1221,153 @@ export default function CheckoutPage() {
           </div>
         )}
       </div>
+
+      <AnimatePresence>
+        {showCouponList && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowCouponList(false)}
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-0 backdrop-blur-sm sm:items-center sm:p-6"
+          >
+            <motion.div
+              initial={{ y: 24, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 24, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-lg overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl"
+            >
+              <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-4">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FFF1F3]">
+                    <RiCoupon3Line size={15} className="text-[#E84672]" />
+                  </div>
+                  <div>
+                    <h3 className="text-[0.95rem] font-bold text-neutral-800">
+                      Available coupons
+                    </h3>
+                    <p className="text-[0.72rem] text-neutral-400">
+                      Tap any coupon to apply it to this order
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowCouponList(false)}
+                  className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition-colors"
+                >
+                  <RiCloseLine size={18} />
+                </button>
+              </div>
+
+              <div className="max-h-[60vh] overflow-y-auto p-4">
+                {loadingCoupons ? (
+                  <div className="space-y-2">
+                    {[1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className="h-20 animate-pulse rounded-2xl bg-neutral-100"
+                      />
+                    ))}
+                  </div>
+                ) : availableCoupons.length === 0 ? (
+                  <div className="py-10 text-center">
+                    <RiCoupon3Line
+                      size={32}
+                      className="mx-auto mb-3 text-neutral-300"
+                    />
+                    <p className="text-sm text-neutral-500">
+                      No coupons available right now. Check back later!
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2.5">
+                    {availableCoupons.map((c) => {
+                      const min = c.minOrderValue ?? 0;
+                      const eligible = subtotal >= min;
+                      const expiry = new Date(c.validUntil);
+                      const discountLabel =
+                        c.discountType === "percentage"
+                          ? `${c.discountValue}% off${c.maxDiscountAmount ? ` up to ${formatCurrency(c.maxDiscountAmount)}` : ""}`
+                          : `${formatCurrency(c.discountValue)} off`;
+                      return (
+                        <div
+                          key={c._id}
+                          className={`rounded-2xl border p-4 transition-colors ${
+                            eligible
+                              ? "border-neutral-200 bg-white hover:border-[#E84672] hover:bg-[#FFF9FA]"
+                              : "border-neutral-100 bg-neutral-50 opacity-75"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span
+                                  className="inline-flex items-center gap-1 rounded-md border border-dashed px-2 py-0.5 text-[0.72rem] font-black tracking-wider"
+                                  style={{
+                                    borderColor: "#E84672",
+                                    color: "#E84672",
+                                    backgroundColor: "#FFF1F3",
+                                  }}
+                                >
+                                  {c.code}
+                                </span>
+                                <span className="text-[0.72rem] font-semibold text-green-700">
+                                  {discountLabel}
+                                </span>
+                              </div>
+                              {c.description && (
+                                <p className="mb-1 text-[0.78rem] text-neutral-600 line-clamp-2">
+                                  {c.description}
+                                </p>
+                              )}
+                              <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[0.7rem] text-neutral-400">
+                                {min > 0 && (
+                                  <span>
+                                    Min order {formatCurrency(min)}
+                                  </span>
+                                )}
+                                <span>
+                                  Expires{" "}
+                                  {expiry.toLocaleDateString("en-IN", {
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                  })}
+                                </span>
+                              </div>
+                              {!eligible && min > 0 && (
+                                <p className="mt-1.5 text-[0.7rem] font-semibold text-amber-600">
+                                  Add {formatCurrency(min - subtotal)} more to
+                                  use this coupon
+                                </p>
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => applyCouponCode(c.code)}
+                              disabled={!eligible || applyingCoupon}
+                              className="shrink-0 rounded-xl px-3.5 py-2 text-xs font-bold transition-colors disabled:cursor-not-allowed"
+                              style={{
+                                backgroundColor: eligible ? "#E84672" : "#e5e5e5",
+                                color: eligible ? "#fff" : "#9ca3af",
+                              }}
+                            >
+                              Apply
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -2,7 +2,6 @@
 
 import { NextRequest } from "next/server";
 import connectDB from "@/lib/db";
-import { requireAuth } from "@/lib/auth";
 import { ApiError } from "@/lib/api-error";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import Coupon from "@/modules/coupons/coupon.model";
@@ -10,7 +9,6 @@ import Coupon from "@/modules/coupons/coupon.model";
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
-    await requireAuth(request);
 
     const body = await request.json();
     const { code, orderTotal } = body;
