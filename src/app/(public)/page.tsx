@@ -6,6 +6,9 @@ import { WhyChooseUs } from "@/components/shared/WhyChooseUs";
 import { BannerStrip } from "@/components/shared/BannerStrip";
 import { FAQSection } from "@/components/shared/FAQSection";
 import { ProductGridSkeleton } from "@/components/ui/Skeleton";
+import connectDB from "@/lib/db";
+import Banner from "@/modules/auth/banner.model";
+import SiteConfig from "@/modules/settings/site-config.model";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -40,22 +43,7 @@ interface HeroSlide {
   colorScheme?: ColorScheme;
 }
 
-const baseUrl = () =>
-  process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-
-async function fetchJson<T>(url: string): Promise<T | null> {
-  try {
-    const res = await fetch(url, { next: { revalidate: 60 } });
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json?.data ?? null;
-  } catch {
-    return null;
-  }
-}
-
-function bannersToSlides(banners: BannerRecord[] | null): HeroSlide[] {
-  if (!banners) return [];
+function bannersToSlides(banners: BannerRecord[]): HeroSlide[] {
   return banners
     .filter((b) => b?.image)
     .map((b) => ({
@@ -68,22 +56,37 @@ function bannersToSlides(banners: BannerRecord[] | null): HeroSlide[] {
     }));
 }
 
+async function loadLandingData() {
+  try {
+    await connectDB();
+    const [heroBanners, promoBanners, faqDoc, whyDoc] = await Promise.all([
+      Banner.find({ position: "hero", isActive: true })
+        .sort({ sortOrder: 1 })
+        .lean<BannerRecord[]>(),
+      Banner.find({ position: "sidebar", isActive: true })
+        .sort({ sortOrder: 1 })
+        .lean<BannerRecord[]>(),
+      SiteConfig.findOne({ key: "faq" }).lean<{ value?: { items?: unknown[] } }>(),
+      SiteConfig.findOne({ key: "why_choose_us" }).lean<{
+        value?: { items?: unknown[] };
+      }>(),
+    ]);
+    return {
+      heroBanners: heroBanners ?? [],
+      promoBanners: promoBanners ?? [],
+      faqItems: (faqDoc?.value?.items as unknown[]) ?? [],
+      whyItems: (whyDoc?.value?.items as unknown[]) ?? [],
+    };
+  } catch {
+    return { heroBanners: [], promoBanners: [], faqItems: [], whyItems: [] };
+  }
+}
+
 export default async function HomePage() {
-  const [heroBanners, promoBanners, faqConfig, whyConfig] = await Promise.all([
-    fetchJson<BannerRecord[]>(`${baseUrl()}/api/banners?position=hero`),
-    fetchJson<BannerRecord[]>(`${baseUrl()}/api/banners?position=sidebar`),
-    fetchJson<{ value: { items?: unknown[] } | null }>(
-      `${baseUrl()}/api/site-config?key=faq`,
-    ),
-    fetchJson<{ value: { items?: unknown[] } | null }>(
-      `${baseUrl()}/api/site-config?key=why_choose_us`,
-    ),
-  ]);
+  const { heroBanners, promoBanners, faqItems, whyItems } = await loadLandingData();
 
   const heroSlides = bannersToSlides(heroBanners);
   const promoSlides = bannersToSlides(promoBanners);
-  const faqItems = faqConfig?.value?.items ?? [];
-  const whyItems = whyConfig?.value?.items ?? [];
 
   const primaryPromo = promoSlides[0];
 
