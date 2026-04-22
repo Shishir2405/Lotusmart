@@ -52,8 +52,28 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const { id } = await params;
     const body = await request.json();
 
-    
+    // Slug is regenerated from name on save; don't let clients overwrite it.
     delete body.slug;
+
+    // Normalize empty strings on Date fields so bad client payloads can't silently
+    // block the whole patch (bestBefore was the culprit for the seed-mix stock bug).
+    if (body.bestBefore === "") body.bestBefore = undefined;
+
+    // Legacy field-name aliases that older payloads may still send.
+    if (body.hsnCode !== undefined && body.hsn === undefined) {
+      body.hsn = body.hsnCode;
+      delete body.hsnCode;
+    }
+    if (body.fssaiLicenseNumber !== undefined && body.fssaiLicense === undefined) {
+      body.fssaiLicense = body.fssaiLicenseNumber;
+      delete body.fssaiLicenseNumber;
+    }
+    if (body.seo && typeof body.seo === "object") {
+      if (body.metaTitle === undefined) body.metaTitle = body.seo.metaTitle;
+      if (body.metaDescription === undefined)
+        body.metaDescription = body.seo.metaDescription;
+      delete body.seo;
+    }
 
     const product = await Product.findByIdAndUpdate(
       id,

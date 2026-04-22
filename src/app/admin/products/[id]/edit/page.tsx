@@ -85,7 +85,8 @@ const PRODUCT_TYPES = [
   { value: "superfood", label: "Superfood" },
 ];
 const GST_RATES = ["0", "5", "12", "18", "28"];
-const UNITS = ["g", "kg", "ml", "L", "pcs", "pack", "box"];
+// Must match ProductUnit enum in src/modules/products/product.model.ts
+const UNITS = ["g", "kg", "ml", "L", "pieces", "pack", "box"];
 const DIMENSION_UNITS = ["cm", "in"];
 const CERTIFICATIONS = ["FSSAI", "Organic India", "ISO 22000", "HACCP", "GMP", "Halal", "Kosher", "USDA Organic", "India Organic", "Non-GMO"];
 
@@ -354,30 +355,60 @@ export default function EditProductPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.price || !form.stock) {
+    if (!form.name || !form.price || form.stock === "") {
       toast.error("Name, price and stock are required");
       return;
     }
     setSaving(true);
     try {
-      await axios.patch(`/api/products/${id}`, {
-        ...form,
+      // Build an explicit payload so only fields that exist on the Product
+      // schema are sent. Empty strings get normalized to undefined so casts
+      // don't fail (notably `bestBefore` — an empty string breaks Date validation
+      // and would silently block every update, including stock changes).
+      const payload = {
+        name: form.name,
+        description: form.description || undefined,
+        shortDescription: form.shortDescription || undefined,
         price: Number(form.price),
         compareAtPrice: form.compareAtPrice ? Number(form.compareAtPrice) : undefined,
         costPrice: form.costPrice ? Number(form.costPrice) : undefined,
         pricePerKg: form.pricePerKg ? Number(form.pricePerKg) : undefined,
         pricePerGram: form.pricePerGram ? Number(form.pricePerGram) : undefined,
         pricePerUnit: form.pricePerUnit ? Number(form.pricePerUnit) : undefined,
-        gstRate: Number(form.gstRate),
+        gstRate: form.gstRate !== "" ? Number(form.gstRate) : undefined,
+        hsn: form.hsnCode || undefined,
+        sku: form.sku || undefined,
+        barcode: form.barcode || undefined,
+        productType: form.productType || undefined,
+        brand: form.brand || undefined,
+        manufacturer: form.manufacturer || undefined,
         stock: Number(form.stock),
-        lowStockThreshold: form.lowStockThreshold ? Number(form.lowStockThreshold) : undefined,
+        lowStockThreshold:
+          form.lowStockThreshold !== "" ? Number(form.lowStockThreshold) : undefined,
+        unit: form.unit,
         weight: form.weight ? Number(form.weight) : undefined,
         shippingWeight: form.shippingWeight ? Number(form.shippingWeight) : undefined,
         minOrderQuantity: form.minOrderQuantity ? Number(form.minOrderQuantity) : undefined,
         maxOrderQuantity: form.maxOrderQuantity ? Number(form.maxOrderQuantity) : undefined,
         tags: form.tags ? form.tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
-        allergens: form.allergens ? form.allergens.split(",").map((t) => t.trim()).filter(Boolean) : [],
+        allergens: form.allergens
+          ? form.allergens.split(",").map((t) => t.trim()).filter(Boolean)
+          : [],
+        certifications: form.certifications,
+        fssaiLicense: form.fssaiLicenseNumber || undefined,
+        isOrganic: form.isOrganic,
+        isVegan: form.isVegan,
+        isGlutenFree: form.isGlutenFree,
+        countryOfOrigin: form.countryOfOrigin || undefined,
+        ingredients: form.ingredients || undefined,
+        shelfLife: form.shelfLife || undefined,
+        bestBefore: (() => {
+          if (!form.bestBefore) return undefined;
+          const d = new Date(form.bestBefore);
+          return Number.isNaN(d.getTime()) ? undefined : form.bestBefore;
+        })(),
         category: form.category || undefined,
+        subcategory: form.subcategory || undefined,
         images,
         bulkPricing: bulkPricing
           .filter((r) => r.minQty && r.price)
@@ -400,20 +431,25 @@ export default function EditProductPage() {
           sugars: form.sugars ? Number(form.sugars) : undefined,
           protein: form.protein ? Number(form.protein) : undefined,
         },
-        dimensions: {
-          length: form.length ? Number(form.length) : undefined,
-          width: form.width ? Number(form.width) : undefined,
-          height: form.height ? Number(form.height) : undefined,
-          unit: form.dimensionUnit,
-        },
+        dimensions:
+          form.length || form.width || form.height
+            ? {
+                length: form.length ? Number(form.length) : undefined,
+                width: form.width ? Number(form.width) : undefined,
+                height: form.height ? Number(form.height) : undefined,
+                unit: form.dimensionUnit,
+              }
+            : undefined,
         returnPolicy: form.returnPolicy || undefined,
         warranty: form.warranty || undefined,
-        seo: {
-          metaTitle: form.metaTitle || undefined,
-          metaDescription: form.metaDescription || undefined,
-        },
+        metaTitle: form.metaTitle || undefined,
+        metaDescription: form.metaDescription || undefined,
         videoUrl: form.videoUrl || undefined,
-      });
+        isActive: form.isActive,
+        isFeatured: form.isFeatured,
+      };
+
+      await axios.patch(`/api/products/${id}`, payload);
       toast.success("Product updated");
       router.push("/admin/products");
     } catch (err: unknown) {

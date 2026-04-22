@@ -70,7 +70,8 @@ const PRODUCT_TYPES = [
   { value: "superfood", label: "Superfood" },
 ];
 const GST_RATES = ["0", "5", "12", "18", "28"];
-const UNITS = ["g", "kg", "ml", "L", "pcs", "pack", "box"];
+// Must match ProductUnit enum in src/modules/products/product.model.ts
+const UNITS = ["g", "kg", "ml", "L", "pieces", "pack", "box"];
 const DIMENSION_UNITS = ["cm", "in"];
 const CERTIFICATIONS = [
   "FSSAI", "Organic India", "ISO 22000", "HACCP", "GMP",
