@@ -7,7 +7,12 @@ import connectDB from "@/lib/db";
 import { signToken } from "@/lib/jwt";
 import User, { IUserDocument } from "@/modules/users/user.model";
 import type { ITokenPayload, SafeUser } from "@/types";
-import type { RegisterInput, UpdateProfileInput } from "@/utils/validators";
+import type {
+  RegisterInput,
+  UpdateProfileInput,
+  CompleteProfileInput,
+} from "@/utils/validators";
+import type { GoogleIdTokenPayload } from "@/services/google-auth";
 
 
 function toSafeUser(user: IUserDocument): SafeUser {
@@ -81,28 +86,139 @@ async function ensureDefaultAdminAccount() {
 export async function register(data: RegisterInput) {
   await connectDB();
 
-  
   const existingUser = await User.findOne({ email: data.email });
   if (existingUser) {
     throw ApiError.conflict("A user with this email already exists");
   }
 
-  
   const verificationToken = crypto.randomBytes(32).toString("hex");
 
-  
+  const addresses = data.address
+    ? [
+        {
+          fullName: data.name,
+          phone: data.phone,
+          addressLine1: data.address.addressLine1,
+          addressLine2: data.address.addressLine2 || undefined,
+          city: data.address.city,
+          state: data.address.state,
+          pincode: data.address.pincode,
+          label: data.address.label ?? "home",
+          isDefault: true,
+          coordinates: data.address.coordinates,
+          formattedAddress: data.address.formattedAddress,
+        },
+      ]
+    : [];
+
   const user = await User.create({
     name: data.name,
     email: data.email,
     password: data.password,
     phone: data.phone || undefined,
+    addresses,
+    authProvider: "local",
+    profileComplete: addresses.length > 0,
     verificationToken,
   });
 
-  
   const token = await signToken(buildTokenPayload(user));
 
   return { user: toSafeUser(user), token, verificationToken };
+}
+
+
+export async function upsertGoogleUser(profile: GoogleIdTokenPayload) {
+  await connectDB();
+
+  if (!profile.email_verified) {
+    throw ApiError.badRequest("Google account email is not verified");
+  }
+
+  let user = await User.findOne({
+    $or: [{ googleId: profile.sub }, { email: profile.email }],
+  });
+
+  let isNew = false;
+
+  if (!user) {
+    isNew = true;
+    user = await User.create({
+      name: profile.name || profile.email.split("@")[0],
+      email: profile.email,
+      googleId: profile.sub,
+      authProvider: "google",
+      avatar: profile.picture,
+      isVerified: true,
+      profileComplete: false,
+    });
+  } else {
+    let changed = false;
+    if (!user.googleId) {
+      user.googleId = profile.sub;
+      changed = true;
+    }
+    if (!user.avatar && profile.picture) {
+      user.avatar = profile.picture;
+      changed = true;
+    }
+    if (!user.isVerified) {
+      user.isVerified = true;
+      changed = true;
+    }
+    if (changed) await user.save();
+  }
+
+  const token = await signToken(buildTokenPayload(user));
+  return { user: toSafeUser(user), token, isNew };
+}
+
+
+export async function completeProfile(
+  userId: string,
+  data: CompleteProfileInput,
+) {
+  await connectDB();
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw ApiError.notFound("User not found");
+  }
+
+  user.phone = data.phone;
+
+  const existingDefault = user.addresses.find((a) => a.isDefault);
+  if (existingDefault) {
+    existingDefault.fullName = data.address.fullName || user.name;
+    existingDefault.phone = data.phone;
+    existingDefault.addressLine1 = data.address.addressLine1;
+    existingDefault.addressLine2 = data.address.addressLine2 || undefined;
+    existingDefault.city = data.address.city;
+    existingDefault.state = data.address.state;
+    existingDefault.pincode = data.address.pincode;
+    existingDefault.label = data.address.label ?? "home";
+    existingDefault.coordinates = data.address.coordinates;
+    existingDefault.formattedAddress = data.address.formattedAddress;
+  } else {
+    (user.addresses as any[]).push({
+      fullName: data.address.fullName || user.name,
+      phone: data.phone,
+      addressLine1: data.address.addressLine1,
+      addressLine2: data.address.addressLine2 || undefined,
+      city: data.address.city,
+      state: data.address.state,
+      pincode: data.address.pincode,
+      label: data.address.label ?? "home",
+      isDefault: true,
+      coordinates: data.address.coordinates,
+      formattedAddress: data.address.formattedAddress,
+    });
+  }
+
+  user.profileComplete = true;
+  await user.save();
+
+  return toSafeUser(user);
 }
 
 

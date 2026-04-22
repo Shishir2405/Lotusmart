@@ -102,6 +102,7 @@ function protectApiRoute(request: NextRequest): NextResponse | null {
 const protectedPatterns = [
   /^\/account(\/|$)/,
   /^\/orders(\/|$)/,
+  /^\/complete-profile(\/|$)/,
 ];
 
 
@@ -193,6 +194,7 @@ export const config = {
     // Page routes
     "/account/:path*",
     "/orders/:path*",
+    "/complete-profile",
     "/admin/:path*",
     "/admin-login",
     "/login",

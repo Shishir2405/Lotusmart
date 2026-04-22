@@ -45,6 +45,27 @@ const slugField = z
   );
 
 
+const geoLocationSchema = z.object({
+  lat: z.number(),
+  lng: z.number(),
+});
+
+const registerAddressSchema = z.object({
+  fullName: z.string().trim().min(1).max(100).optional(),
+  addressLine1: z
+    .string()
+    .min(5, "Address must be at least 5 characters")
+    .max(200)
+    .trim(),
+  addressLine2: z.string().max(200).trim().optional().or(z.literal("")),
+  city: z.string().min(2).max(100).trim(),
+  state: z.string().min(2).max(100).trim(),
+  pincode: pincodeField,
+  label: z.enum(["home", "work", "other"]).default("home"),
+  coordinates: geoLocationSchema.optional(),
+  formattedAddress: z.string().max(500).optional(),
+});
+
 export const registerSchema = z
   .object({
     name: nameField,
@@ -52,6 +73,7 @@ export const registerSchema = z
     phone: phoneField,
     password: passwordField,
     confirmPassword: z.string().min(1, "Please confirm your password"),
+    address: registerAddressSchema.optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -59,6 +81,21 @@ export const registerSchema = z
   });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
+
+
+export const completeProfileSchema = z.object({
+  phone: phoneField,
+  address: registerAddressSchema,
+});
+
+export type CompleteProfileInput = z.infer<typeof completeProfileSchema>;
+
+
+export const googleAuthSchema = z.object({
+  idToken: z.string().min(10, "Google ID token is required"),
+});
+
+export type GoogleAuthInput = z.infer<typeof googleAuthSchema>;
 
 export const loginSchema = z.object({
   email: emailField,

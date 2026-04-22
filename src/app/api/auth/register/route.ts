@@ -4,6 +4,7 @@ import { NextRequest } from "next/server";
 
 import { ApiError } from "@/lib/api-error";
 import { createdResponse, errorResponse } from "@/lib/api-response";
+import { setAuthCookie } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import { register } from "@/modules/auth/auth.service";
 import { sendVerificationEmail } from "@/services/email";
@@ -26,14 +27,16 @@ export async function POST(request: NextRequest) {
     }
 
     
-    const { user, verificationToken } = await register(parsed.data);
+    const { user, token, verificationToken } = await register(parsed.data);
 
     sendVerificationEmail(user.email, user.name, verificationToken).catch(() => null);
 
-    return createdResponse(
+    const response = createdResponse(
       { user },
       "Registration successful. Please check your email to verify your account.",
     );
+    setAuthCookie(response, token);
+    return response;
   } catch (error) {
     const apiError = ApiError.from(error);
     return errorResponse(apiError.message, apiError.statusCode, apiError.errors);

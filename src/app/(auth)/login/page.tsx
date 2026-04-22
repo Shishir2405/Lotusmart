@@ -20,6 +20,7 @@ import {
 } from "react-icons/ri";
 import { useAuth } from "@/hooks/useAuth";
 import axios from "axios";
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 
 
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -333,7 +334,7 @@ function LoginForm() {
         className="mx-auto w-full max-w-[380px]"
       >
         
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="text-[1.75rem] font-bold tracking-tight text-neutral-900">
             Welcome back
           </h1>
@@ -342,6 +343,17 @@ function LoginForm() {
           </p>
         </div>
 
+        <div className="mb-5">
+          <GoogleSignInButton callbackUrl={callbackUrl} text="signin_with" />
+        </div>
+
+        <div className="mb-5 flex items-center gap-3">
+          <span className="h-px flex-1 bg-neutral-100" />
+          <span className="text-[0.65rem] font-medium uppercase tracking-wider text-neutral-300">
+            or sign in with email
+          </span>
+          <span className="h-px flex-1 bg-neutral-100" />
+        </div>
 
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <AnimatePresence>

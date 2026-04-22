@@ -1,11 +1,20 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 import bcrypt from "bcryptjs";
-import type { IUser, IAddress, UserRole, AddressLabel } from "@/types";
+import type { IUser, IAddress, UserRole, AddressLabel, AuthProvider, IGeoLocation } from "@/types";
 
 
 export interface IUserDocument extends Omit<IUser, "_id">, Document {
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
+
+
+const GeoLocationSchema = new Schema<IGeoLocation>(
+  {
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true },
+  },
+  { _id: false },
+);
 
 
 const AddressSchema = new Schema<IAddress>(
@@ -23,6 +32,8 @@ const AddressSchema = new Schema<IAddress>(
       enum: ["home", "work", "other"] satisfies AddressLabel[],
       default: "home",
     },
+    coordinates: { type: GeoLocationSchema, default: undefined },
+    formattedAddress: { type: String, trim: true },
   },
   { _id: true },
 );
@@ -39,7 +50,7 @@ const UserSchema = new Schema<IUserDocument>(
       trim: true,
       maxlength: 255,
     },
-    password: { type: String, required: true, minlength: 6, select: false },
+    password: { type: String, minlength: 6, select: false },
     role: {
       type: String,
       enum: ["admin", "customer"] satisfies UserRole[],
@@ -50,6 +61,13 @@ const UserSchema = new Schema<IUserDocument>(
     avatar: { type: String },
     addresses: { type: [AddressSchema], default: [] },
     isVerified: { type: Boolean, default: false },
+    authProvider: {
+      type: String,
+      enum: ["local", "google"] satisfies AuthProvider[],
+      default: "local",
+    },
+    googleId: { type: String, index: true, sparse: true },
+    profileComplete: { type: Boolean, default: false },
     verificationToken: { type: String, select: false },
     resetPasswordToken: { type: String, select: false },
     resetPasswordExpires: { type: Date, select: false },
@@ -76,7 +94,7 @@ UserSchema.index({ role: 1 });
 
 
 UserSchema.pre("save", async function () {
-  if (!this.isModified("password")) return;
+  if (!this.isModified("password") || !this.password) return;
 
   const salt = await bcrypt.genSalt(12);
   this.password = await bcrypt.hash(this.password, salt);
@@ -86,7 +104,7 @@ UserSchema.pre("save", async function () {
 UserSchema.methods.comparePassword = async function (
   candidatePassword: string,
 ): Promise<boolean> {
-  
+  if (!this.password) return false;
   return bcrypt.compare(candidatePassword, this.password);
 };
 

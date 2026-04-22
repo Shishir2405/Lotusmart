@@ -22,6 +22,7 @@ import {
   RiErrorWarningLine,
 } from "react-icons/ri";
 import { useAuth } from "@/hooks/useAuth";
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -306,14 +307,26 @@ function RegisterForm() {
         transition={{ duration: 0.45, ease }}
         className="mx-auto w-full max-w-[380px]"
       >
-        
-        <div className="mb-7">
+
+        <div className="mb-5">
           <h1 className="text-[1.75rem] font-bold tracking-tight text-neutral-900">
             Create your account
           </h1>
           <p className="mt-1.5 text-sm text-neutral-400">
             Join LotusMart for a premium shopping experience.
           </p>
+        </div>
+
+        <div className="mb-4">
+          <GoogleSignInButton callbackUrl={callbackUrl} text="signup_with" />
+        </div>
+
+        <div className="mb-5 flex items-center gap-3">
+          <span className="h-px flex-1 bg-neutral-100" />
+          <span className="text-[0.65rem] font-medium uppercase tracking-wider text-neutral-300">
+            or sign up with email
+          </span>
+          <span className="h-px flex-1 bg-neutral-100" />
         </div>
 
 

@@ -12,7 +12,9 @@ export interface AuthUser {
   avatar?: string;
   phone?: string;
   isVerified: boolean;
-  permissions?: string[]; 
+  profileComplete?: boolean;
+  authProvider?: "local" | "google";
+  permissions?: string[];
 }
 
 interface AuthState {

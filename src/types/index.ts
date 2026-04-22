@@ -28,6 +28,11 @@ export type BannerColorScheme = "amber" | "olive" | "rose" | "emerald" | "sky";
 export type BlogStatus = "draft" | "published" | "archived";
 
 
+export interface IGeoLocation {
+  lat: number;
+  lng: number;
+}
+
 export interface IAddress {
   _id?: ObjectId | string;
   fullName: string;
@@ -39,20 +44,27 @@ export interface IAddress {
   pincode: string;
   isDefault: boolean;
   label: AddressLabel;
+  coordinates?: IGeoLocation;
+  formattedAddress?: string;
 }
+
+export type AuthProvider = "local" | "google";
 
 
 export interface IUser extends Timestamps {
   _id: ObjectId;
   name: string;
   email: string;
-  password: string;
+  password?: string;
   role: UserRole;
   adminRole?: Ref<IAdminRole>;
   phone?: string;
   avatar?: string;
   addresses: IAddress[];
   isVerified: boolean;
+  authProvider: AuthProvider;
+  googleId?: string;
+  profileComplete: boolean;
   verificationToken?: string;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;

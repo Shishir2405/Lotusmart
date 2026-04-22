@@ -59,18 +59,21 @@ export function useAuth() {
     async (payload: RegisterPayload, redirectTo = "/") => {
       setLoading(true);
       try {
-        const res = await axios.post<{ data: { user: Parameters<typeof setUser>[0] } }>(
-          "/api/auth/register",
-          payload,
-        );
+        const res = await axios.post<{
+          data: { user: Parameters<typeof setUser>[0] & { profileComplete?: boolean } };
+        }>("/api/auth/register", payload);
         const newUser = res.data.data.user;
         setUser(newUser);
 
-        
         await runMerge();
 
         toast.success(`Account created! Welcome to LotusMart 🌸`);
-        router.push(redirectTo);
+        const needsProfile = newUser && newUser.profileComplete === false;
+        if (needsProfile) {
+          router.push(`/complete-profile?callbackUrl=${encodeURIComponent(redirectTo)}`);
+        } else {
+          router.push(redirectTo);
+        }
       } catch (err) {
         const msg =
           axios.isAxiosError(err)
