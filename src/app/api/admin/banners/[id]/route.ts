@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import connectDB from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { ApiError } from "@/lib/api-error";
@@ -18,6 +19,7 @@ export async function PATCH(
     const banner = await Banner.findByIdAndUpdate(id, { $set: body }, { new: true, runValidators: true });
     if (!banner) throw ApiError.notFound("Banner not found");
 
+    revalidatePath("/");
     return successResponse(banner, "Banner updated");
   } catch (err) {
     const e = ApiError.from(err);
@@ -37,6 +39,7 @@ export async function DELETE(
     const banner = await Banner.findByIdAndDelete(id);
     if (!banner) throw ApiError.notFound("Banner not found");
 
+    revalidatePath("/");
     return successResponse(null, "Banner deleted");
   } catch (err) {
     const e = ApiError.from(err);

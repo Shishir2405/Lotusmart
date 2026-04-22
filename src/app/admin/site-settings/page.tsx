@@ -29,6 +29,7 @@ import {
   RiTruckLine,
   RiInformationLine,
   RiAlertLine,
+  RiStarSmileLine,
 } from "react-icons/ri";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
@@ -47,6 +48,12 @@ interface FAQItem {
   answer: string;
   category: "Products" | "Shipping" | "Returns" | "General";
   sortOrder: number;
+}
+
+interface WhyItem {
+  title: string;
+  description: string;
+  icon: string;
 }
 
 interface ContactConfig {
@@ -77,10 +84,11 @@ interface SiteConfigRecord {
   value: unknown;
 }
 
-type TabId = "faq" | "contact" | "terms" | "privacy" | "refund" | "shipping" | "about";
+type TabId = "faq" | "why_choose_us" | "contact" | "terms" | "privacy" | "refund" | "shipping" | "about";
 
 const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: "faq", label: "FAQ Manager", icon: RiQuestionLine },
+  { id: "why_choose_us", label: "Why Choose Us", icon: RiShieldLine },
   { id: "contact", label: "Contact Info", icon: RiContactsLine },
   { id: "terms", label: "Terms & Conditions", icon: RiFileTextLine },
   { id: "privacy", label: "Privacy Policy", icon: RiShieldLine },
@@ -153,7 +161,11 @@ export default function AdminSiteSettingsPage() {
   const [contactSnapshot, setContactSnapshot] = useState<string>("");
   const [savingContact, setSavingContact] = useState(false);
 
-  
+  const [whyItems, setWhyItems] = useState<WhyItem[]>([]);
+  const [whySnapshot, setWhySnapshot] = useState<string>("[]");
+  const [savingWhy, setSavingWhy] = useState(false);
+
+
   const [pages, setPages] = useState<Record<PageKey, PageContent>>({
     terms: { ...EMPTY_PAGE },
     privacy: { ...EMPTY_PAGE },
@@ -175,12 +187,14 @@ export default function AdminSiteSettingsPage() {
 
   
   const isContactDirty = JSON.stringify(contact) !== contactSnapshot;
+  const isWhyDirty = JSON.stringify(whyItems) !== whySnapshot;
 
   const isPageDirty = (key: PageKey) => JSON.stringify(pages[key]) !== pageSnapshots[key];
 
   const activeTabDirty =
     (activeTab === "faq" && faqDirty) ||
     (activeTab === "contact" && isContactDirty) ||
+    (activeTab === "why_choose_us" && isWhyDirty) ||
     (PAGE_TAB_IDS.includes(activeTab as PageKey) && isPageDirty(activeTab as PageKey));
 
   
@@ -205,6 +219,12 @@ export default function AdminSiteSettingsPage() {
             setContactSnapshot(JSON.stringify(merged));
             return merged;
           });
+        } else if (cfg.key === "why_choose_us") {
+          const val = cfg.value as { items?: WhyItem[] };
+          if (val?.items) {
+            setWhyItems(val.items);
+            setWhySnapshot(JSON.stringify(val.items));
+          }
         } else if (PAGE_TAB_IDS.includes(cfg.key as PageKey)) {
           const val = cfg.value as Partial<PageContent>;
           setPages((prev) => {
@@ -340,7 +360,72 @@ export default function AdminSiteSettingsPage() {
     }
   };
 
-  
+  const handleSaveWhy = async () => {
+    setSavingWhy(true);
+    try {
+      await axios.post("/api/admin/site-config", {
+        key: "why_choose_us",
+        value: { items: whyItems },
+      });
+      setWhySnapshot(JSON.stringify(whyItems));
+      toast.success("Why Choose Us saved");
+    } catch {
+      toast.error("Failed to save Why Choose Us");
+    } finally {
+      setSavingWhy(false);
+    }
+  };
+
+  const updateWhyItem = (idx: number, field: keyof WhyItem, value: string) => {
+    setWhyItems((prev) => {
+      const next = [...prev];
+      next[idx] = { ...next[idx], [field]: value };
+      return next;
+    });
+  };
+
+  const addWhyItem = () =>
+    setWhyItems((prev) => [...prev, { title: "", description: "", icon: "" }]);
+
+  const removeWhyItem = (idx: number) =>
+    setWhyItems((prev) => prev.filter((_, i) => i !== idx));
+
+  const handleSaveWhy = async () => {
+    setSavingWhy(true);
+    try {
+      await axios.post("/api/admin/site-config", {
+        key: "why_choose_us",
+        value: { items: whyItems },
+      });
+      setWhySnapshot(JSON.stringify(whyItems));
+      toast.success("Why Choose Us saved");
+    } catch {
+      toast.error("Failed to save Why Choose Us");
+    } finally {
+      setSavingWhy(false);
+    }
+  };
+
+  const addWhyItem = () => {
+    setWhyItems((items) => [
+      ...items,
+      { title: "", description: "", icon: "leaf" },
+    ]);
+  };
+
+  const updateWhyItem = (idx: number, field: keyof WhyItem, value: string) => {
+    setWhyItems((items) => {
+      const next = [...items];
+      next[idx] = { ...next[idx], [field]: value };
+      return next;
+    });
+  };
+
+  const removeWhyItem = (idx: number) => {
+    setWhyItems((items) => items.filter((_, i) => i !== idx));
+  };
+
+
   const handleSavePage = async (key: PageKey) => {
     const page = pages[key];
     if (!page.content.trim()) {
@@ -412,6 +497,7 @@ export default function AdminSiteSettingsPage() {
           let dirty = false;
           if (id === "faq") dirty = faqDirty;
           else if (id === "contact") dirty = isContactDirty;
+          else if (id === "why_choose_us") dirty = isWhyDirty;
           else if (PAGE_TAB_IDS.includes(id as PageKey)) dirty = isPageDirty(id as PageKey);
 
           return (
@@ -491,6 +577,16 @@ export default function AdminSiteSettingsPage() {
               setContact={setContact}
               saving={savingContact}
               onSave={handleSaveContact}
+            />
+          )}
+          {activeTab === "why_choose_us" && (
+            <WhyTab
+              items={whyItems}
+              saving={savingWhy}
+              onAdd={addWhyItem}
+              onUpdate={updateWhyItem}
+              onRemove={removeWhyItem}
+              onSave={handleSaveWhy}
             />
           )}
           {PAGE_TAB_IDS.includes(activeTab as PageKey) && (
@@ -929,6 +1025,99 @@ function PageEditorTab({
           isLoading={saving}
           leftIcon={<RiSaveLine />}
         >
+          Save Changes
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+
+function WhyTab({
+  items,
+  saving,
+  onAdd,
+  onUpdate,
+  onRemove,
+  onSave,
+}: {
+  items: WhyItem[];
+  saving: boolean;
+  onAdd: () => void;
+  onUpdate: (idx: number, field: keyof WhyItem, value: string) => void;
+  onRemove: (idx: number) => void;
+  onSave: () => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-neutral-500">
+          {items.length} feature{items.length !== 1 ? "s" : ""} shown on the
+          landing page
+        </p>
+        <Button leftIcon={<RiAddLine />} size="sm" onClick={onAdd}>
+          Add Feature
+        </Button>
+      </div>
+
+      {items.length === 0 ? (
+        <div className="text-center py-16 bg-white rounded-2xl border border-neutral-100">
+          <RiShieldLine size={36} className="mx-auto text-neutral-300 mb-3" />
+          <p className="text-neutral-500 text-sm mb-4">
+            No features yet. Add one to show on the landing page.
+          </p>
+          <Button leftIcon={<RiAddLine />} size="sm" onClick={onAdd}>
+            Add Feature
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {items.map((item, idx) => (
+            <div
+              key={idx}
+              className="bg-white rounded-2xl border border-neutral-100 p-5 space-y-3"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-neutral-400">
+                  Feature {idx + 1}
+                </span>
+                <button
+                  onClick={() => onRemove(idx)}
+                  className="p-1 rounded hover:bg-red-50 text-neutral-400 hover:text-red-500 transition-colors"
+                  title="Remove"
+                  aria-label="Remove feature"
+                >
+                  <RiCloseLine size={16} />
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-3">
+                <Input
+                  label="Title"
+                  value={item.title}
+                  onChange={(e) => onUpdate(idx, "title", e.target.value)}
+                  placeholder="100% Natural"
+                />
+                <Input
+                  label="Icon key (optional)"
+                  value={item.icon}
+                  onChange={(e) => onUpdate(idx, "icon", e.target.value)}
+                  placeholder="leaf, shield, truck, support, award, heart"
+                />
+              </div>
+              <Textarea
+                label="Description"
+                value={item.description}
+                onChange={(e) => onUpdate(idx, "description", e.target.value)}
+                placeholder="Short description shown under the title"
+                className="min-h-[70px]"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="flex justify-end pt-2">
+        <Button onClick={onSave} isLoading={saving} leftIcon={<RiSaveLine />}>
           Save Changes
         </Button>
       </div>

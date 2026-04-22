@@ -6,7 +6,6 @@ import { WhyChooseUs } from "@/components/shared/WhyChooseUs";
 import { BannerStrip } from "@/components/shared/BannerStrip";
 import { FAQSection } from "@/components/shared/FAQSection";
 import { ProductGridSkeleton } from "@/components/ui/Skeleton";
-import { DynamicLandingSections } from "@/components/shared/DynamicLandingSections";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -18,110 +17,99 @@ export const metadata: Metadata = {
   },
 };
 
-async function getLandingSections() {
+interface BannerRecord {
+  _id: string;
+  image: string;
+  title: string;
+  subtitle?: string;
+  link?: string;
+  position: string;
+  isActive: boolean;
+  sortOrder: number;
+}
+
+interface HeroSlide {
+  image: string;
+  title: string;
+  subtitle: string;
+  ctaText: string;
+  ctaLink: string;
+}
+
+const baseUrl = () =>
+  process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+async function fetchJson<T>(url: string): Promise<T | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/landing-sections`, {
-      next: { revalidate: 60 },
-    });
+    const res = await fetch(url, { next: { revalidate: 60 } });
     if (!res.ok) return null;
     const json = await res.json();
-    return json.data ?? null;
+    return json?.data ?? null;
   } catch {
     return null;
   }
 }
 
-export default async function HomePage() {
-  const sections = await getLandingSections();
+function bannersToSlides(banners: BannerRecord[] | null): HeroSlide[] {
+  if (!banners) return [];
+  return banners
+    .filter((b) => b?.image)
+    .map((b) => ({
+      image: b.image,
+      title: b.title ?? "",
+      subtitle: b.subtitle ?? "",
+      ctaText: "",
+      ctaLink: b.link ?? "/products",
+    }));
+}
 
-  if (!sections || sections.length === 0) {
-    return (
-      <section className="flex min-h-[50vh] items-center justify-center px-6 py-24">
-        <div className="max-w-md text-center">
-          <p className="mb-2 text-[0.65rem] font-black tracking-[0.22em] uppercase text-neutral-300">
-            Landing page
-          </p>
-          <h1 className="mb-3 text-2xl font-black tracking-tight text-neutral-700">
-            Nothing to show yet
-          </h1>
-          <p className="text-sm text-neutral-400">
-            An admin hasn&apos;t added any sections to the landing page.
-            Build it from the admin panel.
-          </p>
-        </div>
-      </section>
-    );
-  }
+export default async function HomePage() {
+  const [heroBanners, promoBanners, faqConfig, whyConfig] = await Promise.all([
+    fetchJson<BannerRecord[]>(`${baseUrl()}/api/banners?position=hero`),
+    fetchJson<BannerRecord[]>(`${baseUrl()}/api/banners?position=sidebar`),
+    fetchJson<{ value: { items?: unknown[] } | null }>(
+      `${baseUrl()}/api/site-config?key=faq`,
+    ),
+    fetchJson<{ value: { items?: unknown[] } | null }>(
+      `${baseUrl()}/api/site-config?key=why_choose_us`,
+    ),
+  ]);
+
+  const heroSlides = bannersToSlides(heroBanners);
+  const promoSlides = bannersToSlides(promoBanners);
+  const faqItems = faqConfig?.value?.items ?? [];
+  const whyItems = whyConfig?.value?.items ?? [];
 
   return (
     <>
-      
-      {sections.map((section: any) => {
-        switch (section.type) {
-          case "hero_banners":
-            return <HeroSection key={section._id} settings={section.settings} />;
-          case "category_grid":
-            return <CategoryGrid key={section._id} />;
-          case "featured_products":
-            return (
-              <Suspense key={section._id} fallback={<ProductGridSkeleton />}>
-                <FeaturedProducts />
-              </Suspense>
-            );
-          case "product_carousel":
-            return (
-              <Suspense key={section._id} fallback={<ProductGridSkeleton />}>
-                <DynamicLandingSections section={section} />
-              </Suspense>
-            );
-          case "custom_products":
-            return (
-              <Suspense key={section._id} fallback={<ProductGridSkeleton />}>
-                <DynamicLandingSections section={section} />
-              </Suspense>
-            );
-          case "banner_strip":
-            return (
-              <BannerStrip
-                key={section._id}
-                title={section.title}
-                subtitle={section.subtitle}
-                settings={section.settings}
-              />
-            );
-          case "why_choose_us":
-            return (
-              <WhyChooseUs
-                key={section._id}
-                title={section.title}
-                subtitle={section.subtitle}
-                settings={section.settings}
-              />
-            );
-          case "faq":
-            return (
-              <FAQSection
-                key={section._id}
-                title={section.title}
-                subtitle={section.subtitle}
-                settings={section.settings}
-              />
-            );
-          case "newsletter":
-            return (
-              <DynamicLandingSections key={section._id} section={section} />
-            );
-          case "custom_html":
-            return (
-              <DynamicLandingSections key={section._id} section={section} />
-            );
-          default:
-            return (
-              <DynamicLandingSections key={section._id} section={section} />
-            );
-        }
-      })}
+      <HeroSection settings={{ slides: heroSlides }} />
+
+      <CategoryGrid />
+
+      <Suspense fallback={<ProductGridSkeleton />}>
+        <FeaturedProducts />
+      </Suspense>
+
+      <BannerStrip settings={{ slides: promoSlides }} />
+
+      <WhyChooseUs
+        title="Why LotusMart is Different."
+        subtitle="We are obsessive about quality, transparency, and what you eat."
+        settings={{ items: whyItems }}
+      />
+
+      <FAQSection
+        title="Frequently Asked"
+        subtitle="Questions answered by our team."
+        settings={{
+          items: (faqItems as { question?: string; answer?: string }[])
+            .map((i) => ({
+              q: i.question ?? "",
+              a: i.answer ?? "",
+            }))
+            .filter((i) => i.q && i.a),
+        }}
+      />
     </>
   );
 }

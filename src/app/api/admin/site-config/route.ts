@@ -9,7 +9,8 @@ import connectDB from "@/lib/db";
 import SiteConfig from "@/modules/settings/site-config.model";
 
 const KEY_TO_PATHS: Record<string, string[]> = {
-  faq: ["/faqs"],
+  faq: ["/faqs", "/"],
+  why_choose_us: ["/"],
   contact: ["/contact"],
   terms: ["/terms"],
   privacy: ["/privacy-policy"],

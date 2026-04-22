@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import connectDB from "@/lib/db";
 import { requireAdmin, getAuthUser } from "@/lib/auth";
 import { ApiError } from "@/lib/api-error";
@@ -34,6 +35,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const banner = await Banner.create(body);
+    revalidatePath("/");
     return successResponse(banner, "Banner created", 201);
   } catch (err) {
     const e = ApiError.from(err);

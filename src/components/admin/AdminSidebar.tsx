@@ -14,7 +14,6 @@ import {
   RiPriceTag3Line,
   RiAppsLine,
   RiCoupon3Line,
-  RiLayoutLine,
   RiPagesLine,
   RiStackLine,
   RiShieldUserLine,
@@ -54,7 +53,6 @@ const navGroups = [
   {
     label: "Content",
     items: [
-      { href: "/admin/landing", label: "Landing Page", icon: RiLayoutLine, permission: "landing_page" },
       { href: "/admin/banners", label: "Banners", icon: RiImageLine, permission: "banners" },
       { href: "/admin/blog", label: "Blog", icon: RiArticleLine, permission: "blog" },
       { href: "/admin/site-settings", label: "Site Content", icon: RiPagesLine, permission: "site_settings" },
