@@ -68,7 +68,7 @@ const OrderSchema = new Schema<IOrderDocument>(
     billingAddress: { type: AddressSubSchema },
     paymentMethod: {
       type: String,
-      enum: ["razorpay"] satisfies PaymentMethod[],
+      enum: ["razorpay", "cod"] satisfies PaymentMethod[],
       required: true,
     },
     paymentStatus: {
