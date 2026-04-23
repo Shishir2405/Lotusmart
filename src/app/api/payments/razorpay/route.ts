@@ -23,6 +23,10 @@ export async function POST(request: NextRequest) {
       keyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
     });
   } catch (err) {
+    // Razorpay SDK rejects with { statusCode, error: { description, code, ... } }.
+    // Log the raw shape server-side so we can see the real reason in Vercel/Netlify
+    // logs even if the client response is sanitised.
+    console.error("[payments/razorpay] createOrder failed", err);
     const e = ApiError.from(err);
     return errorResponse(e.message, e.statusCode);
   }

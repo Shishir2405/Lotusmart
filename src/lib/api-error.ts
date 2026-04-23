@@ -87,6 +87,28 @@ export class ApiError extends Error {
       return new ApiError(error.message, 500);
     }
 
+    // Plain-object throws — e.g. the razorpay npm SDK rejects with
+    //   { statusCode, error: { code, description, field, reason, ... } }
+    // Extract the human-readable bits instead of String()-ing the whole
+    // object (which would end up as "[object Object]").
+    if (error && typeof error === "object") {
+      const anyErr = error as Record<string, unknown>;
+      const nested = (anyErr.error ?? anyErr.data ?? null) as
+        | Record<string, unknown>
+        | null;
+      const message =
+        (typeof anyErr.message === "string" && anyErr.message) ||
+        (typeof anyErr.description === "string" && anyErr.description) ||
+        (nested && typeof nested.description === "string" && nested.description) ||
+        (nested && typeof nested.message === "string" && nested.message) ||
+        (nested && typeof nested.reason === "string" && nested.reason) ||
+        (typeof anyErr.reason === "string" && anyErr.reason) ||
+        JSON.stringify(error);
+      const statusCode =
+        typeof anyErr.statusCode === "number" ? anyErr.statusCode : 500;
+      return new ApiError(String(message), statusCode);
+    }
+
     return new ApiError(String(error), 500);
   }
 

@@ -13,7 +13,7 @@ export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type UserRole = "admin" | "customer";
 export type AddressLabel = "home" | "work" | "other";
 export type ProductUnit = "kg" | "g" | "pieces" | "pack" | "ml" | "L" | "box";
-export type PaymentMethod = "razorpay";
+export type PaymentMethod = "razorpay" | "cod";
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 export type OrderStatus =
   | "placed"
