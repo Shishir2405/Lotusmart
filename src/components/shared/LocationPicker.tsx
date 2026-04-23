@@ -7,6 +7,9 @@ import {
   RiErrorWarningLine,
   RiSearchLine,
   RiCrosshair2Line,
+  RiShieldCheckLine,
+  RiCloseLine,
+  RiNavigationLine,
 } from "react-icons/ri";
 
 export interface LocationPickerValue {
@@ -29,6 +32,7 @@ type GMaps = any;
 declare global {
   interface Window {
     __lotus_gmaps_cb?: () => void;
+    gm_authFailure?: () => void;
   }
 }
 
@@ -134,6 +138,9 @@ export default function LocationPicker({ initialValue, onChange }: Props) {
   const [resolved, setResolved] = useState<string | null>(
     initialValue?.formattedAddress ?? null,
   );
+  const [permissionModal, setPermissionModal] = useState<
+    null | "prompt" | "denied"
+  >(null);
 
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -222,6 +229,18 @@ export default function LocationPicker({ initialValue, onChange }: Props) {
   );
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.gm_authFailure = () => {
+      setMapsLoadError(
+        "The map couldn't authenticate with Google. Your address fields still work — please enter them manually.",
+      );
+    };
+    return () => {
+      if (window.gm_authFailure) delete window.gm_authFailure;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!apiKey) return;
     let cancelled = false;
     loadGoogleMaps(apiKey)
@@ -280,7 +299,7 @@ export default function LocationPicker({ initialValue, onChange }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiKey]);
 
-  const detectLocation = () => {
+  const runGeolocation = () => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       setError("Your browser does not support location access");
       return;
@@ -306,21 +325,50 @@ export default function LocationPicker({ initialValue, onChange }: Props) {
       },
       (err) => {
         setLoading(false);
-        setError(
-          err.code === err.PERMISSION_DENIED
-            ? "Location permission denied. Allow access or pick on the map."
-            : "Could not get your location. Drop the pin or enter manually.",
-        );
+        if (err.code === err.PERMISSION_DENIED) {
+          setPermissionModal("denied");
+        } else {
+          setError("Could not get your location. Drop the pin or enter manually.");
+        }
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 },
     );
+  };
+
+  const detectLocation = async () => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setError("Your browser does not support location access");
+      return;
+    }
+    setError(null);
+    let state: PermissionState = "prompt";
+    try {
+      if (navigator.permissions?.query) {
+        const status = await navigator.permissions.query({
+          name: "geolocation" as PermissionName,
+        });
+        state = status.state;
+      }
+    } catch {
+      state = "prompt";
+    }
+    if (state === "granted") {
+      runGeolocation();
+    } else {
+      setPermissionModal(state === "denied" ? "denied" : "prompt");
+    }
+  };
+
+  const handleAllowPermission = () => {
+    setPermissionModal(null);
+    runGeolocation();
   };
 
   const usingGoogle = useMemo(() => Boolean(apiKey), [apiKey]);
 
   return (
     <div className="space-y-3">
-      {usingGoogle && (
+      {usingGoogle && !mapsLoadError && (
         <div className="relative">
           <RiSearchLine
             size={15}
@@ -354,15 +402,17 @@ export default function LocationPicker({ initialValue, onChange }: Props) {
         </button>
       </div>
 
-      {usingGoogle && (
-        <div
-          ref={mapContainerRef}
-          className="h-64 w-full overflow-hidden rounded-xl border border-neutral-200 bg-neutral-100"
-          aria-label="Map — drag the pin or click to adjust your address"
-        />
-      )}
+      <div
+        ref={mapContainerRef}
+        aria-label="Map — drag the pin or click to adjust your address"
+        className={
+          usingGoogle && !mapsLoadError
+            ? "h-64 w-full overflow-hidden rounded-xl border border-neutral-200 bg-neutral-100"
+            : "hidden"
+        }
+      />
 
-      {usingGoogle && mapsReady && (
+      {usingGoogle && mapsReady && !mapsLoadError && (
         <p className="flex items-center gap-1.5 text-[0.72rem] text-neutral-500">
           <RiMapPin2Line size={12} /> Drag the pin or tap the map to fine-tune.
         </p>
@@ -375,10 +425,13 @@ export default function LocationPicker({ initialValue, onChange }: Props) {
       )}
 
       {mapsLoadError && (
-        <p className="flex items-start gap-1.5 text-[0.72rem] text-amber-600">
-          <RiErrorWarningLine size={13} className="mt-0.5 shrink-0" />
-          {mapsLoadError} — you can still enter the address manually.
-        </p>
+        <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-[0.72rem] text-amber-700">
+          <RiErrorWarningLine size={14} className="mt-0.5 shrink-0" />
+          <span>
+            The interactive map couldn&apos;t load. You can still use{" "}
+            <strong>Use my current location</strong> above, or enter your address manually below.
+          </span>
+        </div>
       )}
 
       {resolved && !error && (
@@ -394,6 +447,91 @@ export default function LocationPicker({ initialValue, onChange }: Props) {
           {error}
         </p>
       )}
+
+      {permissionModal && (
+        <LocationPermissionModal
+          variant={permissionModal}
+          onAllow={handleAllowPermission}
+          onClose={() => setPermissionModal(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function LocationPermissionModal({
+  variant,
+  onAllow,
+  onClose,
+}: {
+  variant: "prompt" | "denied";
+  onAllow: () => void;
+  onClose: () => void;
+}) {
+  const denied = variant === "denied";
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Location permission"
+    >
+      <div
+        className="relative w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute right-3 top-3 rounded-full p-1.5 text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700"
+        >
+          <RiCloseLine size={18} />
+        </button>
+
+        <div className="flex flex-col items-center px-6 pt-8 pb-2 text-center">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#FFE5EA] to-[#FFF1F3]">
+            <RiNavigationLine size={30} className="text-[#E84672]" />
+          </div>
+          <h3 className="text-lg font-semibold text-neutral-900">
+            {denied ? "Location access is blocked" : "Allow LotusMart to use your location"}
+          </h3>
+          <p className="mt-2 text-sm leading-relaxed text-neutral-600">
+            {denied
+              ? "We can't read your location because it's blocked for this site. Enable it from your browser's address bar (click the lock icon → Site settings → Location → Allow), then try again."
+              : "We use your location only to pre-fill your delivery address so checkout is faster. Your location is never stored without the address you confirm."}
+          </p>
+        </div>
+
+        <div className="mx-6 mb-6 mt-4 rounded-xl bg-neutral-50 p-3">
+          <div className="flex items-start gap-2.5">
+            <RiShieldCheckLine size={16} className="mt-0.5 shrink-0 text-emerald-600" />
+            <p className="text-[0.72rem] leading-relaxed text-neutral-600">
+              Used only to auto-fill this address. You can edit any field before saving.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex gap-2 px-6 pb-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 rounded-xl border border-neutral-200 bg-white py-2.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
+          >
+            Not now
+          </button>
+          {!denied && (
+            <button
+              type="button"
+              onClick={onAllow}
+              className="flex-1 rounded-xl bg-[#E84672] py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#d63c65]"
+            >
+              Give permission
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
