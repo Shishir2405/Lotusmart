@@ -16,8 +16,18 @@ export async function GET(request: NextRequest) {
     const { searchParams } = request.nextUrl;
     const includeSubcategories =
       searchParams.get("includeSubcategories") === "true";
+    const flat = searchParams.get("flat") === "true";
 
-    
+    // Flat mode returns every active category regardless of depth, so the
+    // client can build an arbitrarily deep tree itself. Avoids N populate
+    // hops and keeps the route cheap.
+    if (flat) {
+      const all = await Category.find({ isActive: true })
+        .sort({ sortOrder: 1, name: 1 })
+        .lean();
+      return successResponse(all, "Categories fetched successfully");
+    }
+
     const query = Category.find({ isActive: true, parent: null }).sort({
       sortOrder: 1,
       name: 1,
