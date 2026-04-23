@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     const { shippingAddress, billingAddress, paymentMethod, notes, items: clientItems } = body;
 
     if (!shippingAddress) throw ApiError.badRequest("Shipping address is required");
-    if (paymentMethod !== "razorpay")
+    if (paymentMethod !== "razorpay" && paymentMethod !== "cod")
       throw ApiError.badRequest("Invalid payment method");
 
     
