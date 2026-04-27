@@ -16,7 +16,7 @@ const defaultFaqs = [
   },
   {
     question: "What is the delivery timeframe and cost?",
-    answer: "Standard delivery takes 2-5 business days across India. Orders above ₹499 ship free. For orders below ₹499, a flat ₹49 fee applies.",
+    answer: "Standard delivery takes 2-5 business days across India. Online (prepaid) orders ship free. Cash on Delivery orders carry a flat ₹100 handling fee.",
   },
   {
     question: "Do you ship to all pin codes in India?",
