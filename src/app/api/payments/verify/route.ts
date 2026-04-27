@@ -4,6 +4,7 @@ import { requireAuth } from "@/lib/auth";
 import { ApiError } from "@/lib/api-error";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import { verifyRazorpayPayment } from "@/services/razorpay";
+import { pushOrderToShipmozo } from "@/services/shipmozo-push";
 import Order from "@/modules/orders/order.model";
 
 export async function POST(request: NextRequest) {
@@ -35,6 +36,20 @@ export async function POST(request: NextRequest) {
         order.razorpayPaymentId = razorpay_payment_id;
         order.razorpaySignature = razorpay_signature;
         await order.save();
+
+        // Fire-and-forget: draft the order on Shipmozo. Failures must not
+        // affect the payment confirmation response — admin can retry from
+        // /admin/orders/[id] via /api/shipping/push-order if this misses.
+        pushOrderToShipmozo(order._id.toString())
+          .then((outcome) => {
+            console.log("[verify→shipmozo]", order.orderNumber, outcome);
+          })
+          .catch((err: unknown) => {
+            const detail =
+              (err as { response?: { data?: unknown } })?.response?.data ??
+              (err as Error)?.message;
+            console.error("[verify→shipmozo] push failed for", order.orderNumber, detail);
+          });
       }
     }
 
