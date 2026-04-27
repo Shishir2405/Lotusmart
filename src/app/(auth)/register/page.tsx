@@ -525,23 +525,34 @@ function RegisterForm() {
             disabled={isLoading}
             whileHover={!isLoading ? { y: -1 } : {}}
             whileTap={!isLoading ? { scale: 0.985 } : {}}
-            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#E84672] py-3 text-sm font-semibold text-white shadow-sm transition-shadow hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
+            className="group/btn relative flex w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl py-3.5 text-sm font-semibold text-white shadow-[0_8px_22px_-8px_rgba(232,70,114,0.6)] transition-all duration-300 hover:shadow-[0_12px_28px_-6px_rgba(232,70,114,0.7)] disabled:cursor-not-allowed disabled:opacity-60"
+            style={{
+              background:
+                "linear-gradient(120deg, #E84672 0%, #F25C82 35%, #F4A623 100%)",
+              backgroundSize: "200% 100%",
+            }}
           >
-            {isLoading ? (
-              <>
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 0.7, ease: "linear" }}
-                  className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white"
-                />
-                Creating account...
-              </>
-            ) : (
-              <>
-                Create Account
-                <RiArrowRightLine size={15} />
-              </>
-            )}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full"
+            />
+            <span className="relative flex items-center gap-2">
+              {isLoading ? (
+                <>
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 0.7, ease: "linear" }}
+                    className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white"
+                  />
+                  Creating account...
+                </>
+              ) : (
+                <>
+                  Create Account
+                  <RiArrowRightLine size={15} className="transition-transform duration-300 group-hover/btn:translate-x-0.5" />
+                </>
+              )}
+            </span>
           </motion.button>
         </form>
 

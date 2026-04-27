@@ -13,7 +13,6 @@ import {
   RiLeafLine,
   RiShieldCheckLine,
   RiTruckLine,
-  RiStarFill,
   RiPlantLine,
   RiGiftLine,
   RiSeedlingLine,
@@ -24,13 +23,6 @@ import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 
 
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-const testimonial = {
-  text: "LotusMart has completely changed how I shop for spices. The quality is unlike anything I've found elsewhere.",
-  author: "Priya Sharma",
-  role: "Home Chef, Mumbai",
-  rating: 5,
-};
 
 const trustItems = [
   { icon: RiShieldCheckLine, label: "FSSAI Certified" },
@@ -193,8 +185,7 @@ function BrandPanel() {
             <span className="not-italic text-[#F4A623]/90">at your doorstep.</span>
           </h2>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/40">
-            Over 200 premium spices, dry fruits, and gift collections
-            -- handpicked and delivered fresh across India.
+            Over 200 premium spices, dry fruits, and gift collections — handpicked and delivered fresh across India.
           </p>
 
           
@@ -229,34 +220,30 @@ function BrandPanel() {
           </div>
         </motion.div>
 
-        
+
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.35, ease }}
-          className="rounded-2xl border border-[#F4A623]/[0.08] bg-[#F4A623]/[0.04] p-5 backdrop-blur-sm"
+          className="grid grid-cols-3 gap-3"
         >
-          <div className="mb-2.5 flex gap-0.5">
-            {Array.from({ length: testimonial.rating }).map((_, i) => (
-              <RiStarFill key={i} size={11} className="text-[#F4A623]/80" />
-            ))}
-          </div>
-          <p className="mb-3.5 text-[0.8rem] leading-relaxed text-white/50">
-            &ldquo;{testimonial.text}&rdquo;
-          </p>
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#F4A623]/15 ring-1 ring-[#F4A623]/10">
-              <span className="text-[0.6rem] font-bold text-[#F4A623]/70">PS</span>
-            </div>
-            <div>
-              <p className="text-[0.72rem] font-semibold text-white/80">
-                {testimonial.author}
+          {[
+            { value: "200+", label: "Premium spices" },
+            { value: "FSSAI", label: "Certified quality" },
+            { value: "Free", label: "Delivery 499+" },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              className="rounded-2xl border border-[#F4A623]/[0.08] bg-[#F4A623]/[0.04] p-4 backdrop-blur-sm"
+            >
+              <p className="text-lg font-bold tracking-tight text-[#F4A623]/90">
+                {stat.value}
               </p>
-              <p className="text-[0.62rem] text-white/30">
-                {testimonial.role}
+              <p className="mt-1 text-[0.62rem] uppercase tracking-wider text-white/40">
+                {stat.label}
               </p>
             </div>
-          </div>
+          ))}
         </motion.div>
       </div>
     </div>
@@ -467,23 +454,34 @@ function LoginForm() {
             disabled={isLoading}
             whileHover={!isLoading ? { y: -1 } : {}}
             whileTap={!isLoading ? { scale: 0.985 } : {}}
-            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#E84672] py-3 text-sm font-semibold text-white shadow-sm transition-shadow hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
+            className="group/btn relative flex w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl py-3.5 text-sm font-semibold text-white shadow-[0_8px_22px_-8px_rgba(232,70,114,0.6)] transition-all duration-300 hover:shadow-[0_12px_28px_-6px_rgba(232,70,114,0.7)] disabled:cursor-not-allowed disabled:opacity-60"
+            style={{
+              background:
+                "linear-gradient(120deg, #E84672 0%, #F25C82 35%, #F4A623 100%)",
+              backgroundSize: "200% 100%",
+            }}
           >
-            {isLoading ? (
-              <>
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 0.7, ease: "linear" }}
-                  className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white"
-                />
-                Signing in...
-              </>
-            ) : (
-              <>
-                Sign In
-                <RiArrowRightLine size={15} />
-              </>
-            )}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full"
+            />
+            <span className="relative flex items-center gap-2">
+              {isLoading ? (
+                <>
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 0.7, ease: "linear" }}
+                    className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white"
+                  />
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  Sign In
+                  <RiArrowRightLine size={15} className="transition-transform duration-300 group-hover/btn:translate-x-0.5" />
+                </>
+              )}
+            </span>
           </motion.button>
         </form>
 
