@@ -95,8 +95,9 @@ export async function POST(request: NextRequest) {
       (sum: number, i: { price: number; quantity: number }) => sum + i.price * i.quantity,
       0,
     );
-    const shippingCost = subtotal >= 500 ? 0 : 60; 
-    const tax = 0; 
+    // Prepaid (Razorpay) ships free; COD has a flat ₹100 handling fee.
+    const shippingCost = paymentMethod === "cod" ? 100 : 0;
+    const tax = 0;
     const total = subtotal + shippingCost - (body.discount ?? 0);
 
     const order = await Order.create({

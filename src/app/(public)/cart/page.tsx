@@ -20,7 +20,6 @@ export default function CartPage() {
 
   const subtotal = getSubtotal();
   const total = getTotal();
-  const shippingCost = subtotal >= 500 ? 0 : subtotal > 0 ? 60 : 0;
 
   if (items.length === 0) {
     return (
@@ -143,8 +142,8 @@ export default function CartPage() {
               </div>
               <div className="flex justify-between text-neutral-600">
                 <span>Shipping</span>
-                <span className={shippingCost === 0 ? "text-green-600 font-medium" : "font-medium"}>
-                  {shippingCost === 0 && subtotal > 0 ? "FREE" : shippingCost > 0 ? formatCurrency(shippingCost) : "—"}
+                <span className="text-green-600 font-medium">
+                  {subtotal > 0 ? "FREE" : "—"}
                 </span>
               </div>
               {discount > 0 && (
@@ -154,9 +153,9 @@ export default function CartPage() {
                 </div>
               )}
 
-              {subtotal > 0 && subtotal < 500 && (
+              {subtotal > 0 && (
                 <div className="bg-[#FFF9E8] rounded-xl p-3 text-xs text-amber-700 border border-amber-200">
-                  Add {formatCurrency(500 - subtotal)} more for free shipping!
+                  Free shipping on online payment. Cash on Delivery adds a flat ₹100 handling fee.
                 </div>
               )}
             </div>
@@ -164,7 +163,7 @@ export default function CartPage() {
             <div className="border-t border-[#EBE8D8] mt-4 pt-4 flex justify-between items-center">
               <span className="text-base font-bold text-neutral-900">Total</span>
               <span className="text-xl font-bold text-[#E84672]">
-                {formatCurrency(total + shippingCost)}
+                {formatCurrency(total)}
               </span>
             </div>
 

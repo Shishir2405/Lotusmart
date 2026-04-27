@@ -110,11 +110,12 @@ export default function CheckoutPage() {
   const { register, isLoading: authLoading } = useAuth();
 
   const subtotal = getSubtotal();
-  const shippingCost = subtotal >= 500 ? 0 : 60;
-  const total = subtotal + shippingCost - discount;
 
   const [step, setStep] = useState<Step>("cart");
   const [paymentMethod] = useState<"razorpay">("razorpay");
+  // Prepaid (Razorpay) ships free; COD has a flat ₹100 handling fee.
+  const shippingCost = (paymentMethod as string) === "cod" ? 100 : 0;
+  const total = subtotal + shippingCost - discount;
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [placedOrderId, setPlacedOrderId] = useState<string | null>(null);
   const [razorpayStatus, setRazorpayStatus] = useState<"loading" | "ready" | "error">("loading");

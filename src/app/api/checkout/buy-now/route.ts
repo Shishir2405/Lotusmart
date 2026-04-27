@@ -66,7 +66,8 @@ export async function POST(request: NextRequest) {
     ];
 
     const subtotal = unitPrice * qty;
-    const shippingCost = subtotal >= 500 ? 0 : 60;
+    // Prepaid (Razorpay) ships free; COD has a flat ₹100 handling fee.
+    const shippingCost = paymentMethod === "cod" ? 100 : 0;
     const tax = 0;
     const total = subtotal + shippingCost;
 

@@ -40,7 +40,7 @@ const faqs = [
     questions: [
       {
         q: "What is the delivery timeframe and cost?",
-        a: "Standard delivery takes 2–5 business days across India. Orders above ₹500 ship free. For orders below ₹500, a flat ₹49 fee applies. Metro cities typically receive orders within 2 days.",
+        a: "Standard delivery takes 2–5 business days across India. Online (prepaid) orders ship free. Cash on Delivery orders carry a flat ₹100 handling fee. Metro cities typically receive orders within 2 days.",
       },
       {
         q: "Do you ship to all pin codes in India?",
