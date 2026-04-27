@@ -162,14 +162,30 @@ export default function GoogleSignInButton({
   }
 
   return (
-    <div className="relative w-full">
-      <div ref={containerRef} className="w-full" />
+    <div className="group relative w-full">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -inset-[1.5px] rounded-2xl opacity-50 blur-[6px] transition-all duration-500 group-hover:opacity-90 group-hover:blur-[8px]"
+        style={{
+          background:
+            "conic-gradient(from 140deg at 50% 50%, #E84672 0deg, #F4A623 110deg, #4285F4 220deg, #34A853 320deg, #E84672 360deg)",
+        }}
+      />
+      <div className="relative rounded-2xl bg-white p-[1.5px] shadow-[0_4px_18px_-6px_rgba(232,70,114,0.25)] transition-shadow duration-300 group-hover:shadow-[0_8px_24px_-6px_rgba(232,70,114,0.35)]">
+        <div className="relative overflow-hidden rounded-[14px] bg-white">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/70 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+          />
+          <div ref={containerRef} className="relative w-full" />
+        </div>
+      </div>
       {loadError && (
-        <p className="mt-1 text-xs text-red-500">{loadError}</p>
+        <p className="mt-1.5 text-xs font-medium text-red-500">{loadError}</p>
       )}
       {signingIn && (
-        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/70">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-neutral-300 border-t-neutral-700" />
+        <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-white/80 backdrop-blur-sm">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-neutral-300 border-t-[#E84672]" />
         </div>
       )}
     </div>
