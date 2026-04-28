@@ -1,15 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  RiMapPin2Line,
   RiLoader4Line,
   RiErrorWarningLine,
-  RiSearchLine,
   RiCrosshair2Line,
   RiShieldCheckLine,
   RiCloseLine,
   RiNavigationLine,
+  RiCheckLine,
 } from "react-icons/ri";
 
 export interface LocationPickerValue {
@@ -27,82 +26,33 @@ interface Props {
   onChange: (value: LocationPickerValue) => void;
 }
 
-type GMaps = any;
-
-declare global {
-  interface Window {
-    __lotus_gmaps_cb?: () => void;
-    gm_authFailure?: () => void;
-  }
+interface PostOffice {
+  Name?: string;
+  District?: string;
+  State?: string;
+  Pincode?: string;
+}
+interface PincodeApiResponse {
+  Status?: string;
+  Message?: string;
+  PostOffice?: PostOffice[] | null;
 }
 
-function gmaps(): any {
-  return (globalThis as any).google;
-}
-
-let gmapsLoader: Promise<void> | null = null;
-function loadGoogleMaps(apiKey: string): Promise<void> {
-  if (typeof window === "undefined") return Promise.resolve();
-  if (gmaps()?.maps?.places) return Promise.resolve();
-  if (gmapsLoader) return gmapsLoader;
-
-  gmapsLoader = new Promise<void>((resolve, reject) => {
-    const existing = document.querySelector<HTMLScriptElement>(
-      'script[data-lotus-gmaps="1"]',
-    );
-    if (existing) {
-      existing.addEventListener("load", () => resolve());
-      existing.addEventListener("error", () => reject(new Error("Google Maps failed to load")));
-      return;
-    }
-    window.__lotus_gmaps_cb = () => {
-      if (gmaps()?.maps?.places) resolve();
-      else reject(new Error("Google Maps failed to load"));
-    };
-    const s = document.createElement("script");
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&libraries=places&loading=async&callback=__lotus_gmaps_cb`;
-    s.async = true;
-    s.defer = true;
-    s.dataset.lotusGmaps = "1";
-    s.onerror = () => reject(new Error("Google Maps failed to load"));
-    document.head.appendChild(s);
-  });
-  return gmapsLoader;
-}
-
-function parseAddressComponents(
-  components: Array<{ long_name: string; short_name: string; types: string[] }>,
-): Omit<LocationPickerValue, "coordinates" | "formattedAddress"> {
-  const get = (...types: string[]) =>
-    components.find((c) => c.types.some((t) => types.includes(t)))?.long_name;
-
-  const streetNumber = get("street_number");
-  const route = get("route");
-  const premise = get("premise") || get("subpremise");
-  const sublocality =
-    get("sublocality_level_2") ||
-    get("sublocality_level_1") ||
-    get("sublocality");
-  const neighborhood = get("neighborhood");
-  const city =
-    get("locality") ||
-    get("administrative_area_level_3") ||
-    get("administrative_area_level_2");
-  const state = get("administrative_area_level_1");
-  const pincode = get("postal_code");
-
-  const line1Parts = [premise, streetNumber, route].filter(Boolean);
-  const line1 = line1Parts.join(" ") || undefined;
-  const line2Parts = [neighborhood, sublocality].filter(Boolean);
-  const line2 =
-    line2Parts.filter((p, i, arr) => arr.indexOf(p) === i).join(", ") || undefined;
-
+async function lookupPincode(pincode: string): Promise<{
+  city: string;
+  state: string;
+  area?: string;
+} | null> {
+  const res = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+  if (!res.ok) throw new Error("Pincode lookup failed");
+  const json = (await res.json()) as PincodeApiResponse[];
+  const entry = json?.[0];
+  if (!entry || entry.Status !== "Success" || !entry.PostOffice?.length) return null;
+  const po = entry.PostOffice[0];
   return {
-    addressLine1: line1,
-    addressLine2: line2,
-    city,
-    state,
-    pincode,
+    city: po.District ?? "",
+    state: po.State ?? "",
+    area: po.Name,
   };
 }
 
@@ -128,12 +78,26 @@ async function reverseGeocodeOSM(lat: number, lng: number): Promise<LocationPick
   };
 }
 
-const DEFAULT_CENTER = { lat: 22.7196, lng: 75.8577 }; // Indore, India
-
+/**
+ * GPS button + pincode-driven city/state auto-fill helper.
+ *
+ * Watches `initialValue.pincode` from the parent — whenever it becomes a valid
+ * 6-digit pincode, it fetches city/state from postalpincode.in and emits via
+ * `onChange`. The parent owns the pincode/city/state inputs themselves; this
+ * component does NOT render its own pincode field, to avoid duplicate UI on
+ * pages that already have address forms.
+ */
 export default function LocationPicker({ initialValue, onChange }: Props) {
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  const [pincodeStatus, setPincodeStatus] = useState<
+    null | "checking" | "found" | "invalid" | "error"
+  >(null);
+  const [resolvedArea, setResolvedArea] = useState<{
+    city: string;
+    state: string;
+    area?: string;
+  } | null>(null);
 
-  const [loading, setLoading] = useState(false);
+  const [gpsLoading, setGpsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resolved, setResolved] = useState<string | null>(
     initialValue?.formattedAddress ?? null,
@@ -142,162 +106,59 @@ export default function LocationPicker({ initialValue, onChange }: Props) {
     null | "prompt" | "denied"
   >(null);
 
-  const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const searchInputRef = useRef<HTMLInputElement | null>(null);
-  const mapRef = useRef<GMaps | null>(null);
-  const markerRef = useRef<GMaps | null>(null);
-  const geocoderRef = useRef<GMaps | null>(null);
-  const autocompleteRef = useRef<GMaps | null>(null);
-  const [mapsReady, setMapsReady] = useState(false);
-  const [mapsLoadError, setMapsLoadError] = useState<string | null>(null);
-
-  const emit = useCallback(
-    (value: LocationPickerValue) => {
-      onChange(value);
-      if (value.formattedAddress) setResolved(value.formattedAddress);
-    },
-    [onChange],
-  );
-
-  const applyGoogleGeocode = useCallback(
-    (result: {
-      formatted_address: string;
-      address_components: Array<{ long_name: string; short_name: string; types: string[] }>;
-      geometry: { location: { lat: () => number; lng: () => number } };
-    }) => {
-      const parsed = parseAddressComponents(result.address_components);
-      const lat = result.geometry.location.lat();
-      const lng = result.geometry.location.lng();
-      emit({
-        ...parsed,
-        coordinates: { lat, lng },
-        formattedAddress: result.formatted_address,
-      });
-    },
-    [emit],
-  );
-
-  const reverseGeocodeGoogle = useCallback(
-    (lat: number, lng: number) => {
-      const g = gmaps();
-      if (!geocoderRef.current && g?.maps?.Geocoder) {
-        geocoderRef.current = new g.maps.Geocoder();
-      }
-      if (!geocoderRef.current) return;
-      geocoderRef.current.geocode(
-        { location: { lat, lng } },
-        (results: any[], status: string) => {
-          if (status === "OK" && results?.[0]) {
-            applyGoogleGeocode(results[0]);
-          } else {
-            emit({ coordinates: { lat, lng } });
-          }
-        },
-      );
-    },
-    [applyGoogleGeocode, emit],
-  );
-
-  const placeMarker = useCallback(
-    (lat: number, lng: number, runReverseGeocode = true) => {
-      const g = gmaps();
-      if (!g || !mapRef.current) return;
-      const pos = new g.maps.LatLng(lat, lng);
-      if (!markerRef.current) {
-        markerRef.current = new g.maps.Marker({
-          position: pos,
-          map: mapRef.current,
-          draggable: true,
-          animation: g.maps.Animation.DROP,
-        });
-        markerRef.current.addListener("dragend", () => {
-          const p = markerRef.current.getPosition();
-          if (!p) return;
-          const lat2 = p.lat();
-          const lng2 = p.lng();
-          mapRef.current.panTo({ lat: lat2, lng: lng2 });
-          reverseGeocodeGoogle(lat2, lng2);
-        });
-      } else {
-        markerRef.current.setPosition(pos);
-      }
-      mapRef.current.panTo(pos);
-      if (mapRef.current.getZoom() < 14) mapRef.current.setZoom(15);
-      if (runReverseGeocode) reverseGeocodeGoogle(lat, lng);
-    },
-    [reverseGeocodeGoogle],
-  );
-
+  // Stable refs so the pincode-watcher effect doesn't re-fire on every render.
+  const onChangeRef = useRef(onChange);
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.gm_authFailure = () => {
-      setMapsLoadError(
-        "The map couldn't authenticate with Google. Your address fields still work — please enter them manually.",
-      );
-    };
-    return () => {
-      if (window.gm_authFailure) delete window.gm_authFailure;
-    };
+    onChangeRef.current = onChange;
+  }, [onChange]);
+  const lastLookupRef = useRef<string | null>(null);
+
+  const emit = useCallback((value: LocationPickerValue) => {
+    onChangeRef.current(value);
+    if (value.formattedAddress) setResolved(value.formattedAddress);
   }, []);
 
+  // Watch parent's pincode — debounce, then look up city/state and emit.
   useEffect(() => {
-    if (!apiKey) return;
+    const trimmed = (initialValue?.pincode ?? "").trim();
+    if (!/^\d{6}$/.test(trimmed)) {
+      setPincodeStatus(null);
+      setResolvedArea(null);
+      lastLookupRef.current = null;
+      return;
+    }
+    if (lastLookupRef.current === trimmed) return; // already resolved this exact code
+
     let cancelled = false;
-    loadGoogleMaps(apiKey)
-      .then(() => {
+    setPincodeStatus("checking");
+    const timer = setTimeout(async () => {
+      try {
+        const res = await lookupPincode(trimmed);
         if (cancelled) return;
-        const g = gmaps();
-        if (!g?.maps?.places || !mapContainerRef.current) return;
-
-        const start = initialValue?.coordinates ?? DEFAULT_CENTER;
-        mapRef.current = new g.maps.Map(mapContainerRef.current, {
-          center: start,
-          zoom: initialValue?.coordinates ? 15 : 12,
-          disableDefaultUI: true,
-          zoomControl: true,
-          mapTypeControl: false,
-          streetViewControl: false,
-          fullscreenControl: false,
-          gestureHandling: "cooperative",
-        });
-        geocoderRef.current = new g.maps.Geocoder();
-
-        if (initialValue?.coordinates) {
-          placeMarker(initialValue.coordinates.lat, initialValue.coordinates.lng, false);
+        if (!res) {
+          setPincodeStatus("invalid");
+          setResolvedArea(null);
+          return;
         }
-
-        mapRef.current.addListener("click", (e: any) => {
-          if (!e?.latLng) return;
-          placeMarker(e.latLng.lat(), e.latLng.lng(), true);
+        lastLookupRef.current = trimmed;
+        setPincodeStatus("found");
+        setResolvedArea(res);
+        emit({
+          pincode: trimmed,
+          city: res.city,
+          state: res.state,
+          addressLine2: res.area,
         });
-
-        if (searchInputRef.current) {
-          autocompleteRef.current = new g.maps.places.Autocomplete(
-            searchInputRef.current,
-            {
-              fields: ["geometry", "formatted_address", "address_components"],
-              componentRestrictions: { country: "in" },
-            },
-          );
-          autocompleteRef.current.addListener("place_changed", () => {
-            const place = autocompleteRef.current.getPlace();
-            if (!place?.geometry?.location) return;
-            placeMarker(place.geometry.location.lat(), place.geometry.location.lng(), false);
-            applyGoogleGeocode(place);
-          });
-        }
-
-        setMapsReady(true);
-      })
-      .catch((err) => {
-        setMapsLoadError(err instanceof Error ? err.message : "Google Maps failed to load");
-      });
-
+      } catch {
+        if (cancelled) return;
+        setPincodeStatus("error");
+      }
+    }, 350);
     return () => {
       cancelled = true;
+      clearTimeout(timer);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiKey]);
+  }, [initialValue?.pincode, emit]);
 
   const runGeolocation = () => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
@@ -305,30 +166,31 @@ export default function LocationPicker({ initialValue, onChange }: Props) {
       return;
     }
     setError(null);
-    setLoading(true);
+    setGpsLoading(true);
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude, longitude } = pos.coords;
         try {
-          if (apiKey && gmaps()?.maps) {
-            placeMarker(latitude, longitude, true);
-          } else {
-            const value = await reverseGeocodeOSM(latitude, longitude);
-            emit(value);
-          }
+          const value = await reverseGeocodeOSM(latitude, longitude);
+          emit(value);
+          if (value.pincode) lastLookupRef.current = value.pincode;
         } catch {
-          setError("Could not resolve your address. Drop the pin or enter it manually.");
+          setError(
+            "Could not resolve your address from GPS. Type your pincode below to auto-fill the city and state.",
+          );
           emit({ coordinates: { lat: latitude, lng: longitude } });
         } finally {
-          setLoading(false);
+          setGpsLoading(false);
         }
       },
       (err) => {
-        setLoading(false);
+        setGpsLoading(false);
         if (err.code === err.PERMISSION_DENIED) {
           setPermissionModal("denied");
+        } else if (err.code === err.TIMEOUT) {
+          setError("Location request timed out. Try again, or type your pincode below.");
         } else {
-          setError("Could not get your location. Drop the pin or enter manually.");
+          setError("Location is unavailable on this device. Type your pincode below.");
         }
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 },
@@ -364,74 +226,54 @@ export default function LocationPicker({ initialValue, onChange }: Props) {
     runGeolocation();
   };
 
-  const usingGoogle = useMemo(() => Boolean(apiKey), [apiKey]);
-
   return (
-    <div className="space-y-3">
-      {usingGoogle && !mapsLoadError && (
-        <div className="relative">
-          <RiSearchLine
-            size={15}
-            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-300"
-          />
-          <input
-            ref={searchInputRef}
-            type="text"
-            placeholder={
-              mapsReady ? "Search for an address, landmark or pincode" : "Loading map…"
-            }
-            disabled={!mapsReady}
-            className="w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition placeholder:text-neutral-400 focus:border-[#E84672]"
-          />
-        </div>
-      )}
-
-      <div className="flex gap-2">
+    <div className="space-y-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <button
           type="button"
           onClick={detectLocation}
-          disabled={loading}
-          className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[#E84672]/30 bg-[#FFF1F3] py-2.5 text-sm font-semibold text-[#E84672] transition hover:bg-[#FFE5EA] disabled:opacity-60"
+          disabled={gpsLoading}
+          className="flex items-center gap-1.5 rounded-xl border border-[#E84672]/30 bg-[#FFF1F3] px-3 py-2 text-xs font-semibold text-[#E84672] transition hover:bg-[#FFE5EA] disabled:opacity-60"
         >
-          {loading ? (
-            <RiLoader4Line className="animate-spin" size={16} />
+          {gpsLoading ? (
+            <RiLoader4Line className="animate-spin" size={14} />
           ) : (
-            <RiCrosshair2Line size={16} />
+            <RiCrosshair2Line size={14} />
           )}
-          {loading ? "Detecting…" : "Use my current location"}
+          {gpsLoading ? "Detecting…" : "Use my current location"}
         </button>
+
+        {pincodeStatus === "checking" && (
+          <span className="flex items-center gap-1 text-[0.72rem] text-neutral-500">
+            <RiLoader4Line size={12} className="animate-spin" />
+            Looking up pincode…
+          </span>
+        )}
+        {pincodeStatus === "found" && resolvedArea && (
+          <span className="flex items-center gap-1 text-[0.72rem] text-emerald-700">
+            <RiCheckLine size={12} />
+            {resolvedArea.area ? `${resolvedArea.area}, ` : ""}
+            {resolvedArea.city}, {resolvedArea.state}
+          </span>
+        )}
+        {pincodeStatus === "invalid" && (
+          <span className="flex items-center gap-1 text-[0.72rem] text-amber-600">
+            <RiErrorWarningLine size={12} />
+            Pincode not recognised
+          </span>
+        )}
+        {pincodeStatus === "error" && (
+          <span className="flex items-center gap-1 text-[0.72rem] text-amber-600">
+            <RiErrorWarningLine size={12} />
+            Couldn&apos;t verify pincode just now
+          </span>
+        )}
       </div>
 
-      <div
-        ref={mapContainerRef}
-        aria-label="Map — drag the pin or click to adjust your address"
-        className={
-          usingGoogle && !mapsLoadError
-            ? "h-64 w-full overflow-hidden rounded-xl border border-neutral-200 bg-neutral-100"
-            : "hidden"
-        }
-      />
-
-      {usingGoogle && mapsReady && !mapsLoadError && (
-        <p className="flex items-center gap-1.5 text-[0.72rem] text-neutral-500">
-          <RiMapPin2Line size={12} /> Drag the pin or tap the map to fine-tune.
+      {!pincodeStatus && !gpsLoading && !error && !resolved && (
+        <p className="text-[0.72rem] text-neutral-500">
+          Tap GPS to auto-fill, or type a pincode below — city &amp; state will populate.
         </p>
-      )}
-
-      {!usingGoogle && (
-        <p className="rounded-lg bg-amber-50 px-2.5 py-1.5 text-[0.72rem] text-amber-700">
-          Set <code>NEXT_PUBLIC_GOOGLE_MAPS_API_KEY</code> to enable the interactive map. For now we detect via browser GPS only.
-        </p>
-      )}
-
-      {mapsLoadError && (
-        <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-[0.72rem] text-amber-700">
-          <RiErrorWarningLine size={14} className="mt-0.5 shrink-0" />
-          <span>
-            The interactive map couldn&apos;t load. You can still use{" "}
-            <strong>Use my current location</strong> above, or enter your address manually below.
-          </span>
-        </div>
       )}
 
       {resolved && !error && (
@@ -442,7 +284,7 @@ export default function LocationPicker({ initialValue, onChange }: Props) {
       )}
 
       {error && (
-        <p className="flex items-start gap-1.5 text-[0.72rem] text-amber-600">
+        <p className="flex items-start gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1.5 text-[0.72rem] text-amber-700">
           <RiErrorWarningLine size={13} className="mt-0.5 shrink-0" />
           {error}
         </p>
