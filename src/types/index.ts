@@ -263,6 +263,10 @@ export interface IOrder extends Timestamps {
   deliveredAt?: Date;
   cancelledAt?: Date;
   cancelReason?: string;
+  shipmozoReturnOrderId?: string;
+  shipmozoReturnReferenceId?: string;
+  returnReason?: string;
+  returnedAt?: Date;
 }
 
 
