@@ -68,6 +68,9 @@ export interface IUser extends Timestamps {
   verificationToken?: string;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
+  deletedAt?: Date | null;
+  deletedReason?: string;
+  deletedBy?: Ref<IUser>;
 }
 
 

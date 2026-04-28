@@ -18,6 +18,8 @@ import {
   RiLockLine,
   RiLogoutBoxRLine,
   RiShieldCheckLine,
+  RiAlertLine,
+  RiDeleteBin6Line,
 } from "react-icons/ri";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -59,6 +61,10 @@ export default function AccountPage() {
   const [uploading, setUploading] = useState(false);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [deleteReason, setDeleteReason] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     axios
@@ -102,6 +108,29 @@ export default function AccountPage() {
     } finally {
       setUploading(false);
       e.target.value = "";
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirm.trim().toUpperCase() !== "DELETE") {
+      toast.error('Please type "DELETE" to confirm');
+      return;
+    }
+    setDeleting(true);
+    try {
+      await axios.delete("/api/auth/me", {
+        data: { reason: deleteReason.trim() || undefined },
+      });
+      toast.success("Your account has been deleted");
+      // Logout clears the auth store and redirects.
+      await logout();
+    } catch (err) {
+      toast.error(
+        axios.isAxiosError(err)
+          ? (err.response?.data?.message ?? "Failed to delete account")
+          : "Failed to delete account",
+      );
+      setDeleting(false);
     }
   };
 
@@ -344,8 +373,104 @@ export default function AccountPage() {
               </div>
             )}
           </motion.div>
+
+          {/* Danger Zone */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-2xl p-6 border border-red-100"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center">
+                <RiAlertLine size={16} className="text-red-500" />
+              </div>
+              <h3 className="font-semibold text-red-600">Danger zone</h3>
+            </div>
+            <p className="text-sm text-neutral-500 mb-4">
+              Deleting your account removes your profile and personal data from LotusMart.
+              Past orders are kept for accounting and tax purposes only. You can ask us to
+              restore your account by contacting support within 30 days.
+            </p>
+            <button
+              onClick={() => {
+                setDeleteOpen(true);
+                setDeleteConfirm("");
+                setDeleteReason("");
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-50 transition-colors"
+            >
+              <RiDeleteBin6Line size={16} />
+              Delete my account
+            </button>
+          </motion.div>
         </div>
       </div>
+
+      {/* Delete confirmation modal */}
+      {deleteOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+          onClick={() => !deleting && setDeleteOpen(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center">
+                <RiAlertLine size={18} className="text-red-500" />
+              </div>
+              <h2 className="text-base font-semibold text-neutral-900">
+                Delete your account?
+              </h2>
+            </div>
+            <p className="text-sm text-neutral-600 mb-4">
+              This is reversible only by emailing support within 30 days. After that,
+              your data is permanently scrubbed.
+            </p>
+
+            <label className="block text-xs font-medium text-neutral-600 mb-1">
+              Reason (optional)
+            </label>
+            <textarea
+              value={deleteReason}
+              onChange={(e) => setDeleteReason(e.target.value)}
+              rows={2}
+              maxLength={500}
+              placeholder="Help us improve — why are you leaving?"
+              className="w-full text-sm rounded-xl border border-neutral-200 px-3 py-2 mb-4 outline-none focus:border-[#E84672]"
+            />
+
+            <label className="block text-xs font-medium text-neutral-600 mb-1">
+              Type <span className="font-bold text-red-600">DELETE</span> to confirm
+            </label>
+            <input
+              value={deleteConfirm}
+              onChange={(e) => setDeleteConfirm(e.target.value)}
+              className="w-full text-sm rounded-xl border border-neutral-200 px-3 py-2 mb-5 outline-none focus:border-red-500 uppercase"
+              placeholder="DELETE"
+            />
+
+            <div className="flex gap-3 justify-end">
+              <button
+                disabled={deleting}
+                onClick={() => setDeleteOpen(false)}
+                className="px-4 py-2 rounded-xl border border-neutral-200 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={deleting || deleteConfirm.trim().toUpperCase() !== "DELETE"}
+                onClick={handleDeleteAccount}
+                className="px-4 py-2 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deleting ? "Deleting..." : "Delete account"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

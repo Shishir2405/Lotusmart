@@ -20,13 +20,19 @@ interface User {
   isVerified: boolean;
   createdAt: string;
   phone?: string;
+  deletedAt?: string | null;
+  deletedReason?: string;
+  deletedBy?: { _id: string; name?: string; email?: string } | string | null;
 }
+
+type StatusFilter = "active" | "deleted" | "all";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("active");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
@@ -39,6 +45,7 @@ export default function AdminUsersPage() {
     const params = new URLSearchParams({
       page: String(page),
       limit: "20",
+      status: statusFilter,
       ...(debouncedSearch && { search: debouncedSearch }),
       ...(roleFilter !== "all" && { role: roleFilter }),
     });
@@ -51,7 +58,19 @@ export default function AdminUsersPage() {
       })
       .catch(() => toast.error("Failed to load users"))
       .finally(() => setLoading(false));
-  }, [page, debouncedSearch, roleFilter]);
+  }, [page, debouncedSearch, roleFilter, statusFilter]);
+
+  const handleRestore = async (id: string) => {
+    try {
+      await axios.post(`/api/admin/users/${id}?action=restore`);
+      toast.success("Account restored");
+      setUsers((prev) => prev.filter((u) => u._id !== id));
+      setTotal((t) => Math.max(0, t - 1));
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      toast.error(e?.response?.data?.message ?? "Restore failed");
+    }
+  };
 
   return (
     <div className="p-8">
@@ -84,6 +103,17 @@ export default function AdminUsersPage() {
             </button>
           ))}
         </div>
+        <div className="flex gap-2 border-l border-neutral-200 pl-2 ml-1">
+          {(["active", "deleted", "all"] as StatusFilter[]).map((s) => (
+            <button
+              key={s}
+              onClick={() => { setStatusFilter(s); setPage(1); }}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-colors ${statusFilter === s ? "bg-neutral-800 text-white" : "bg-[#F7F6F0] text-neutral-600 hover:bg-neutral-200"}`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
@@ -95,6 +125,8 @@ export default function AdminUsersPage() {
               <th className="text-left px-4 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wide">Role</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wide">Status</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wide">Joined</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wide">Deleted</th>
+              <th className="px-4 py-3" />
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-50">
@@ -111,6 +143,8 @@ export default function AdminUsersPage() {
                     <td className="px-4 py-4"><Skeleton className="h-5 w-16" rounded="full" /></td>
                     <td className="px-4 py-4"><Skeleton className="h-5 w-20" rounded="full" /></td>
                     <td className="px-4 py-4"><Skeleton className="h-4 w-24" /></td>
+                    <td className="px-4 py-4"><Skeleton className="h-4 w-20" /></td>
+                    <td className="px-4 py-4" />
                   </tr>
                 ))
               : users.map((user) => (
@@ -145,6 +179,33 @@ export default function AdminUsersPage() {
                       </Badge>
                     </td>
                     <td className="px-4 py-4 text-sm text-neutral-500">{formatDate(user.createdAt)}</td>
+                    <td className="px-4 py-4 text-sm">
+                      {user.deletedAt ? (
+                        <div className="flex flex-col">
+                          <span className="text-rose-600 font-medium">{formatDate(user.deletedAt)}</span>
+                          <span className="text-xs text-neutral-400">
+                            by {typeof user.deletedBy === "object" && user.deletedBy
+                              ? (user.deletedBy.name ?? user.deletedBy.email ?? "admin")
+                              : "self"}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-neutral-300">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-4 text-right">
+                      {user.deletedAt ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void handleRestore(user._id);
+                          }}
+                          className="text-xs font-semibold text-[#E84672] hover:text-[#C9305A] px-3 py-1.5 rounded-lg border border-[#FFD2DD] hover:bg-[#FFF1F3] transition-colors"
+                        >
+                          Restore
+                        </button>
+                      ) : null}
+                    </td>
                   </motion.tr>
                 ))}
           </tbody>
