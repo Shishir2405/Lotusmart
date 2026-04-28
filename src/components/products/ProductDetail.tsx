@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import {
   RiHeartLine,
   RiHeartFill,
@@ -15,11 +14,14 @@ import {
   RiShieldCheckLine,
   RiTruckLine,
   RiArrowLeftLine,
+  RiRefund2Line,
+  RiLeafLine,
 } from "react-icons/ri";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cart.store";
 import { useWishlistStore } from "@/store/wishlist.store";
 import { Button } from "@/components/ui/Button";
+import { ProductImageZoom } from "@/components/products/ProductImageZoom";
 import { formatCurrency, calculateDiscount, normalizeImageUrl } from "@/utils/helpers";
 import toast from "@/components/ui/toast";
 
@@ -57,8 +59,13 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const { addItem, isInCart } = useCartStore();
   const { toggleItem, isInWishlist } = useWishlistStore();
 
-  const inCart = isInCart(product._id);
-  const inWishlist = isInWishlist(product._id);
+  // Both stores hydrate from localStorage post-mount; reading them during SSR
+  // / first client render would mismatch and trip React 19's hydration guard.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const inCart = mounted && isInCart(product._id);
+  const inWishlist = mounted && isInWishlist(product._id);
   const discount = calculateDiscount(product.price, product.compareAtPrice);
   const isOutOfStock = product.stock === 0;
 
@@ -140,38 +147,31 @@ export function ProductDetail({ product }: ProductDetailProps) {
       <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
         {/* Images */}
         <div className="lg:sticky lg:top-24 lg:self-start">
-          <motion.div
-            key={selectedImage}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="relative aspect-[4/5] sm:aspect-square rounded-2xl lg:rounded-3xl overflow-hidden bg-[#F7F6F0] mb-3"
-          >
-            {product.images?.[selectedImage] ? (
-              <Image
-                src={normalizeImageUrl(product.images[selectedImage])}
-                alt={product.name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                priority
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-neutral-300 text-lg font-bold">No Image</div>
-            )}
-            {discount > 0 && (
-              <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-[#E84672] text-white text-sm font-bold">
-                -{discount}%
-              </div>
-            )}
-          </motion.div>
+          {product.images?.[selectedImage] ? (
+            <ProductImageZoom
+              src={product.images[selectedImage]}
+              alt={product.name}
+              discount={discount}
+              imageKey={selectedImage}
+            />
+          ) : (
+            <div className="relative aspect-[4/5] sm:aspect-square rounded-2xl lg:rounded-3xl overflow-hidden bg-[#F7F6F0] flex items-center justify-center text-neutral-300 text-lg font-bold">
+              No Image
+            </div>
+          )}
 
           {product.images?.length > 1 && (
-            <div className="flex gap-2.5 overflow-x-auto pb-1 no-scrollbar">
+            <div className="flex gap-2.5 overflow-x-auto pb-1 mt-3 no-scrollbar">
               {product.images.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedImage(i)}
-                  className={`shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-colors ${i === selectedImage ? "border-[#E84672]" : "border-neutral-200 hover:border-neutral-300"}`}
+                  aria-label={`View image ${i + 1}`}
+                  className={`shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-all hover:-translate-y-0.5 ${
+                    i === selectedImage
+                      ? "border-[#E84672] ring-2 ring-[#FFC2D1] ring-offset-1"
+                      : "border-neutral-200 hover:border-neutral-300"
+                  }`}
                 >
                   <Image src={normalizeImageUrl(img)} alt="" width={80} height={80} className="object-cover w-full h-full" />
                 </button>
@@ -309,14 +309,19 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </p>
           )}
 
-          
-          <div className="flex flex-wrap gap-4 py-4 border-t border-b border-[#EBE8D8] my-5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 my-5">
             {[
               { icon: RiShieldCheckLine, text: "FSSAI Certified" },
-              { icon: RiTruckLine, text: "Free shipping ₹500+" },
+              { icon: RiTruckLine, text: "Free over ₹500" },
+              { icon: RiLeafLine, text: "100% Natural" },
+              { icon: RiRefund2Line, text: "Easy Returns" },
             ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-1.5 text-sm text-neutral-500">
-                <Icon size={15} className="text-[#7A6E42]" /> {text}
+              <div
+                key={text}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#FAFAF9] border border-[#EBE8D8] text-xs text-neutral-600"
+              >
+                <Icon size={16} className="text-[#7A6E42] shrink-0" />
+                <span className="font-medium truncate">{text}</span>
               </div>
             ))}
           </div>
@@ -337,10 +342,13 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
       {/* Description */}
       {product.description && (
-        <div className="mt-10 bg-white rounded-2xl p-6 sm:p-8 border border-neutral-100">
-          <h2 className="text-xl font-bold text-neutral-900 mb-4">Product Details</h2>
+        <div className="mt-12 bg-white rounded-3xl p-6 sm:p-8 border border-neutral-100 shadow-sm">
+          <div className="flex items-center gap-2 mb-5">
+            <span className="w-1 h-5 rounded-full bg-[#E84672]" />
+            <h2 className="text-xl font-bold text-neutral-900">Product Details</h2>
+          </div>
           <div
-            className="prose prose-sm max-w-none text-neutral-600 leading-relaxed"
+            className="prose prose-sm max-w-none text-neutral-600 leading-relaxed prose-headings:text-neutral-800 prose-strong:text-neutral-800 prose-a:text-[#E84672]"
             dangerouslySetInnerHTML={{ __html: product.description }}
           />
         </div>
