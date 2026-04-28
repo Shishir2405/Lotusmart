@@ -108,6 +108,10 @@ const OrderSchema = new Schema<IOrderDocument>(
     deliveredAt: { type: Date },
     cancelledAt: { type: Date },
     cancelReason: { type: String, maxlength: 500 },
+    shipmozoReturnOrderId: { type: String },
+    shipmozoReturnReferenceId: { type: String },
+    returnReason: { type: String, maxlength: 500 },
+    returnedAt: { type: Date },
   },
   {
     timestamps: true,
