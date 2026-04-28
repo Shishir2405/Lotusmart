@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   RiArrowLeftLine,
   RiMapPinLine,
@@ -14,8 +14,11 @@ import {
   RiPhoneLine,
   RiRefreshLine,
   RiFileCopyLine,
+  RiCloseLine,
+  RiCalendarLine,
+  RiMapPin2Line,
 } from "react-icons/ri";
-import { OrderStatusBadge, PaymentStatusBadge } from "@/components/ui/Badge";
+import { OrderStatusBadge, PaymentStatusBadge, Badge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency, formatDate, normalizeImageUrl } from "@/utils/helpers";
@@ -81,6 +84,15 @@ interface TrackingEvent {
   location: string;
 }
 
+interface TrackingDetails {
+  awb_number: string;
+  courier: string;
+  current_status: string;
+  expected_delivery_date: string | null;
+  status_time: string | null;
+  scan_detail: Array<{ date: string; activity: string; location: string }>;
+}
+
 const ORDER_STEPS = [
   "placed",
   "confirmed",
@@ -96,6 +108,9 @@ export default function OrderDetailPage() {
   const [trackingData, setTrackingData] = useState<TrackingEvent[]>([]);
   const [trackingLoading, setTrackingLoading] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [showTrackModal, setShowTrackModal] = useState(false);
+  const [trackDetails, setTrackDetails] = useState<TrackingDetails | null>(null);
+  const [trackModalLoading, setTrackModalLoading] = useState(false);
 
   useEffect(() => {
     axios
@@ -136,6 +151,36 @@ export default function OrderDetailPage() {
     } finally {
       setTrackingLoading(false);
     }
+  };
+
+  const fetchTrackDetails = useCallback(async () => {
+    if (!order) return;
+    const awb = order.awbNumber || order.trackingNumber;
+    if (!awb) return;
+    setTrackModalLoading(true);
+    try {
+      const res = await axios.get<{ data: TrackingDetails }>(
+        `/api/shipping/track?awb=${awb}`,
+      );
+      setTrackDetails(res.data.data);
+    } catch (err) {
+      toast.error(
+        axios.isAxiosError(err)
+          ? err.response?.data?.message ?? "Tracking failed"
+          : "Tracking failed",
+      );
+    } finally {
+      setTrackModalLoading(false);
+    }
+  }, [order]);
+
+  const openTrackModal = () => {
+    if (!order?.awbNumber && !order?.trackingNumber) {
+      toast.error("Tracking will be available once a courier is assigned");
+      return;
+    }
+    setShowTrackModal(true);
+    fetchTrackDetails();
   };
 
   const handleCancel = async () => {
@@ -274,26 +319,41 @@ export default function OrderDetailPage() {
             ))}
           </div>
 
-          {order.trackingNumber && (
-            <div className="mt-5 pt-4 border-t border-[#EBE8D8] flex items-center gap-2 text-sm text-neutral-600">
+          {(order.awbNumber || order.trackingNumber) && (
+            <div className="mt-5 pt-4 border-t border-[#EBE8D8] flex items-center gap-2 text-sm text-neutral-600 flex-wrap">
               <RiTruckLine className="text-[#E84672]" size={16} />
               <span>
-                Tracking:{" "}
+                AWB:{" "}
                 <strong className="text-neutral-800">
-                  {order.trackingNumber}
+                  {order.awbNumber || order.trackingNumber}
                 </strong>
               </span>
               <button
-                onClick={() => copyToClipboard(order.trackingNumber!)}
+                onClick={() =>
+                  copyToClipboard((order.awbNumber || order.trackingNumber)!)
+                }
                 className="p-1 text-neutral-400 hover:text-neutral-600"
               >
                 <RiFileCopyLine size={12} />
               </button>
-              {order.estimatedDelivery && (
-                <span className="ml-auto text-xs text-neutral-400">
-                  Est. delivery: {formatDate(order.estimatedDelivery)}
+              {order.courierCompany && (
+                <span className="text-xs text-neutral-400">
+                  via {order.courierCompany}
                 </span>
               )}
+              {order.estimatedDelivery && (
+                <span className="text-xs text-neutral-400">
+                  · Est. delivery: {formatDate(order.estimatedDelivery)}
+                </span>
+              )}
+              <Button
+                size="sm"
+                onClick={openTrackModal}
+                className="ml-auto"
+                leftIcon={<RiMapPin2Line size={14} />}
+              >
+                Track Order
+              </Button>
             </div>
           )}
         </motion.div>
@@ -632,6 +692,135 @@ export default function OrderDetailPage() {
           </div>
         </motion.div>
       </div>
+
+      <AnimatePresence>
+        {showTrackModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowTrackModal(false)}
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/45 backdrop-blur-sm p-0 sm:p-6"
+          >
+            <motion.div
+              initial={{ y: 24, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 24, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-lg max-h-[90vh] overflow-hidden rounded-t-3xl sm:rounded-3xl bg-white shadow-2xl flex flex-col"
+            >
+              <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-100">
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-neutral-900 flex items-center gap-2">
+                    <RiTruckLine className="text-[#E84672]" size={18} />
+                    Shipment Tracking
+                  </h3>
+                  <p className="text-xs text-neutral-400 mt-0.5 truncate">
+                    {order.orderNumber}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={fetchTrackDetails}
+                    disabled={trackModalLoading}
+                    className="p-2 rounded-lg text-neutral-500 hover:bg-neutral-100 disabled:opacity-50"
+                    title="Refresh"
+                  >
+                    <RiRefreshLine
+                      size={16}
+                      className={trackModalLoading ? "animate-spin" : ""}
+                    />
+                  </button>
+                  <button
+                    onClick={() => setShowTrackModal(false)}
+                    className="p-2 rounded-lg text-neutral-500 hover:bg-neutral-100"
+                  >
+                    <RiCloseLine size={18} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="overflow-y-auto p-5">
+                {trackModalLoading && !trackDetails && (
+                  <div className="space-y-3">
+                    <Skeleton className="h-5 w-1/3" />
+                    <Skeleton className="h-4 w-2/3" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-12 w-full" rounded="xl" />
+                    <Skeleton className="h-12 w-full" rounded="xl" />
+                  </div>
+                )}
+
+                {!trackModalLoading && !trackDetails && (
+                  <p className="text-sm text-neutral-400 text-center py-8">
+                    Couldn&apos;t load tracking details. Try refresh.
+                  </p>
+                )}
+
+                {trackDetails && (
+                  <>
+                    <div className="bg-[#F7F6F0] rounded-2xl p-4 mb-5 space-y-2">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <span className="font-mono text-sm text-neutral-700">
+                          {trackDetails.awb_number}
+                        </span>
+                        <Badge variant="info" dot>
+                          {trackDetails.current_status || "In transit"}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between text-xs text-neutral-500 flex-wrap gap-2">
+                        {trackDetails.courier && (
+                          <span>via <strong>{trackDetails.courier}</strong></span>
+                        )}
+                        {trackDetails.expected_delivery_date && (
+                          <span className="flex items-center gap-1">
+                            <RiCalendarLine size={12} />
+                            ETA {formatDate(trackDetails.expected_delivery_date)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {trackDetails.scan_detail?.length ? (
+                      <div className="space-y-3">
+                        {trackDetails.scan_detail.map((event, i) => (
+                          <div key={i} className="flex gap-3 text-sm">
+                            <div className="flex flex-col items-center">
+                              <div
+                                className={`w-2.5 h-2.5 rounded-full mt-0.5 shrink-0 ${
+                                  i === 0 ? "bg-[#E84672]" : "bg-neutral-300"
+                                }`}
+                              />
+                              {i < trackDetails.scan_detail.length - 1 && (
+                                <div className="w-px flex-1 bg-neutral-200 mt-1" />
+                              )}
+                            </div>
+                            <div className="pb-3 min-w-0 flex-1">
+                              <p
+                                className={`font-medium ${i === 0 ? "text-neutral-900" : "text-neutral-700"}`}
+                              >
+                                {event.activity}
+                              </p>
+                              <p className="text-xs text-neutral-400 mt-0.5">
+                                {event.location || "—"} · {event.date}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-neutral-400 text-center py-6">
+                        No scan events yet — your package is being prepared.
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
