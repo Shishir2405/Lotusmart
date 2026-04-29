@@ -27,7 +27,7 @@ const staticLinks = {
     { label: "About Us", href: "/about" },
     { label: "Contact Us", href: "/contact" },
     { label: "Track Order", href: "/orders" },
-    { label: "Bulk Orders", href: "/bulk-orders" },
+    { label: "All Products", href: "/products" },
     { label: "Blog", href: "/blog" },
   ],
   Support: [

@@ -807,13 +807,13 @@ export function Header() {
             Fresh stock added every week
           </span>
           <span className="h-3 w-px opacity-30" style={{ backgroundColor: "#D4CFB3" }} />
-          <Link href="/bulk-orders">
+          <Link href="/products">
             <motion.span
               whileHover={{ color: "#FFE08A" }}
               className="inline-flex cursor-pointer items-center gap-1 text-[0.7rem] font-semibold tracking-wide"
               style={{ color: "#D4CFB3" }}
             >
-              <RiSparklingLine size={11} /> Bulk orders available
+              <RiSparklingLine size={11} /> Browse all products
             </motion.span>
           </Link>
         </div>
