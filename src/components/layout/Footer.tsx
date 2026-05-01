@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import {
   RiInstagramLine,
@@ -16,7 +16,6 @@ import {
   RiLeafLine,
   RiShieldCheckLine,
   RiLockLine,
-  RiCheckLine,
 } from "react-icons/ri";
 import { useContactInfo } from "@/hooks/useContactInfo";
 import axios from "axios";
@@ -93,9 +92,6 @@ function FooterLinkItem({ href, label }: { href: string; label: string }) {
 
 export function Footer() {
   const { contact } = useContactInfo();
-  const [email, setEmail] = useState("");
-  const [subscribed, setSubscribed] = useState(false);
-  const [focused, setFocused] = useState(false);
   const [shopLinks, setShopLinks] = useState([
     { label: "All Products", href: "/products" },
   ]);
@@ -134,128 +130,8 @@ export function Footer() {
     }))
     .filter(({ href }) => href && href !== "#");
 
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email.includes("@")) {
-      setSubscribed(true);
-      setEmail("");
-    }
-  };
-
   return (
     <footer style={{ backgroundColor: "#1c1914" }}>
-      
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="relative overflow-hidden"
-        style={{
-          background: "linear-gradient(135deg, #2A2518 0%, #4D4529 50%, #615834 100%)",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-        }}
-      >
-        
-        <div
-          className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full opacity-10"
-          style={{ border: "2px solid #FFE08A" }}
-        />
-        <div
-          className="pointer-events-none absolute -top-12 -right-12 h-40 w-40 rounded-full opacity-10"
-          style={{ border: "2px solid #FFE08A" }}
-        />
-
-        <div className="mx-auto w-full max-w-[1400px] px-6 py-10 md:px-8 lg:px-12">
-          <div className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
-            <div className="max-w-sm">
-              <span
-                className="mb-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.65rem] font-bold tracking-widest uppercase"
-                style={{
-                  backgroundColor: "rgba(255,224,138,0.15)",
-                  color: "#FFE08A",
-                  border: "1px solid rgba(255,224,138,0.2)",
-                }}
-              >
-                <RiLeafLine size={10} /> Newsletter
-              </span>
-              <h3 className="mb-1.5 text-xl leading-tight font-bold text-white">
-                Join the LotusMart Family
-              </h3>
-              <p className="text-sm leading-relaxed" style={{ color: "#B8AE86" }}>
-                Exclusive deals, new arrivals, and seasonal recipes straight to your inbox.
-              </p>
-            </div>
-
-            <div className="w-full lg:w-auto lg:min-w-[400px]">
-              <AnimatePresence mode="wait">
-                {subscribed ? (
-                  <motion.div
-                    key="success"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="flex items-center gap-3 rounded-2xl px-5 py-4"
-                    style={{
-                      backgroundColor: "rgba(34,197,94,0.12)",
-                      border: "1px solid rgba(34,197,94,0.25)",
-                    }}
-                  >
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                      className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full"
-                      style={{ backgroundColor: "#22c55e" }}
-                    >
-                      <RiCheckLine size={16} color="#fff" />
-                    </motion.div>
-                    <div>
-                      <p className="text-sm font-semibold text-white">You are in.</p>
-                      <p className="text-xs" style={{ color: "#B8AE86" }}>
-                        Watch your inbox for good things.
-                      </p>
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.form key="form" onSubmit={handleSubscribe} className="flex gap-2">
-                    <motion.div
-                      animate={{ borderColor: focused ? "#E84672" : "#615834" }}
-                      className="flex flex-1 items-center rounded-2xl px-4 py-2.5 transition-colors"
-                      style={{ backgroundColor: "#2A2518", border: "1.5px solid #615834" }}
-                    >
-                      <RiMailLine
-                        size={15}
-                        style={{ color: "#9C8F62", flexShrink: 0, marginRight: "0.5rem" }}
-                      />
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        onFocus={() => setFocused(true)}
-                        onBlur={() => setFocused(false)}
-                        placeholder="Enter your email address"
-                        className="min-w-0 flex-1 border-none bg-transparent text-sm outline-none"
-                        style={{ color: "#FFF9E8", fontSize: "0.875rem" }}
-                      />
-                    </motion.div>
-                    <motion.button
-                      type="submit"
-                      whileHover={{ y: -2, boxShadow: "0 8px 20px rgba(232,70,114,0.3)" }}
-                      whileTap={{ scale: 0.97 }}
-                      className="flex-shrink-0 cursor-pointer rounded-2xl border-none px-5 py-2.5 text-sm font-semibold text-white"
-                      style={{ backgroundColor: "#E84672" }}
-                    >
-                      Subscribe
-                    </motion.button>
-                  </motion.form>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      
       <motion.div
         variants={containerVariants}
         initial="hidden"
