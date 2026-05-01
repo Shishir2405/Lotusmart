@@ -15,9 +15,13 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(100, Number(searchParams.get("limit") ?? 20));
     const search = searchParams.get("search");
     const role = searchParams.get("role");
+    // status: "active" (default), "deleted", or "all"
+    const status = (searchParams.get("status") ?? "active").toLowerCase();
 
     const query: Record<string, unknown> = {};
     if (role) query.role = role;
+    if (status === "deleted") query.deletedAt = { $ne: null };
+    else if (status !== "all") query.deletedAt = null;
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
@@ -28,6 +32,7 @@ export async function GET(request: NextRequest) {
     const [users, total] = await Promise.all([
       User.find(query)
         .select("-password -verificationToken -resetPasswordToken -resetPasswordExpires")
+        .populate({ path: "deletedBy", select: "name email" })
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit)

@@ -86,7 +86,7 @@ async function ensureDefaultAdminAccount() {
 export async function register(data: RegisterInput) {
   await connectDB();
 
-  const existingUser = await User.findOne({ email: data.email });
+  const existingUser = await User.findOne({ email: data.email, deletedAt: null });
   if (existingUser) {
     throw ApiError.conflict("A user with this email already exists");
   }
@@ -137,6 +137,7 @@ export async function upsertGoogleUser(profile: GoogleIdTokenPayload) {
 
   let user = await User.findOne({
     $or: [{ googleId: profile.sub }, { email: profile.email }],
+    deletedAt: null,
   });
 
   let isNew = false;
@@ -180,7 +181,7 @@ export async function completeProfile(
 ) {
   await connectDB();
 
-  const user = await User.findById(userId);
+  const user = await User.findOne({ _id: userId, deletedAt: null });
   if (!user) {
     throw ApiError.notFound("User not found");
   }
@@ -230,8 +231,8 @@ export async function login(email: string, password: string) {
   
   const normalizedEmail = email.trim().toLowerCase();
 
-  
-  const user = await User.findOne({ email: normalizedEmail }).select("+password");
+
+  const user = await User.findOne({ email: normalizedEmail, deletedAt: null }).select("+password");
   if (!user) {
     throw ApiError.unauthorized("Invalid email or password");
   }
@@ -284,9 +285,9 @@ export async function verifyEmail(token: string) {
 export async function forgotPassword(email: string) {
   await connectDB();
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email, deletedAt: null });
   if (!user) {
-    
+
     return;
   }
 
@@ -327,7 +328,7 @@ export async function resetPassword(token: string, newPassword: string) {
 export async function getProfile(userId: string) {
   await connectDB();
 
-  const user = await User.findById(userId);
+  const user = await User.findOne({ _id: userId, deletedAt: null });
   if (!user) {
     throw ApiError.notFound("User not found");
   }
@@ -336,10 +337,70 @@ export async function getProfile(userId: string) {
 }
 
 
+export async function deleteAccount(userId: string, reason?: string) {
+  await connectDB();
+
+  const user = await User.findOne({ _id: userId, deletedAt: null });
+  if (!user) {
+    throw ApiError.notFound("User not found");
+  }
+
+  const now = new Date();
+  user.deletedAt = now;
+  if (reason) user.deletedReason = reason.slice(0, 500);
+
+  // Free the email + googleId for future re-signup by tagging them with a deletion suffix.
+  // The original values are preserved inside `deletedReason` metadata if needed via audit logs.
+  user.email = `deleted_${now.getTime()}_${user.email}`;
+  if (user.googleId) {
+    user.googleId = `deleted_${now.getTime()}_${user.googleId}`;
+  }
+
+  // Invalidate any active password reset tokens.
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+
+  await user.save();
+  return toSafeUser(user);
+}
+
+
+export async function restoreAccount(userId: string) {
+  await connectDB();
+
+  const user = await User.findOne({ _id: userId, deletedAt: { $ne: null } });
+  if (!user) {
+    throw ApiError.notFound("Deleted user not found");
+  }
+
+  // Strip the deletion prefix from email/googleId so the user can log in again.
+  user.email = user.email.replace(/^deleted_\d+_/, "");
+  if (user.googleId) {
+    user.googleId = user.googleId.replace(/^deleted_\d+_/, "");
+  }
+
+  // Refuse if a live user has since claimed the original email.
+  const collision = await User.findOne({
+    email: user.email,
+    deletedAt: null,
+    _id: { $ne: user._id },
+  });
+  if (collision) {
+    throw ApiError.conflict("Another active user has since taken this email");
+  }
+
+  user.deletedAt = null;
+  user.deletedReason = undefined;
+  user.deletedBy = undefined;
+  await user.save();
+  return toSafeUser(user);
+}
+
+
 export async function updateProfile(userId: string, data: UpdateProfileInput) {
   await connectDB();
 
-  const user = await User.findById(userId);
+  const user = await User.findOne({ _id: userId, deletedAt: null });
   if (!user) {
     throw ApiError.notFound("User not found");
   }
@@ -357,7 +418,7 @@ export async function updateProfile(userId: string, data: UpdateProfileInput) {
 export async function changePassword(userId: string, currentPassword: string, newPassword: string) {
   await connectDB();
 
-  const user = await User.findById(userId).select("+password");
+  const user = await User.findOne({ _id: userId, deletedAt: null }).select("+password");
   if (!user) {
     throw ApiError.notFound("User not found");
   }

@@ -8,6 +8,7 @@ import User from "@/modules/users/user.model";
 import Cart from "@/modules/cart/cart.model";
 import Wishlist from "@/modules/products/wishlist.model";
 import Order from "@/modules/orders/order.model";
+import { deleteAccount, restoreAccount } from "@/modules/auth/auth.service";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -125,9 +126,10 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 }
 
 /**
- * Admin hard-delete — removes the user along with their cart and
- * wishlist. Orders are preserved for accounting but the `user`
- * reference on each order is left dangling on purpose.
+ * Admin soft-delete — flags the user as deleted, releases their
+ * email/googleId so it can be reused, and clears the cart/wishlist
+ * (those are session state, not historical record). Orders stay
+ * intact and remain linked to the soft-deleted user.
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
@@ -139,16 +141,40 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       throw ApiError.badRequest("You cannot delete your own account");
     }
 
-    const user = await User.findById(id);
-    if (!user) throw ApiError.notFound("User not found");
+    const reason = await request
+      .json()
+      .then((b) => (typeof b?.reason === "string" ? b.reason : undefined))
+      .catch(() => undefined);
 
-    await Promise.all([
-      Cart.deleteOne({ user: id }),
-      Wishlist.deleteOne({ user: id }),
-      User.deleteOne({ _id: id }),
-    ]);
+    await deleteAccount(id, reason);
+    await User.updateOne({ _id: id }, { $set: { deletedBy: admin.userId } });
+
+    await Promise.all([Cart.deleteOne({ user: id }), Wishlist.deleteOne({ user: id })]);
 
     return successResponse({ id }, "User deleted");
+  } catch (err) {
+    const e = ApiError.from(err);
+    return errorResponse(e.message, e.statusCode);
+  }
+}
+
+/**
+ * Admin restore — reverses a soft-delete. Errors if another active
+ * user has since claimed the original email.
+ */
+export async function POST(request: NextRequest, { params }: RouteParams) {
+  try {
+    await connectDB();
+    await requireAdmin(request);
+    const { id } = await params;
+
+    const url = new URL(request.url);
+    if (url.searchParams.get("action") !== "restore") {
+      throw ApiError.badRequest("Unsupported action");
+    }
+
+    const user = await restoreAccount(id);
+    return successResponse({ user }, "User restored");
   } catch (err) {
     const e = ApiError.from(err);
     return errorResponse(e.message, e.statusCode);

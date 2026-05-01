@@ -71,6 +71,9 @@ const UserSchema = new Schema<IUserDocument>(
     verificationToken: { type: String, select: false },
     resetPasswordToken: { type: String, select: false },
     resetPasswordExpires: { type: Date, select: false },
+    deletedAt: { type: Date, default: null },
+    deletedReason: { type: String, trim: true, maxlength: 500 },
+    deletedBy: { type: Schema.Types.ObjectId, ref: "User" },
   },
   {
     timestamps: true,
@@ -91,6 +94,7 @@ const UserSchema = new Schema<IUserDocument>(
 
 
 UserSchema.index({ role: 1 });
+UserSchema.index({ deletedAt: 1 });
 
 
 UserSchema.pre("save", async function () {
