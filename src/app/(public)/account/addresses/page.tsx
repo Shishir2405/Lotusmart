@@ -6,7 +6,6 @@ import { RiAddLine, RiEditLine, RiDeleteBinLine, RiHomeSmileLine, RiBriefcaseLin
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { LocationSelector } from "@/components/ui/LocationSelector";
-import LocationPicker, { type LocationPickerValue } from "@/components/shared/LocationPicker";
 import axios from "axios";
 import toast from "@/components/ui/toast";
 
@@ -83,19 +82,6 @@ export default function AddressesPage() {
     setShowForm(true);
   };
 
-  const onLocation = (value: LocationPickerValue) => {
-    setForm((f) => ({
-      ...f,
-      addressLine1: value.addressLine1 || f.addressLine1,
-      addressLine2: value.addressLine2 ?? f.addressLine2,
-      city: value.city || f.city,
-      state: value.state || f.state,
-      pincode: value.pincode || f.pincode,
-      coordinates: value.coordinates ?? f.coordinates,
-      formattedAddress: value.formattedAddress ?? f.formattedAddress,
-    }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -159,19 +145,6 @@ export default function AddressesPage() {
           >
             <h2 className="font-semibold text-neutral-900 mb-5">{editId ? "Edit Address" : "Add New Address"}</h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="sm:col-span-2">
-                <LocationPicker
-                  initialValue={{
-                    addressLine1: form.addressLine1,
-                    city: form.city,
-                    state: form.state,
-                    pincode: form.pincode,
-                    coordinates: form.coordinates,
-                    formattedAddress: form.formattedAddress,
-                  }}
-                  onChange={onLocation}
-                />
-              </div>
               <Input label="Full Name" value={form.fullName} onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))} required />
               <Input label="Phone" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} required />
               <div className="sm:col-span-2">

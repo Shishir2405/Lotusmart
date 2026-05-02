@@ -16,6 +16,7 @@ import {
   RiLeafLine,
   RiShieldCheckLine,
   RiLockLine,
+  RiHeartFill,
 } from "react-icons/ri";
 import { useContactInfo } from "@/hooks/useContactInfo";
 import axios from "axios";
@@ -229,14 +230,14 @@ export function Footer() {
         </div>
       </motion.div>
 
-      
+
       <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="mx-auto flex w-full max-w-[1400px] flex-col items-center justify-between gap-4 px-6 py-5 sm:flex-row md:px-8 lg:px-12">
           <p className="text-xs" style={{ color: "#615834" }}>
             © {new Date().getFullYear()} LotusMart. All rights reserved.
           </p>
 
-          
+
           <div className="flex items-center gap-5">
             {trustBadges.map(({ icon: Icon, label }, i) => (
               <motion.div
@@ -253,6 +254,77 @@ export function Footer() {
               </motion.div>
             ))}
           </div>
+        </div>
+
+
+        <div
+          className="mx-auto flex w-full max-w-[1400px] items-center justify-center px-6 pb-5 md:px-8 lg:px-12"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.04)", paddingTop: 14 }}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, ease: smoothEase }}
+            className="flex items-center gap-2 text-xs"
+            style={{ color: "#9C8F62" }}
+          >
+            <span>Made with</span>
+
+
+            <span className="relative inline-flex h-5 w-5 items-center justify-center">
+              <motion.span
+                aria-hidden
+                className="absolute inset-0 rounded-full"
+                style={{
+                  border: "1px dashed rgba(232, 70, 114, 0.55)",
+                }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 4, ease: "linear", repeat: Infinity }}
+              />
+              <motion.span
+                aria-hidden
+                className="absolute"
+                style={{
+                  width: 4,
+                  height: 4,
+                  borderRadius: 9999,
+                  backgroundColor: "#E84672",
+                  top: -1,
+                  left: "50%",
+                  marginLeft: -2,
+                  boxShadow: "0 0 6px rgba(232, 70, 114, 0.85)",
+                }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 3, ease: "linear", repeat: Infinity }}
+              />
+              <motion.span
+                className="relative inline-flex"
+                animate={{ scale: [1, 1.25, 1, 1.18, 1] }}
+                transition={{
+                  duration: 1.2,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatDelay: 0.2,
+                }}
+              >
+                <RiHeartFill size={12} style={{ color: "#E84672" }} />
+              </motion.span>
+            </span>
+
+            <span>by</span>
+            <motion.a
+              href="https://positiveway.in"
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ color: "#E84672" }}
+              transition={{ duration: 0.2 }}
+              className="font-semibold tracking-wide"
+              style={{ color: "#D4CFB3" }}
+            >
+              Positiveway Solutions Pvt Ltd
+            </motion.a>
+          </motion.div>
         </div>
       </div>
     </footer>

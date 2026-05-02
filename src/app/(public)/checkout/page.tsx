@@ -27,7 +27,6 @@ import { Button } from "@/components/ui/Button";
 import { formatCurrency, normalizeImageUrl } from "@/utils/helpers";
 import axios from "axios";
 import toast from "@/components/ui/toast";
-import LocationPicker, { type LocationPickerValue } from "@/components/shared/LocationPicker";
 
 type Step = "cart" | "address" | "account" | "payment" | "confirm";
 
@@ -757,30 +756,6 @@ export default function CheckoutPage() {
                           <RiArrowLeftLine size={14} /> Use saved address
                         </button>
                       )}
-                      <div className="mb-4">
-                        <LocationPicker
-                          initialValue={{
-                            addressLine1: address.addressLine1,
-                            city: address.city,
-                            state: address.state,
-                            pincode: address.pincode,
-                            coordinates: address.coordinates,
-                            formattedAddress: address.formattedAddress,
-                          }}
-                          onChange={(v: LocationPickerValue) =>
-                            setAddress((a) => ({
-                              ...a,
-                              addressLine1: v.addressLine1 || a.addressLine1,
-                              addressLine2: v.addressLine2 ?? a.addressLine2,
-                              city: v.city || a.city,
-                              state: v.state || a.state,
-                              pincode: v.pincode || a.pincode,
-                              coordinates: v.coordinates ?? a.coordinates,
-                              formattedAddress: v.formattedAddress ?? a.formattedAddress,
-                            }))
-                          }
-                        />
-                      </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Input
                           label="Full Name"

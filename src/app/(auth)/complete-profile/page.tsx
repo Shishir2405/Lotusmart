@@ -19,9 +19,6 @@ import {
 } from "react-icons/ri";
 import { useAuthStore } from "@/store/auth.store";
 import toast from "@/components/ui/toast";
-import LocationPicker, {
-  type LocationPickerValue,
-} from "@/components/shared/LocationPicker";
 
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -244,19 +241,6 @@ function CompleteProfileForm() {
     if (errors[k]) setErrors((p) => ({ ...p, [k]: undefined }));
   };
 
-  const onLocation = (value: LocationPickerValue) => {
-    setForm((f) => ({
-      ...f,
-      addressLine1: value.addressLine1 || f.addressLine1,
-      addressLine2: value.addressLine2 ?? f.addressLine2,
-      city: value.city || f.city,
-      state: value.state || f.state,
-      pincode: value.pincode || f.pincode,
-      coordinates: value.coordinates,
-      formattedAddress: value.formattedAddress,
-    }));
-  };
-
   const validate = () => {
     const e: Partial<Record<keyof FormState, string>> = {};
     if (!form.phone.match(/^[+]?[\d\s-]{10,15}$/)) e.phone = "Enter a valid mobile number";
@@ -387,23 +371,6 @@ function CompleteProfileForm() {
                 </motion.p>
               )}
             </AnimatePresence>
-          </div>
-
-          <div className="rounded-2xl border border-neutral-200 bg-white/60 p-4">
-            <div className="mb-3 flex items-center gap-2">
-              <RiMapPinLine className="text-[#E84672]" size={16} />
-              <h2 className="text-sm font-semibold text-neutral-800">Your delivery address</h2>
-            </div>
-            <LocationPicker
-              initialValue={{
-                addressLine1: form.addressLine1,
-                city: form.city,
-                state: form.state,
-                pincode: form.pincode,
-                coordinates: form.coordinates,
-              }}
-              onChange={onLocation}
-            />
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
