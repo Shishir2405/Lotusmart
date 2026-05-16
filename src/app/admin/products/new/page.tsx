@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/Input";
 import dynamic from "next/dynamic";
 import axios from "axios";
 import toast from "@/components/ui/toast";
+import { useUpload } from "@/hooks/useUpload";
 import { normalizeImageUrl } from "@/utils/helpers";
 import hsnCodesData from "@/data/hsn-codes.json";
 import skuCodesData from "@/data/sku-codes.json";
@@ -138,7 +139,8 @@ export default function NewProductPage() {
   const [step, setStep] = useState(1);
   const [categories, setCategories] = useState<Category[]>([]);
   const [images, setImages] = useState<string[]>([]);
-  const [uploading, setUploading] = useState(false);
+  const [videos, setVideos] = useState<string[]>([]);
+  const { upload, uploading, stage, progress } = useUpload({ target: "products" });
   const [saving, setSaving] = useState(false);
   const [bulkPricing, setBulkPricing] = useState<BulkPriceRow[]>([]);
   const [nutritionOpen, setNutritionOpen] = useState(false);
@@ -199,22 +201,14 @@ export default function NewProductPage() {
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
+    e.target.value = "";
     if (!files?.length) return;
-    setUploading(true);
-    try {
-      for (const file of Array.from(files)) {
-        const fd = new FormData(); fd.append("file", file); fd.append("target", "product");
-        const res = await axios.post<{ data: { url: string } }>("/api/upload", fd);
-        setImages((prev) => [...prev, res.data.data.url]);
-      }
-    } catch (err) {
-      toast.error(
-        axios.isAxiosError(err)
-          ? (err.response?.data?.message ?? "Image upload failed")
-          : "Image upload failed",
-      );
+    for (const file of Array.from(files)) {
+      const result = await upload(file);
+      if (!result) continue;
+      if (result.kind === "video") setVideos((p) => [...p, result.url]);
+      else setImages((p) => [...p, result.url]);
     }
-    finally { setUploading(false); e.target.value = ""; }
   };
 
   const handlePricePerKgChange = (value: string) => {
@@ -326,7 +320,7 @@ export default function NewProductPage() {
         certifications: data.certifications.length > 0 ? data.certifications : undefined,
         fssaiLicense: data.fssaiLicenseNumber || undefined,
         isOrganic: data.isOrganic, isVegan: data.isVegan, isGlutenFree: data.isGlutenFree,
-        isActive: data.isActive, isFeatured: data.isFeatured, images,
+        isActive: data.isActive, isFeatured: data.isFeatured, images, videos,
         bulkPricing: bulkPricing.filter((r) => r.minQty && r.price).map((r) => ({ minQty: Number(r.minQty), maxQty: r.maxQty ? Number(r.maxQty) : undefined, price: Number(r.price), unit: r.unit })),
         nutritionInfo: {
           servingSize: data.servingSize || undefined,
@@ -460,11 +454,11 @@ export default function NewProductPage() {
         
         {step === 1 && (<>
           <div className={sec}>
-            <h2 className="font-semibold text-neutral-800 mb-4">Product Images</h2>
+            <h2 className="font-semibold text-neutral-800 mb-4">Product Images & Videos</h2>
             <div className="flex flex-wrap gap-3 mb-3">
               {images.map((url, i) => (
                 <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border border-neutral-200 group">
-                  
+
                   <img src={normalizeImageUrl(url)} alt="" className="w-full h-full object-cover" />
                   <button type="button" onClick={() => setImages((p) => p.filter((_, idx) => idx !== i))} className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <RiDeleteBinLine className="text-white" size={16} />
@@ -472,13 +466,30 @@ export default function NewProductPage() {
                   {i === 0 && <span className="absolute bottom-1 left-1 text-[10px] bg-black/60 text-white px-1 rounded">Main</span>}
                 </div>
               ))}
+              {videos.map((url, i) => (
+                <div key={`v-${i}`} className="relative w-20 h-20 rounded-xl overflow-hidden border border-neutral-200 group bg-black">
+                  <video src={url} className="w-full h-full object-cover" muted />
+                  <span className="absolute top-1 left-1 text-[9px] bg-black/70 text-white px-1 rounded">VIDEO</span>
+                  <button type="button" onClick={() => setVideos((p) => p.filter((_, idx) => idx !== i))} className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <RiDeleteBinLine className="text-white" size={16} />
+                  </button>
+                </div>
+              ))}
               <label className={`w-20 h-20 rounded-xl border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center cursor-pointer hover:border-[#E84672] transition-colors ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
                 <RiUploadLine size={18} className="text-neutral-400" />
-                <span className="text-[10px] text-neutral-400 mt-1">{uploading ? "Uploading..." : "Add photo"}</span>
-                <input type="file" accept="image/*" multiple className="sr-only" onChange={handleUpload} />
+                <span className="text-[10px] text-neutral-400 mt-1 text-center px-1">
+                  {uploading
+                    ? stage === "compressing"
+                      ? progress != null ? `Compressing ${progress}%` : "Compressing..."
+                      : stage === "uploading"
+                        ? progress != null ? `Uploading ${progress}%` : "Uploading..."
+                        : "Working..."
+                    : "Add media"}
+                </span>
+                <input type="file" accept="image/*,video/*" multiple className="sr-only" onChange={handleUpload} />
               </label>
             </div>
-            <p className="text-xs text-neutral-400">First image is used as the main product image.</p>
+            <p className="text-xs text-neutral-400">Images max 10 MB, videos max 75 MB. First image is the main product image.</p>
           </div>
 
           <div className={sec}>

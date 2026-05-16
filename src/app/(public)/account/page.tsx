@@ -29,6 +29,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { formatCurrency, formatDate, normalizeImageUrl } from "@/utils/helpers";
 import axios from "axios";
 import toast from "@/components/ui/toast";
+import { useUpload } from "@/hooks/useUpload";
 
 interface RecentOrder {
   _id: string;
@@ -58,7 +59,7 @@ export default function AccountPage() {
     phone: user?.phone ?? "",
   });
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const { upload, uploading } = useUpload({ target: "profiles" });
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -90,24 +91,18 @@ export default function AccountPage() {
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = "";
     if (!file) return;
-    setUploading(true);
+    const uploaded = await upload(file);
+    if (!uploaded) return;
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("target", "profile");
-      const uploadRes = await axios.post<{ data: { url: string } }>("/api/upload", fd);
-      const avatarUrl = uploadRes.data.data.url;
-      const res = await axios.patch<{ data: typeof user }>("/api/auth/me", { avatar: avatarUrl });
+      const res = await axios.patch<{ data: typeof user }>("/api/auth/me", { avatar: uploaded.url });
       setUser(res.data.data);
       toast.success("Profile photo updated");
     } catch (err) {
       toast.error(
-        axios.isAxiosError(err) ? (err.response?.data?.message ?? "Upload failed") : "Upload failed",
+        axios.isAxiosError(err) ? (err.response?.data?.message ?? "Failed to save avatar") : "Failed to save avatar",
       );
-    } finally {
-      setUploading(false);
-      e.target.value = "";
     }
   };
 

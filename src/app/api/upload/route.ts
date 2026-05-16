@@ -1,14 +1,34 @@
 import { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/auth";
-import { uploadFile, type UploadTarget } from "@/services/cloudinary";
+import { uploadFile, type UploadTarget, type UploadKind } from "@/services/cloudinary";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import { ApiError } from "@/lib/api-error";
 
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
-const MAX_SIZE_BYTES = 5 * 1024 * 1024; 
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
+const IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/avif",
+  "image/heic",
+  "image/heif",
+];
+const VIDEO_TYPES = [
+  "video/mp4",
+  "video/webm",
+  "video/quicktime",
+  "video/ogg",
+  "video/x-matroska",
+];
+
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+const MAX_VIDEO_BYTES = 75 * 1024 * 1024;
+
 const VALID_TARGETS: UploadTarget[] = ["products", "banners", "categories", "profiles", "blog"];
 
-// Frontend may send singular form — map to plural
 const TARGET_ALIASES: Record<string, UploadTarget> = {
   product: "products",
   banner: "banners",
@@ -29,6 +49,7 @@ export async function POST(req: NextRequest) {
     const file = formData.get("file");
     const rawTarget = (formData.get("target") as string) ?? "products";
     const target = TARGET_ALIASES[rawTarget];
+    const rawKind = (formData.get("kind") as string) ?? "";
 
     if (!file || !(file instanceof Blob)) {
       throw ApiError.badRequest("No file provided");
@@ -38,21 +59,34 @@ export async function POST(req: NextRequest) {
       throw ApiError.badRequest(`Invalid target. Must be one of: ${VALID_TARGETS.join(", ")}`);
     }
 
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      throw ApiError.badRequest("Invalid file type. Allowed: JPEG, PNG, WebP, GIF, AVIF");
-    }
+    const kind: UploadKind =
+      rawKind === "video" || (!rawKind && file.type.startsWith("video/"))
+        ? "video"
+        : "image";
 
-    if (file.size > MAX_SIZE_BYTES) {
-      throw ApiError.badRequest("File too large. Maximum size is 5 MB");
+    if (kind === "image") {
+      if (!IMAGE_TYPES.includes(file.type)) {
+        throw ApiError.badRequest("Invalid image type. Allowed: JPEG, PNG, WebP, GIF, AVIF, HEIC");
+      }
+      if (file.size > MAX_IMAGE_BYTES) {
+        throw ApiError.badRequest("Image too large. Max 10 MB");
+      }
+    } else {
+      if (!VIDEO_TYPES.includes(file.type)) {
+        throw ApiError.badRequest("Invalid video type. Allowed: MP4, WebM, MOV, OGG, MKV");
+      }
+      if (file.size > MAX_VIDEO_BYTES) {
+        throw ApiError.badRequest("Video too large. Max 75 MB");
+      }
     }
 
     const originalName =
-      (file as File).name ?? `upload.${file.type.split("/")[1] ?? "jpg"}`;
+      (file as File).name ?? `upload.${file.type.split("/")[1] ?? (kind === "video" ? "mp4" : "jpg")}`;
 
-    const result = await uploadFile(target, file, originalName, file.type);
+    const result = await uploadFile(target, file, originalName, file.type, kind);
 
     return successResponse(
-      { url: result.url, key: result.key },
+      { url: result.url, key: result.key, kind },
       "File uploaded successfully",
       201,
     );

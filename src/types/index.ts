@@ -93,7 +93,19 @@ export interface IProductVariant {
 }
 
 
-export type ProductType = "spice" | "dry_fruit" | "gifting" | "herb" | "honey" | "superfood";
+export type ProductType =
+  | "spice"
+  | "dry_fruit"
+  | "gifting"
+  | "herb"
+  | "honey"
+  | "superfood"
+  | "nuts"
+  | "seeds"
+  | "dates"
+  | "dried_fruit"
+  | "mix"
+  | "combo";
 
 export interface IBulkPricing {
   minQty: number;
@@ -133,6 +145,7 @@ export interface IProduct extends Timestamps {
   description: string;
   shortDescription?: string;
   images: string[];
+  videos?: string[];
   category: Ref<ICategory>;
   subcategory?: string;
   price: number;

@@ -16,6 +16,7 @@ import dynamic from "next/dynamic";
 import axios from "axios";
 import toast from "@/components/ui/toast";
 import { normalizeImageUrl } from "@/utils/helpers";
+import { useUpload } from "@/hooks/useUpload";
 
 const RichTextEditor = dynamic(
   () => import("@/components/ui/RichTextEditor").then((m) => m.default),
@@ -30,7 +31,7 @@ const RichTextEditor = dynamic(
 export default function NewBlogPage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const { upload, uploading } = useUpload({ target: "blog" });
 
   const [form, setForm] = useState({
     title: "",
@@ -49,24 +50,12 @@ export default function NewBlogPage() {
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = "";
     if (!file) return;
-    setUploading(true);
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("target", "blog");
-      const res = await axios.post<{ data: { url: string } }>("/api/upload", fd);
-      updateField("coverImage", res.data.data.url);
+    const uploaded = await upload(file);
+    if (uploaded) {
+      updateField("coverImage", uploaded.url);
       toast.success("Image uploaded");
-    } catch (err) {
-      toast.error(
-        axios.isAxiosError(err)
-          ? (err.response?.data?.message ?? "Upload failed")
-          : "Upload failed",
-      );
-    } finally {
-      setUploading(false);
-      e.target.value = "";
     }
   };
 

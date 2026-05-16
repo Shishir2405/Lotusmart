@@ -12,6 +12,7 @@ function ensureConfigured() {
 }
 
 export type UploadTarget = "products" | "banners" | "categories" | "profiles" | "blog";
+export type UploadKind = "image" | "video";
 
 export interface UploadResult {
   key: string;
@@ -31,6 +32,7 @@ export async function uploadFile(
   file: Buffer | Blob,
   originalName: string,
   _contentType: string,
+  kind: UploadKind = "image",
 ): Promise<UploadResult> {
   ensureConfigured();
 
@@ -44,10 +46,18 @@ export async function uploadFile(
       const stream = cloudinary.uploader.upload_stream(
         {
           folder,
-          resource_type: "image",
+          resource_type: kind,
           public_id: sanitizeName(originalName),
           overwrite: false,
           unique_filename: true,
+          ...(kind === "video"
+            ? {
+                eager: [
+                  { quality: "auto", format: "mp4", video_codec: "h264" },
+                ],
+                eager_async: false,
+              }
+            : {}),
         },
         (error, result) => {
           if (error || !result) return reject(error ?? new Error("Upload failed"));
@@ -64,14 +74,14 @@ export async function uploadFile(
   };
 }
 
-export async function deleteImage(publicId: string): Promise<void> {
+export async function deleteImage(publicId: string, kind: UploadKind = "image"): Promise<void> {
   ensureConfigured();
-  await cloudinary.uploader.destroy(publicId, { resource_type: "image" });
+  await cloudinary.uploader.destroy(publicId, { resource_type: kind });
 }
 
 function sanitizeName(filename: string): string {
   return filename
-    .replace(/\.[^/.]+$/, "") // remove extension
+    .replace(/\.[^/.]+$/, "")
     .toLowerCase()
     .replace(/[^a-z0-9-_]/g, "-")
     .replace(/-+/g, "-")

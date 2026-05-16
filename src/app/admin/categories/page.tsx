@@ -24,6 +24,7 @@ import { Modal } from "@/components/ui/Modal";
 import axios from "axios";
 import toast from "@/components/ui/toast";
 import { normalizeImageUrl } from "@/utils/helpers";
+import { useUpload } from "@/hooks/useUpload";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -129,7 +130,7 @@ export default function AdminCategoriesPage() {
   const [showForm, setShowForm] = useState(false);
   const [editTarget, setEditTarget] = useState<Category | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
-  const [uploading, setUploading] = useState(false);
+  const { upload, uploading } = useUpload({ target: "categories" });
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -206,24 +207,12 @@ export default function AdminCategoriesPage() {
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = "";
     if (!file) return;
-    setUploading(true);
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("target", "category");
-      const res = await axios.post<{ data: { url: string } }>("/api/upload", fd);
-      setForm((f) => ({ ...f, image: res.data.data.url }));
+    const uploaded = await upload(file);
+    if (uploaded) {
+      setForm((f) => ({ ...f, image: uploaded.url }));
       toast.success("Image uploaded");
-    } catch (err) {
-      toast.error(
-        axios.isAxiosError(err)
-          ? (err.response?.data?.message ?? "Upload failed")
-          : "Upload failed",
-      );
-    } finally {
-      setUploading(false);
-      e.target.value = "";
     }
   };
 

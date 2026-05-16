@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/Badge";
 import axios from "axios";
 import toast from "@/components/ui/toast";
 import { normalizeImageUrl } from "@/utils/helpers";
+import { useUpload } from "@/hooks/useUpload";
 
 type ColorScheme = "amber" | "olive" | "rose" | "emerald" | "sky";
 
@@ -65,7 +66,7 @@ export default function AdminBannersPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [imageUrl, setImageUrl] = useState("");
-  const [uploading, setUploading] = useState(false);
+  const { upload, uploading } = useUpload({ target: "banners" });
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -116,24 +117,12 @@ export default function AdminBannersPage() {
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = "";
     if (!file) return;
-    setUploading(true);
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("target", "banner");
-      const res = await axios.post<{ data: { url: string } }>("/api/upload", fd);
-      setImageUrl(res.data.data.url);
+    const uploaded = await upload(file);
+    if (uploaded) {
+      setImageUrl(uploaded.url);
       toast.success("Image uploaded");
-    } catch (err) {
-      toast.error(
-        axios.isAxiosError(err)
-          ? (err.response?.data?.message ?? "Upload failed")
-          : "Upload failed",
-      );
-    } finally {
-      setUploading(false);
-      e.target.value = "";
     }
   };
 

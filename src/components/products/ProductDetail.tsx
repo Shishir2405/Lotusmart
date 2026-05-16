@@ -33,6 +33,7 @@ interface ProductDetailProps {
     description: string;
     shortDescription?: string;
     images: string[];
+    videos?: string[];
     price: number;
     compareAtPrice?: number;
     stock: number;
@@ -175,6 +176,22 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 >
                   <Image src={normalizeImageUrl(img)} alt="" width={80} height={80} className="object-cover w-full h-full" />
                 </button>
+              ))}
+            </div>
+          )}
+
+          {product.videos && product.videos.length > 0 && (
+            <div className="mt-5 space-y-3">
+              <h3 className="text-sm font-semibold text-neutral-700">Product Videos</h3>
+              {product.videos.map((src, i) => (
+                <video
+                  key={i}
+                  src={src}
+                  controls
+                  preload="metadata"
+                  playsInline
+                  className="w-full rounded-2xl bg-black"
+                />
               ))}
             </div>
           )}

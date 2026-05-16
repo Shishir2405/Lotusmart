@@ -23,9 +23,12 @@
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.11.1",
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
     "@tailwindcss/typography": "^0.5.19",
     "axios": "^1.13.6",
     "bcryptjs": "^3.0.3",
+    "browser-image-compression": "^2.0.2",
     "cloudinary": "^2.9.0",
     "cookie": "^1.1.1",
     "country-state-city": "^3.2.1",
@@ -36,6 +39,7 @@
     "next": "15.5.14",
     "next-auth": "^4.24.13",
     "nodemailer": "^8.0.3",
+    "papaparse": "^5.5.3",
     "razorpay": "^2.9.6",
     "react": "19.0.0",
     "react-dom": "19.0.0",
@@ -48,6 +52,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
     "@netlify/plugin-nextjs": "^5.15.9",
     "@tailwindcss/postcss": "4.2.2",
     "@types/bcryptjs": "^3.0.0",
@@ -55,10 +60,12 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "22.13.10",
     "@types/nodemailer": "^7.0.11",
+    "@types/papaparse": "^5.5.2",
     "@types/react": "19.0.10",
     "@types/react-dom": "19.0.4",
     "@typescript-eslint/eslint-plugin": "^8.57.1",
     "@typescript-eslint/parser": "^8.57.1",
+    "dotenv": "^17.4.2",
     "eslint": "9.22.0",
     "eslint-config-next": "15.5.14",
     "eslint-plugin-react": "^7.37.5",
@@ -68,6 +75,7 @@
     "prettier": "3.5.3",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "4.2.2",
+    "tsx": "^4.22.0",
     "typescript": "5.7.3"
   }
 }
