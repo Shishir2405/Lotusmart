@@ -156,10 +156,14 @@ export function FAQSection({ title, subtitle, settings }: FAQSectionProps = {}) 
 
   const toggle = (key: string) => setOpenKey(openKey === key ? "" : key);
 
+  // Homepage shows a short teaser only; the full list lives on /faqs.
+  const HOME_FAQ_LIMIT = 3;
   const adminItems = Array.isArray(settings?.items)
-    ? (settings!.items as { q: string; a: string }[]).filter(
-        (i) => i && typeof i.q === "string" && typeof i.a === "string" && i.q.trim() && i.a.trim(),
-      )
+    ? (settings!.items as { q: string; a: string }[])
+        .filter(
+          (i) => i && typeof i.q === "string" && typeof i.a === "string" && i.q.trim() && i.a.trim(),
+        )
+        .slice(0, HOME_FAQ_LIMIT)
     : [];
 
   const data = adminItems.length > 0
@@ -352,20 +356,32 @@ export function FAQSection({ title, subtitle, settings }: FAQSectionProps = {}) 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.25 }}
-                className="mt-7 flex items-center gap-1.5 text-[0.65rem] font-semibold"
-                style={{ color: "#C8BF9A" }}
+                className="mt-7 flex flex-wrap items-center gap-x-4 gap-y-3"
               >
-                <RiQuestionLine size={11} style={{ color: "#D4CFB3" }} />
-                Have a different question?&nbsp;
                 <Link href="/faqs">
                   <motion.span
-                    whileHover={{ color: "#E84672" }}
-                    className="cursor-pointer underline underline-offset-2 transition-colors"
-                    style={{ color: "#B8AE86" }}
+                    whileHover={{ y: -2, boxShadow: "0 10px 24px rgba(232,70,114,0.22)" }}
+                    whileTap={{ scale: 0.97 }}
+                    className="inline-flex cursor-pointer items-center gap-2 rounded-xl px-5 py-2.5 text-[0.8rem] font-bold text-white select-none"
+                    style={{ backgroundColor: "#E84672" }}
                   >
                     View all FAQs
+                    <motion.span
+                      animate={{ x: [0, 4, 0] }}
+                      transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                      className="inline-flex"
+                    >
+                      <RiArrowRightLine size={14} />
+                    </motion.span>
                   </motion.span>
                 </Link>
+                <span
+                  className="flex items-center gap-1.5 text-[0.68rem] font-semibold"
+                  style={{ color: "#C8BF9A" }}
+                >
+                  <RiQuestionLine size={11} style={{ color: "#D4CFB3" }} />
+                  Can&apos;t find your answer?
+                </span>
               </motion.div>
             </motion.div>
           </AnimatePresence>

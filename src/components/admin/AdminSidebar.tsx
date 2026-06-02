@@ -27,6 +27,7 @@ import {
   RiArrowDownSLine,
   RiInboxArchiveLine,
   RiArrowGoBackLine,
+  RiUploadCloud2Line,
 } from "react-icons/ri";
 import type { IconType } from "react-icons";
 import { useAuth } from "@/hooks/useAuth";
@@ -62,6 +63,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     label: "Catalog",
     items: [
       { href: "/admin/products", label: "Products", icon: RiShoppingBag3Line, permission: "products" },
+      { href: "/admin/products/import", label: "Bulk Import", icon: RiUploadCloud2Line, permission: "products" },
       { href: "/admin/categories", label: "Categories", icon: RiAppsLine, permission: "categories" },
       { href: "/admin/coupons", label: "Coupons", icon: RiCoupon3Line, permission: "coupons" },
       { href: "/admin/price-editor", label: "Price Editor", icon: RiPriceTag3Line, permission: "price_editor" },
@@ -109,6 +111,13 @@ function isParent(item: NavItem): item is NavParent {
   return (item as NavParent).children !== undefined;
 }
 
+// Every leaf href in the nav, used so a parent route (e.g. /admin/products)
+// doesn't stay highlighted when a more specific sibling (/admin/products/import)
+// owns the current path.
+const leafHrefs: string[] = navGroups.flatMap((g) =>
+  g.items.flatMap((it) => (isParent(it) ? it.children.map((c) => c.href) : [it.href])),
+);
+
 // Treat /admin/orders/<mongoId> as belonging to the parent group, not "All
 // Orders" — IDs are 24 hex chars and shouldn't collide with static segments.
 function isAllOrdersActive(pathname: string | null): boolean {
@@ -127,6 +136,21 @@ export function AdminSidebar() {
     if (!user) return false;
     if (!user.permissions) return true;
     return user.permissions.includes(permission);
+  }
+
+  // Active when it's an exact match, or a prefix match that no more specific
+  // sibling link claims (keeps /admin/products inactive on /admin/products/import).
+  function isLeafActive(href: string): boolean {
+    if (!pathname) return false;
+    if (pathname === href) return true;
+    if (!pathname.startsWith(`${href}/`)) return false;
+    const moreSpecific = leafHrefs.some(
+      (h) =>
+        h !== href &&
+        h.startsWith(href) &&
+        (pathname === h || pathname.startsWith(`${h}/`)),
+    );
+    return !moreSpecific;
   }
 
   const initialOpenParents: Record<string, boolean> = {};
@@ -192,8 +216,7 @@ export function AdminSidebar() {
                   .map((item) => {
                     if (!isParent(item)) {
                       const Icon = item.icon;
-                      const isActive =
-                        pathname === item.href || pathname?.startsWith(`${item.href}/`);
+                      const isActive = isLeafActive(item.href);
                       return (
                         <Link
                           key={item.href}

@@ -13,6 +13,8 @@ import {
   RiQuestionLine,
   RiArrowRightLine,
   RiHomeLine,
+  RiBankCardLine,
+  RiUser3Line,
 } from "react-icons/ri";
 import axios from "axios";
 
@@ -42,23 +44,33 @@ const categoryConfig: Record<
     colorLight: "#F5F0E1",
     colorBorder: "#D4C99A",
   },
-  Returns: {
+  "Returns & Refunds": {
     icon: RiShieldCheckLine,
     color: "#E84672",
     colorLight: "#FFF1F3",
     colorBorder: "#FECDD3",
   },
-  General: {
-    icon: RiQuestionLine,
+  "Orders & Payments": {
+    icon: RiBankCardLine,
     color: "#2563EB",
     colorLight: "#EFF6FF",
     colorBorder: "#BFDBFE",
   },
+  Account: {
+    icon: RiUser3Line,
+    color: "#7C3AED",
+    colorLight: "#F5F3FF",
+    colorBorder: "#DDD6FE",
+  },
+  General: {
+    icon: RiQuestionLine,
+    color: "#0D9488",
+    colorLight: "#F0FDFA",
+    colorBorder: "#99F6E4",
+  },
 };
 
 const defaultFAQs: FAQItem[] = [];
-
-const CATEGORIES = ["All", "Products", "Shipping", "Returns", "General"];
 
 function AccordionItem({
   item,
@@ -155,6 +167,15 @@ export default function FAQsPage() {
       .catch(() => {});
   }, []);
 
+
+  const CATEGORIES = useMemo(
+    () => [
+      "All",
+      ...Array.from(new Set(faqs.map((f) => f.category).filter(Boolean))),
+    ],
+    [faqs]
+  );
+
   const filteredFAQs = useMemo(() => {
     let result = [...faqs];
 
@@ -189,7 +210,7 @@ export default function FAQsPage() {
           borderBottom: "1px solid #EBE8D8",
         }}
       >
-        <div className="max-w-4xl mx-auto px-6">
+        <div className="container-narrow">
           
           <motion.nav
             initial={{ opacity: 0, y: -8 }}
@@ -247,7 +268,7 @@ export default function FAQsPage() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-6 py-10 md:py-14">
+      <div className="container-narrow py-10 md:py-14">
         
         <motion.div
           initial={{ opacity: 0, y: 12 }}

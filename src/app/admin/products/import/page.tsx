@@ -3,7 +3,13 @@
 import { useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { RiUploadCloud2Line, RiCheckLine, RiCloseLine, RiAlertLine } from "react-icons/ri";
+import {
+  RiUploadCloud2Line,
+  RiCheckLine,
+  RiCloseLine,
+  RiAlertLine,
+  RiDownloadLine,
+} from "react-icons/ri";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -42,6 +48,112 @@ const ACTION_BADGE: Record<RowResult["action"], "success" | "info" | "warning" |
   skipped: "warning",
   errored: "error",
 };
+
+// Exact column order the /api/admin/products/bulk-import endpoint parses.
+const TEMPLATE_HEADERS = [
+  "Product Name",
+  "Short Description",
+  "Description",
+  "Category",
+  "Subcategory",
+  "Brand",
+  "SKU",
+  "Barcode",
+  "Price (INR)",
+  "Compare At Price (MRP)",
+  "Cost Price",
+  "GST Rate (%)",
+  "HSN Code",
+  "Stock",
+  "Weight (grams)",
+  "Unit",
+  "Shipping Weight (g)",
+  "Min Order Qty",
+  "Max Order Qty",
+  "Country of Origin",
+  "Shelf Life",
+  "Best Before",
+  "Ingredients",
+  "Allergens",
+  "Certifications",
+  "Is Organic",
+  "Is Vegan",
+  "Is Gluten Free",
+  "Manufacturer",
+  "Tags",
+  "Product Type",
+  "Meta Title",
+  "Meta Description",
+  "Video URL",
+  "Visibility",
+  "Image URLs",
+] as const;
+
+// One filled example row so the format is unambiguous.
+const TEMPLATE_EXAMPLE = [
+  "Premium California Almonds 200g",
+  "Raw California almonds — non-GMO, gluten-free",
+  "Handpicked premium California almonds, rich in protein, Vitamin E and fibre. 100% natural with no added preservatives.",
+  "Nuts",
+  "Almonds",
+  "LotusMart",
+  "LM-ALM-200",
+  "",
+  "499",
+  "649",
+  "380",
+  "5",
+  "0802",
+  "100",
+  "200",
+  "g",
+  "220",
+  "1",
+  "10",
+  "India",
+  "12 months",
+  "",
+  "Almonds",
+  "Tree Nuts",
+  "FSSAI,Non-GMO",
+  "No",
+  "Yes",
+  "Yes",
+  "LotusMart Foods",
+  "almonds,badam,nuts,dry fruits",
+  "nuts",
+  "Buy Premium California Almonds 200g Online",
+  "Premium California almonds, non-GMO, gluten-free.",
+  "",
+  "Active",
+  "https://res.cloudinary.com/demo/image/upload/almonds.jpg",
+];
+
+const ALLOWED = {
+  productType:
+    "spice, dry_fruit, gifting, herb, honey, superfood, nuts, seeds, dates, dried_fruit, mix, combo",
+  unit: "kg, g, pieces, pack, ml, L, box",
+  gstRate: "0, 5, 12, 18, 28",
+};
+
+function csvCell(value: string): string {
+  return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+}
+
+function downloadTemplate() {
+  const rows = [TEMPLATE_HEADERS as readonly string[], TEMPLATE_EXAMPLE];
+  const csv = rows.map((r) => r.map(csvCell).join(",")).join("\r\n");
+  // Prepend a BOM so Excel opens the UTF-8 file with correct characters.
+  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "lotusmart-product-import-template.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 
 export default function AdminBulkImportPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -90,12 +202,47 @@ export default function AdminBulkImportPage() {
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-neutral-900">Bulk Product Import</h1>
-        <p className="text-sm text-neutral-400 mt-1">
-          Upload a CSV to create or update products. Categories are matched by slug; products are
-          upserted by SKU. The FSSAI License you enter below is applied to every row.
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-neutral-900">Bulk Product Import</h1>
+          <p className="text-sm text-neutral-400 mt-1 max-w-2xl">
+            Upload a CSV to create or update products. Categories are matched by slug; products are
+            upserted by SKU. The FSSAI License you enter below is applied to every row.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          leftIcon={<RiDownloadLine />}
+          onClick={downloadTemplate}
+          className="shrink-0"
+        >
+          Download CSV Template
+        </Button>
+      </div>
+
+      <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50/60 p-5">
+        <p className="text-sm font-semibold text-amber-900">CSV format</p>
+        <p className="text-xs text-amber-800/80 mt-1">
+          Use the template above — column headers must match exactly. Each row needs at least{" "}
+          <strong>Product Name</strong>, <strong>SKU</strong>, <strong>Category</strong>,{" "}
+          <strong>Description</strong> and <strong>Price (INR)</strong>. List fields (Tags,
+          Allergens, Certifications, Image URLs) accept comma- or pipe-separated values; yes/no
+          fields accept <code>Yes</code>/<code>No</code>.
         </p>
+        <dl className="mt-3 grid gap-2 sm:grid-cols-3 text-xs">
+          <div>
+            <dt className="font-semibold text-amber-900">Product Type</dt>
+            <dd className="text-amber-800/80 mt-0.5">{ALLOWED.productType}</dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-amber-900">Unit</dt>
+            <dd className="text-amber-800/80 mt-0.5">{ALLOWED.unit}</dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-amber-900">GST Rate (%)</dt>
+            <dd className="text-amber-800/80 mt-0.5">{ALLOWED.gstRate}</dd>
+          </div>
+        </dl>
       </div>
 
       <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-4">

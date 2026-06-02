@@ -106,7 +106,7 @@ export default function ContactPage() {
           borderBottom: "1px solid #EBE8D8",
         }}
       >
-        <div className="max-w-4xl mx-auto px-6">
+        <div className="container-narrow">
           
           <motion.nav
             initial={{ opacity: 0, y: -8 }}
@@ -156,7 +156,7 @@ export default function ContactPage() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-6 py-10 md:py-14">
+      <div className="container-narrow py-10 md:py-14">
 
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">

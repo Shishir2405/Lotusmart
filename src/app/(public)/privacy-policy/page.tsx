@@ -44,7 +44,7 @@ export default async function PrivacyPolicyPage() {
           borderBottom: "1px solid #EBE8D8",
         }}
       >
-        <div className="max-w-4xl mx-auto px-6">
+        <div className="container-narrow">
           
           <nav
             className="flex items-center gap-2 text-[0.78rem] font-medium mb-8"
@@ -109,14 +109,14 @@ export default async function PrivacyPolicyPage() {
       </div>
 
       
-      <div className="max-w-4xl mx-auto px-6 py-10 md:py-14">
+      <div className="container-narrow py-10 md:py-14">
         <div
           className="rounded-2xl bg-white p-6 md:p-10"
           style={{ border: "1px solid #EBE8D8" }}
         >
           {content ? (
             <div
-              className="prose prose-neutral max-w-none
+              className="prose prose-neutral max-w-none break-words
                 prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-neutral-800
                 prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-[#F0EDE6]
                 prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3

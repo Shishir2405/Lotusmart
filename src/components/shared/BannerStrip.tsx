@@ -143,16 +143,19 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
                   priority
                 />
 
-                
+
+                {/* Bottom scrim keeps the copy legible while the photo shows
+                    its real colours; it lightens on hover to reveal more. */}
                 <div
-                  className="absolute inset-0"
+                  className="absolute inset-0 transition-opacity duration-500 group-hover:opacity-65"
                   style={{
-                    background: `linear-gradient(160deg, ${activePrimary.bg.match(/#[a-f0-9]+/gi)?.[0]}F0 0%, transparent 55%, rgba(0,0,0,0.6) 100%)`,
+                    background:
+                      "linear-gradient(to top, rgba(0,0,0,0.86) 0%, rgba(0,0,0,0.6) 42%, rgba(0,0,0,0.2) 74%, rgba(0,0,0,0) 100%)",
                   }}
                 />
                 <div
-                  className="absolute inset-0"
-                  style={{ background: activePrimary.bg, opacity: 0.75 }}
+                  className="absolute inset-x-0 top-0 h-1/4"
+                  style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.34), transparent)" }}
                 />
 
                 
@@ -283,7 +286,13 @@ export function BannerStrip({ settings }: BannerStripProps = {}) {
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                       sizes="(max-width: 1024px) 100vw, 40vw"
                     />
-                    <div className="absolute inset-0" style={{ background: b.bg, opacity: 0.82 }} />
+                    <div
+                      className="absolute inset-0 transition-opacity duration-500 group-hover:opacity-60"
+                      style={{
+                        background:
+                          "linear-gradient(to top, rgba(0,0,0,0.84) 0%, rgba(0,0,0,0.46) 48%, rgba(0,0,0,0.08) 100%)",
+                      }}
+                    />
 
                     <div className="absolute inset-0 z-10 flex flex-col justify-between p-6">
                       

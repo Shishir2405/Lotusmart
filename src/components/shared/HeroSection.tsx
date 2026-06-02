@@ -69,15 +69,16 @@ const trustItems = [
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 const exitEase: [number, number, number, number] = [0.55, 0, 1, 0.45];
 
-const textContainer: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.075 } } };
+const textContainer: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.075, delayChildren: 0.1 } } };
 const textItem: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease } },
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease } },
 };
+// Full-banner slide: the image slides + subtly zooms between slides.
 const imageVariant: Variants = {
-  hidden: { opacity: 0, x: 24 },
-  show: { opacity: 1, x: 0, transition: { duration: 0.55, ease } },
-  exit: { opacity: 0, x: -24, transition: { duration: 0.3, ease: exitEase } },
+  enter: { opacity: 0, x: 60, scale: 1.06 },
+  center: { opacity: 1, x: 0, scale: 1, transition: { duration: 0.8, ease } },
+  exit: { opacity: 0, x: -60, scale: 1.06, transition: { duration: 0.55, ease: exitEase } },
 };
 
 type ColorScheme = "amber" | "olive" | "rose" | "emerald" | "sky";
@@ -154,7 +155,6 @@ export function HeroSection({ settings }: HeroSectionProps = {}) {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-    
   }, [isPaused]);
 
   useEffect(() => {
@@ -173,397 +173,222 @@ export function HeroSection({ settings }: HeroSectionProps = {}) {
 
   return (
     <section
-      style={{ position: "relative", overflow: "hidden" }}
+      className="relative w-full overflow-hidden bg-neutral-900"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={`bg-${current}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.6 }}
+      {/* 16:9 full-width banner stage — height capped so the section stays
+          compact and the Categories grid below it shows above the fold. */}
+      <div
+        className="group relative w-full"
+        style={{ aspectRatio: "16 / 9", maxHeight: "min(70vh, 600px)" }}
+      >
+        {/* Fallback tint while the image loads */}
+        <div
+          className="absolute inset-0"
+          style={{ background: `linear-gradient(135deg, ${slide.bgFrom} 0%, ${slide.bgTo} 100%)` }}
+        />
+
+        {/* Sliding banner images (whole banner, uncropped 16:9), with hover zoom */}
+        <AnimatePresence>
+          <motion.div
+            key={`img-${current}`}
+            variants={imageVariant}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            className="absolute inset-0"
+          >
+            <Image
+              src={normalizeImageUrl(slide.image)}
+              alt={slide.headline.join(" ")}
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
+            />
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Legibility scrims — stronger on the left where the copy sits */}
+        <div
+          className="absolute inset-0"
           style={{
-            position: "absolute",
-            inset: 0,
-            pointerEvents: "none",
-            background: `linear-gradient(135deg, ${slide.bgFrom} 0%, ${slide.bgTo} 100%)`,
+            background:
+              "linear-gradient(90deg, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.34) 38%, rgba(0,0,0,0.06) 64%, rgba(0,0,0,0) 100%)",
           }}
         />
-      </AnimatePresence>
-
-      <div
-        style={{
-          position: "relative",
-          zIndex: 10,
-          maxWidth: "1400px",
-          margin: "0 auto",
-          width: "100%",
-          padding: "3.5rem 1.5rem 5rem",
-        }}
-        className="md:px-8 lg:px-12 lg:pt-20 lg:pb-24"
-      >
         <div
-          style={{
-            display: "grid",
-            alignItems: "center",
-            gap: "2.5rem",
-          }}
-          className="grid-cols-1 lg:grid-cols-2 lg:gap-14"
-        >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`text-${current}`}
-              variants={textContainer}
-              initial="hidden"
-              animate="show"
-              exit={{ opacity: 0, transition: { duration: 0.18 } }}
-              style={{ display: "flex", flexDirection: "column" }}
-            >
-              <motion.div variants={textItem} style={{ marginBottom: "1rem" }}>
-                <span
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    borderRadius: "9999px",
-                    padding: "0.35rem 0.9rem",
-                    fontSize: "0.68rem",
-                    fontWeight: 800,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    color: slide.accentColor,
-                    backgroundColor: "rgba(255,255,255,0.55)",
-                    border: "1px solid rgba(255,255,255,0.75)",
-                  }}
-                >
-                  {slide.tag}
-                </span>
-              </motion.div>
+          className="absolute inset-x-0 bottom-0 h-1/3"
+          style={{ background: "linear-gradient(to top, rgba(0,0,0,0.42), transparent)" }}
+        />
 
-              <div style={{ marginBottom: "1.25rem" }}>
-                {slide.headline.map((line, i) => (
-                  <motion.div key={i} variants={textItem} style={{ overflow: "hidden" }}>
-                    <h1
-                      style={{
-                        display: "block",
-                        fontSize: "clamp(2.5rem, 5.2vw, 4rem)",
-                        lineHeight: 1.1,
-                        fontWeight: 800,
-                        letterSpacing: "-0.02em",
-                        color: i === 1 ? slide.accentColor : "#171717",
-                      }}
-                    >
-                      {line}
-                    </h1>
-                  </motion.div>
-                ))}
-              </div>
-              <motion.p
-                variants={textItem}
-                style={{
-                  marginBottom: "1.6rem",
-                  maxWidth: "28rem",
-                  fontSize: "0.95rem",
-                  lineHeight: 1.75,
-                  color: "#57534e",
-                }}
-              >
-                {slide.subtext}
-              </motion.p>
-
-              <motion.div variants={textItem} style={{ marginBottom: "1.7rem" }}>
-                <span
-                  style={{
-                    display: "inline-flex",
-                    borderRadius: "0.75rem",
-                    padding: "0.45rem 0.7rem",
-                    fontSize: "0.72rem",
-                    fontWeight: 700,
-                    color: "#44403c",
-                    backgroundColor: "rgba(255,255,255,0.75)",
-                    border: "1px solid rgba(0,0,0,0.06)",
-                  }}
-                >
-                  {slide.highlight}
-                </span>
-              </motion.div>
-
-              <motion.div
-                variants={textItem}
-                style={{ marginBottom: "2rem", display: "flex", flexWrap: "wrap", gap: "0.75rem" }}
-              >
-                <Link href={slide.cta.href}>
-                  <motion.span
-                    whileHover={{ y: -2, boxShadow: "0 10px 26px rgba(0,0,0,0.16)" }}
-                    whileTap={{ scale: 0.97 }}
-                    style={{
-                      display: "inline-flex",
-                      cursor: "pointer",
-                      alignItems: "center",
-                      gap: "0.55rem",
-                      borderRadius: "0.9rem",
-                      padding: "0.82rem 1.4rem",
-                      fontSize: "0.88rem",
-                      fontWeight: 700,
-                      color: "#fff",
-                      backgroundColor: slide.accentColor,
-                      userSelect: "none",
-                    }}
-                  >
-                    {slide.cta.label}
-                    <RiArrowRightLine size={16} />
-                  </motion.span>
-                </Link>
-                <Link href={slide.secondaryCta.href}>
-                  <motion.span
-                    whileHover={{ y: -2, backgroundColor: "#ffffff" }}
-                    whileTap={{ scale: 0.97 }}
-                    style={{
-                      display: "inline-flex",
-                      cursor: "pointer",
-                      alignItems: "center",
-                      borderRadius: "0.9rem",
-                      border: "1.5px solid #E5E7EB",
-                      backgroundColor: "rgba(255,255,255,0.65)",
-                      padding: "0.82rem 1.4rem",
-                      fontSize: "0.88rem",
-                      fontWeight: 700,
-                      color: "#404040",
-                      backdropFilter: "blur(3px)",
-                      userSelect: "none",
-                    }}
-                  >
-                    {slide.secondaryCta.label}
-                  </motion.span>
-                </Link>
-              </motion.div>
-
-              <motion.div
-                variants={textItem}
-                style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "1.25rem" }}
-              >
-                {trustItems.map(({ icon: Icon, label }, i) => (
-                  <motion.div
-                    key={label}
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 + i * 0.08 }}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.375rem",
-                      fontSize: "0.75rem",
-                      fontWeight: 600,
-                      color: "#57534e",
-                    }}
-                  >
-                    <span
-                      style={{
-                        display: "flex",
-                        width: "20px",
-                        height: "20px",
-                        flexShrink: 0,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        borderRadius: "50%",
-                        backgroundColor: "rgba(255,255,255,0.8)",
-                        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-                      }}
-                    >
-                      <Icon size={11} style={{ color: slide.accentColor }} />
-                    </span>
-                    {label}
-                  </motion.div>
-                ))}
-              </motion.div>
-            </motion.div>
-          </AnimatePresence>
-
-          <div
-            className="hidden lg:flex"
-            style={{ position: "relative", alignItems: "center", justifyContent: "center" }}
-          >
+        {/* Overlaid copy */}
+        <div className="absolute inset-0 z-10">
+          <div className="mx-auto flex h-full w-full max-w-[1400px] items-center px-6 md:px-8 lg:px-12">
             <AnimatePresence mode="wait">
               <motion.div
-                key={`image-${current}`}
-                variants={imageVariant}
+                key={`text-${current}`}
+                variants={textContainer}
                 initial="hidden"
                 animate="show"
-                exit="exit"
-                style={{ position: "relative", height: "500px", width: "470px" }}
+                exit={{ opacity: 0, transition: { duration: 0.2 } }}
+                className="max-w-xl"
               >
-                <div
-                  style={{
-                    position: "relative",
-                    height: "100%",
-                    width: "100%",
-                    overflow: "hidden",
-                    borderRadius: "2rem",
-                    boxShadow: "0 30px 70px rgba(0,0,0,0.14)",
-                  }}
-                >
-                  <Image
-                    src={normalizeImageUrl(slide.image)}
-                    alt={slide.headline.join(" ")}
-                    fill
-                    style={{ objectFit: "cover" }}
-                    priority
-                    sizes="470px"
-                  />
-                  <div
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      background:
-                        "linear-gradient(to top, rgba(0,0,0,0.22), rgba(0,0,0,0.04) 45%, transparent)",
-                    }}
-                  />
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "1rem",
-                      left: "1rem",
-                      borderRadius: "0.7rem",
-                      padding: "0.28rem 0.6rem",
-                      fontSize: "0.62rem",
-                      fontWeight: 800,
-                      letterSpacing: "0.08em",
-                      textTransform: "uppercase",
-                      backgroundColor: "rgba(255,255,255,0.86)",
-                      color: "#44403c",
-                    }}
-                  >
-                    {slide.tag}
-                  </div>
+                {slide.tag && (
+                  <motion.div variants={textItem} className="mb-3 sm:mb-4">
+                    <span
+                      style={{ color: slide.accentColor }}
+                      className="inline-flex items-center rounded-full border border-white/25 bg-white/15 px-3.5 py-1.5 text-[0.62rem] font-black tracking-[0.12em] uppercase backdrop-blur-md sm:text-[0.68rem]"
+                    >
+                      {slide.tag}
+                    </span>
+                  </motion.div>
+                )}
+
+                <div className="mb-4 sm:mb-5">
+                  {slide.headline.map((line, i) =>
+                    line ? (
+                      <div key={i} className="overflow-hidden">
+                        <motion.h1
+                          variants={textItem}
+                          className="font-black tracking-[-0.02em]"
+                          style={{
+                            fontSize: "clamp(1.7rem, 5vw, 4rem)",
+                            lineHeight: 1.08,
+                            color: i === 1 ? slide.accentColor : "#ffffff",
+                            textShadow: "0 2px 18px rgba(0,0,0,0.35)",
+                          }}
+                        >
+                          {line}
+                        </motion.h1>
+                      </div>
+                    ) : null,
+                  )}
                 </div>
+
+                {slide.subtext && (
+                  <motion.p
+                    variants={textItem}
+                    className="mb-6 hidden max-w-md text-[0.95rem] leading-relaxed text-white/85 sm:block"
+                    style={{ textShadow: "0 1px 10px rgba(0,0,0,0.35)" }}
+                  >
+                    {slide.subtext}
+                  </motion.p>
+                )}
+
+                {slide.highlight && (
+                  <motion.div variants={textItem} className="mb-6 hidden sm:block">
+                    <span className="inline-flex rounded-xl border border-white/20 bg-white/15 px-3 py-1.5 text-[0.72rem] font-bold text-white backdrop-blur-md">
+                      {slide.highlight}
+                    </span>
+                  </motion.div>
+                )}
+
+                <motion.div variants={textItem} className="flex flex-wrap items-center gap-3">
+                  <Link href={slide.cta.href}>
+                    <motion.span
+                      whileHover={{ y: -2, boxShadow: "0 14px 30px rgba(0,0,0,0.28)" }}
+                      whileTap={{ scale: 0.97 }}
+                      className="inline-flex cursor-pointer items-center gap-2.5 rounded-xl px-5 py-3 text-[0.88rem] font-bold text-white select-none sm:px-6"
+                      style={{ backgroundColor: slide.accentColor }}
+                    >
+                      {slide.cta.label}
+                      <motion.span
+                        animate={{ x: [0, 4, 0] }}
+                        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                        className="inline-flex"
+                      >
+                        <RiArrowRightLine size={16} />
+                      </motion.span>
+                    </motion.span>
+                  </Link>
+                  <Link href={slide.secondaryCta.href}>
+                    <motion.span
+                      whileHover={{ y: -2, backgroundColor: "rgba(255,255,255,0.28)" }}
+                      whileTap={{ scale: 0.97 }}
+                      className="inline-flex cursor-pointer items-center rounded-xl border border-white/35 bg-white/15 px-5 py-3 text-[0.88rem] font-bold text-white backdrop-blur-md select-none sm:px-6"
+                    >
+                      {slide.secondaryCta.label}
+                    </motion.span>
+                  </Link>
+                </motion.div>
+
+                <motion.div
+                  variants={textItem}
+                  className="mt-7 hidden flex-wrap items-center gap-x-5 gap-y-2 sm:flex"
+                >
+                  {trustItems.map(({ icon: Icon, label }) => (
+                    <div
+                      key={label}
+                      className="flex items-center gap-2 text-[0.78rem] font-semibold text-white/90"
+                    >
+                      <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-white/20 backdrop-blur-md">
+                        <Icon size={12} style={{ color: "#fff" }} />
+                      </span>
+                      {label}
+                    </div>
+                  ))}
+                </motion.div>
               </motion.div>
             </AnimatePresence>
           </div>
         </div>
-      </div>
 
-      <div style={{ position: "absolute", right: 0, bottom: "1.5rem", left: 0, zIndex: 20 }}>
-        <div
-          style={{
-            maxWidth: "1400px",
-            margin: "0 auto",
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "0 1.5rem",
-          }}
-          className="md:px-8 lg:px-12"
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
-            {activeSlides.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => goTo(i)}
-                style={{
-                  position: "relative",
-                  height: "4px",
-                  cursor: "pointer",
-                  overflow: "hidden",
-                  borderRadius: "9999px",
-                  padding: 0,
-                  border: "none",
-                  width: i === current ? "2.5rem" : "0.5rem",
-                  backgroundColor: i === current ? "transparent" : "#D1D5DB",
-                  transition: "all 0.3s",
-                }}
+        {/* Controls */}
+        <div className="absolute inset-x-0 bottom-4 z-20 lg:bottom-6">
+          <div className="mx-auto flex w-full max-w-[1400px] items-center justify-between px-6 md:px-8 lg:px-12">
+            <div className="flex items-center gap-2.5">
+              {activeSlides.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => goTo(i)}
+                  aria-label={`Go to slide ${i + 1}`}
+                  className="relative h-1 cursor-pointer overflow-hidden rounded-full border-0 p-0 transition-all"
+                  style={{
+                    width: i === current ? "2.5rem" : "0.5rem",
+                    backgroundColor: i === current ? "transparent" : "rgba(255,255,255,0.4)",
+                  }}
+                >
+                  {i === current && (
+                    <>
+                      <span className="absolute inset-0 rounded-full bg-white/30" />
+                      <motion.span
+                        className="absolute top-0 bottom-0 left-0 rounded-full bg-white"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </>
+                  )}
+                </button>
+              ))}
+              <span className="ml-1 hidden text-[0.66rem] font-bold tracking-[0.05em] text-white/70 tabular-nums sm:inline">
+                {String(current + 1).padStart(2, "0")} / {String(activeSlides.length).padStart(2, "0")}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <motion.button
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => goTo((current - 1 + activeSlides.length) % activeSlides.length)}
+                aria-label="Previous slide"
+                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-white/30 bg-white/15 text-white backdrop-blur-md"
               >
-                {i === current && (
-                  <>
-                    <span
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        borderRadius: "9999px",
-                        backgroundColor: "#E5E7EB",
-                      }}
-                    />
-                    <motion.span
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        bottom: 0,
-                        left: 0,
-                        borderRadius: "9999px",
-                        backgroundColor: slide.accentColor,
-                        width: `${progress}%`,
-                      }}
-                    />
-                  </>
-                )}
-              </button>
-            ))}
-            <span
-              style={{
-                marginLeft: "0.25rem",
-                fontSize: "0.66rem",
-                fontWeight: 700,
-                letterSpacing: "0.05em",
-                color: "#A3A3A3",
-                fontVariantNumeric: "tabular-nums",
-              }}
-            >
-              {String(current + 1).padStart(2, "0")} / {String(activeSlides.length).padStart(2, "0")}
-            </span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <motion.button
-              whileHover={{ scale: 1.06 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => goTo((current - 1 + activeSlides.length) % activeSlides.length)}
-              style={{
-                display: "flex",
-                width: "36px",
-                height: "36px",
-                cursor: "pointer",
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: "50%",
-                border: "1px solid #E5E7EB",
-                backgroundColor: "rgba(255,255,255,0.75)",
-                color: "#525252",
-              }}
-            >
-              <RiArrowLeftSLine size={18} />
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.06 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => goTo((current + 1) % activeSlides.length)}
-              style={{
-                display: "flex",
-                width: "36px",
-                height: "36px",
-                cursor: "pointer",
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: "50%",
-                border: "none",
-                color: "#fff",
-                backgroundColor: slide.accentColor,
-              }}
-            >
-              <RiArrowRightSLine size={18} />
-            </motion.button>
+                <RiArrowLeftSLine size={18} />
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => goTo((current + 1) % activeSlides.length)}
+                aria-label="Next slide"
+                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border-0 text-white"
+                style={{ backgroundColor: slide.accentColor }}
+              >
+                <RiArrowRightSLine size={18} />
+              </motion.button>
+            </div>
           </div>
         </div>
       </div>
-      <div
-        style={{
-          position: "absolute",
-          right: 0,
-          bottom: 0,
-          left: 0,
-          height: "1px",
-          backgroundColor: "rgba(229,231,235,0.6)",
-        }}
-      />
     </section>
   );
 }
