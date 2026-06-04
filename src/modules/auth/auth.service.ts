@@ -40,7 +40,9 @@ function buildTokenPayload(user: IUserDocument, permissions?: string[]): ITokenP
     userId: user._id.toString(),
     email: user.email,
     role: user.role,
-    permissions: permissions as ITokenPayload["permissions"],
+    // Spread to a PLAIN array — a Mongoose document array can't be structured-
+    // cloned when jose signs the JWT ("[object Array] could not be cloned").
+    permissions: permissions ? ([...permissions] as ITokenPayload["permissions"]) : undefined,
     isSuperAdmin: user.isSuperAdmin === true || isSuperAdminEmail(user.email),
   };
 }
@@ -261,7 +263,7 @@ export async function login(email: string, password: string) {
 
   let permissions: string[] | undefined;
   if (user.role === "admin") {
-    const populated = await User.findById(user._id).populate({ path: "adminRole", model: AdminRole });
+    const populated = await User.findById(user._id).populate({ path: "adminRole", model: AdminRole }).lean();
     if (populated?.adminRole && typeof populated.adminRole === "object" && "permissions" in populated.adminRole) {
       permissions = (populated.adminRole as any).permissions;
     }

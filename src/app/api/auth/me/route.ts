@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       isSuperAdminEmail(authUser.email);
     let permissions: string[] | undefined;
     if (authUser.role === "admin") {
-      const populated = await User.findById(authUser.userId).populate({ path: "adminRole", model: AdminRole });
+      const populated = await User.findById(authUser.userId).populate({ path: "adminRole", model: AdminRole }).lean();
       if (populated?.adminRole && typeof populated.adminRole === "object" && "permissions" in populated.adminRole) {
         permissions = (populated.adminRole as unknown as Record<string, unknown>).permissions as string[];
       }
