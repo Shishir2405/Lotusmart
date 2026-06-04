@@ -19,10 +19,14 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const { itemId } = await params;
 
     const body = await request.json();
-    const { quantity } = body;
+    const { quantity, variant } = body;
 
     if (quantity === undefined || quantity === null) {
       throw ApiError.badRequest("quantity is required");
+    }
+
+    if (!mongoose.isValidObjectId(itemId)) {
+      throw ApiError.badRequest("Invalid item id");
     }
 
     const cart = await Cart.findOne({ user: authUser.userId });
@@ -30,17 +34,16 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       throw ApiError.notFound("Cart not found");
     }
 
-    
-    if (!mongoose.isValidObjectId(itemId)) {
-      throw ApiError.badRequest("Invalid item id");
-    }
-
-    const item = cart.items.find((i) => i.product.toString() === itemId);
+    // Match on product + variant so two variants of the same product can be
+    // addressed independently. Normalize undefined/"" for the no-variant line.
+    const wantVariant = variant ?? undefined;
+    const item = cart.items.find(
+      (i) => i.product.toString() === itemId && (i.variant ?? undefined) === wantVariant,
+    );
     if (!item) {
       throw ApiError.notFound("Item not found in cart");
     }
 
-    
     await cart.updateQuantity(itemId, quantity, item.variant);
 
     const updatedCart = await Cart.findById(cart._id).populate(
@@ -66,6 +69,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     await connectDB();
     const authUser = await requireAuth(request);
     const { itemId } = await params;
+    const variant = new URL(request.url).searchParams.get("variant") ?? undefined;
 
     if (!mongoose.isValidObjectId(itemId)) {
       throw ApiError.badRequest("Invalid item id");
@@ -76,7 +80,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       throw ApiError.notFound("Cart not found");
     }
 
-    const item = cart.items.find((i) => i.product.toString() === itemId);
+    const item = cart.items.find(
+      (i) => i.product.toString() === itemId && (i.variant ?? undefined) === variant,
+    );
     if (!item) {
       throw ApiError.notFound("Item not found in cart");
     }
