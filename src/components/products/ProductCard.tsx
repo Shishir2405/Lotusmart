@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { RiHeartLine, RiHeartFill, RiShoppingCartLine, RiStarFill } from "react-icons/ri";
 import { useCartStore } from "@/store/cart.store";
 import { useWishlistStore } from "@/store/wishlist.store";
+import apiClient from "@/lib/api-client";
 import { formatCurrency, calculateDiscount, normalizeImageUrl } from "@/utils/helpers";
 import toast from "@/components/ui/toast";
 import { cn } from "@/utils/helpers";
@@ -69,6 +70,8 @@ export function ProductCard({ product, className }: ProductCardProps) {
       unit: product.unit,
       isInStock: product.stock > 0,
     });
+    // Persist to the server so the /wishlist page (which reads server state) shows it.
+    apiClient.post("/api/wishlist", { productId: product._id }).catch(() => {});
     toast.success(added ? "Added to wishlist" : "Removed from wishlist");
   };
 

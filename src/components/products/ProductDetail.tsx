@@ -20,6 +20,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cart.store";
 import { useWishlistStore } from "@/store/wishlist.store";
+import apiClient from "@/lib/api-client";
 import { Button } from "@/components/ui/Button";
 import { ProductImageZoom } from "@/components/products/ProductImageZoom";
 import { formatCurrency, calculateDiscount, normalizeImageUrl } from "@/utils/helpers";
@@ -123,6 +124,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
       unit: product.unit,
       isInStock: product.stock > 0,
     });
+    // Persist to the server so the /wishlist page (which reads server state) shows it.
+    apiClient.post("/api/wishlist", { productId: product._id }).catch(() => {});
     toast.success(added ? "Saved to wishlist ♥" : "Removed from wishlist");
   };
 

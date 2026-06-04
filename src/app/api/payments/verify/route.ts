@@ -5,6 +5,7 @@ import { ApiError } from "@/lib/api-error";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import { verifyRazorpayPayment } from "@/services/razorpay";
 import { pushOrderToShipmozo, type PushOutcome } from "@/services/shipmozo-push";
+import { commitOrderSideEffects } from "@/modules/orders/order-fulfillment";
 import Order from "@/modules/orders/order.model";
 
 export async function POST(request: NextRequest) {
@@ -47,6 +48,11 @@ export async function POST(request: NextRequest) {
           authUser: authUser.userId,
         });
       } else {
+        // Commit paid-order side effects exactly once (this route may be
+        // retried). For prepaid orders this is where stock is decremented,
+        // the cart cleared, the coupon counted and confirmation emails sent —
+        // deferred to here so abandoned payments never consume stock.
+        const alreadyPaid = order.paymentStatus === "paid";
         order.paymentStatus = "paid";
         order.orderStatus = "confirmed";
         order.razorpayOrderId = razorpay_order_id;
@@ -58,6 +64,20 @@ export async function POST(request: NextRequest) {
           paymentMethod: order.paymentMethod,
           paymentStatus: order.paymentStatus,
         });
+
+        if (!alreadyPaid) {
+          try {
+            await commitOrderSideEffects(order, {
+              email: authUser.email,
+              name: authUser.name ?? "Customer",
+            });
+          } catch (err) {
+            console.error(
+              "[verify] order side-effects failed",
+              err instanceof Error ? err.message : err,
+            );
+          }
+        }
 
         // IMPORTANT: await the Shipmozo push. Fire-and-forget does NOT
         // survive Netlify/Vercel serverless — the function freezes the

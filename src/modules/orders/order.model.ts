@@ -30,6 +30,7 @@ const OrderItemSchema = new Schema<IOrderItem>(
     quantity: { type: Number, required: true, min: 1 },
     price: { type: Number, required: true, min: 0 },
     variant: { type: String },
+    sku: { type: String },
   },
   { _id: false },
 );
@@ -97,6 +98,7 @@ const OrderSchema = new Schema<IOrderDocument>(
     shippingCost: { type: Number, required: true, default: 0, min: 0 },
     tax: { type: Number, required: true, default: 0, min: 0 },
     discount: { type: Number, default: 0, min: 0 },
+    couponCode: { type: String },
     total: { type: Number, required: true, min: 0 },
     notes: { type: String, maxlength: 1000 },
     trackingNumber: { type: String },

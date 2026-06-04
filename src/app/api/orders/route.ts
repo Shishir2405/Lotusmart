@@ -6,8 +6,79 @@ import { successResponse, errorResponse, paginatedResponse } from "@/lib/api-res
 import Order from "@/modules/orders/order.model";
 import Cart from "@/modules/cart/cart.model";
 import Product from "@/modules/products/product.model";
-import { sendOrderConfirmation, sendAdminNewOrderAlert } from "@/services/email";
+import Coupon from "@/modules/coupons/coupon.model";
+import { commitOrderSideEffects } from "@/modules/orders/order-fulfillment";
 
+interface RawItem {
+  product: string;
+  name: string;
+  image?: string;
+  quantity: number;
+  price: number;
+  variant?: unknown;
+}
+
+interface CartItemPopulated {
+  product: {
+    _id: { toString(): string };
+    name: string;
+    images?: string[];
+    isActive: boolean;
+  };
+  quantity: number;
+  price: number;
+  variant?: { name: string; value: string };
+}
+
+interface OrderItemInput {
+  product: string;
+  name: string;
+  image: string;
+  quantity: number;
+  price: number;
+  variant?: string;
+  sku?: string;
+}
+
+// Coerce a variant (which the client sends as an object) to the string the
+// OrderItem schema expects — otherwise Mongoose throws a CastError.
+function normalizeVariant(v: unknown): string | undefined {
+  if (!v) return undefined;
+  if (typeof v === "string") return v.trim() || undefined;
+  if (typeof v === "object") {
+    const o = v as { name?: string; value?: string };
+    if (o.name && o.value) return `${o.name}: ${o.value}`;
+    if (o.value) return o.value;
+  }
+  return undefined;
+}
+
+// Re-validate a coupon and recompute its discount server-side (mirrors
+// /api/coupons/validate) so a forged/altered client discount is never trusted.
+async function computeCouponDiscount(
+  code: string,
+  subtotal: number,
+): Promise<{ discount: number; code: string }> {
+  const coupon = await Coupon.findOne({ code: code.trim().toUpperCase() }).lean();
+  if (!coupon) throw ApiError.badRequest("Invalid coupon code");
+  if (!coupon.isActive) throw ApiError.badRequest("This coupon is no longer active");
+  const now = new Date();
+  if (now < coupon.validFrom) throw ApiError.badRequest("This coupon is not yet valid");
+  if (now > coupon.validUntil) throw ApiError.badRequest("This coupon has expired");
+  if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit)
+    throw ApiError.badRequest("This coupon has reached its usage limit");
+  if (coupon.minOrderValue && subtotal < coupon.minOrderValue)
+    throw ApiError.badRequest(
+      `Minimum order value of ₹${coupon.minOrderValue} required for this coupon`,
+    );
+  let discount =
+    coupon.discountType === "percentage"
+      ? (subtotal * coupon.discountValue) / 100
+      : coupon.discountValue;
+  if (coupon.maxDiscountAmount) discount = Math.min(discount, coupon.maxDiscountAmount);
+  discount = Math.min(discount, subtotal);
+  return { discount: Math.round(discount * 100) / 100, code: coupon.code };
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -38,68 +109,81 @@ export async function GET(request: NextRequest) {
   }
 }
 
-
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
     const authUser = await requireAuth(request);
 
     const body = await request.json();
-    const { shippingAddress, billingAddress, paymentMethod, notes, items: clientItems } = body;
+    const { shippingAddress, billingAddress, paymentMethod, notes, items: clientItems, couponCode } = body;
 
     if (!shippingAddress) throw ApiError.badRequest("Shipping address is required");
     if (paymentMethod !== "razorpay" && paymentMethod !== "cod")
       throw ApiError.badRequest("Invalid payment method");
 
-    
-    let orderItems = clientItems;
-
-    if (!orderItems || orderItems.length === 0) {
+    // 1. Resolve raw items — client payload, or fall back to the server cart.
+    let rawItems: RawItem[] | undefined = clientItems;
+    if (!rawItems || rawItems.length === 0) {
       const cart = await Cart.findOne({ user: authUser.userId }).populate(
         "items.product",
-        "name price stock isActive sku",
+        "name price stock isActive sku images",
       );
       if (!cart || cart.items.length === 0) throw ApiError.badRequest("Cart is empty");
-
-      
-      orderItems = (cart.items as any[])
-        .filter((i: { product: { isActive: boolean } }) => i.product?.isActive)
-        .map((i: {
-          product: { _id: { toString(): string }; name: string; price: number; sku: string };
-          quantity: number;
-          variant?: { name: string; value: string };
-          price: number;
-        }) => ({
+      rawItems = (cart.items as CartItemPopulated[])
+        .filter((i) => i.product?.isActive)
+        .map((i) => ({
           product: i.product._id.toString(),
           name: i.product.name,
+          image: i.product.images?.[0],
           quantity: i.quantity,
           price: i.price,
           variant: i.variant,
-          sku: i.product.sku,
         }));
     }
-
-    if (!orderItems || orderItems.length === 0)
+    if (!rawItems || rawItems.length === 0)
       throw ApiError.badRequest("No valid items in order");
 
-    
-    for (const item of orderItems) {
-      const product = await Product.findById(item.product).select("stock name").lean();
-      if (!product) throw ApiError.badRequest(`Product not found: ${item.name}`);
+    // 2. Validate + enrich each item authoritatively from the DB: stock check,
+    //    real SKU + image, and variant coerced to a string for the schema.
+    const orderItems: OrderItemInput[] = [];
+    for (const item of rawItems) {
+      const product = await Product.findById(item.product)
+        .select("stock name sku images isActive")
+        .lean();
+      if (!product || !product.isActive)
+        throw ApiError.badRequest(`Product not found: ${item.name}`);
       if (product.stock < item.quantity)
         throw ApiError.badRequest(`Insufficient stock for "${product.name}"`);
+      orderItems.push({
+        product: String(item.product),
+        name: product.name,
+        image: item.image || product.images?.[0] || "",
+        quantity: item.quantity,
+        price: item.price,
+        variant: normalizeVariant(item.variant),
+        sku: product.sku ?? undefined,
+      });
     }
 
-    
-    const subtotal = orderItems.reduce(
-      (sum: number, i: { price: number; quantity: number }) => sum + i.price * i.quantity,
-      0,
-    );
+    // 3. Totals — recompute the coupon discount server-side; never trust the
+    //    client-sent discount.
+    const subtotal = orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
     // Prepaid (Razorpay) ships free; COD has a flat ₹100 handling fee.
     const shippingCost = paymentMethod === "cod" ? 100 : 0;
     const tax = 0;
-    const total = subtotal + shippingCost - (body.discount ?? 0);
+    let discount = 0;
+    let appliedCoupon: string | undefined;
+    if (couponCode) {
+      const applied = await computeCouponDiscount(String(couponCode), subtotal);
+      discount = applied.discount;
+      appliedCoupon = applied.code;
+    }
+    const total = Math.max(0, subtotal + shippingCost - discount);
 
+    // 4. Create the order as pending. Stock/cart/coupon/email side effects run
+    //    only once the order is actually paid — immediately for COD, and at
+    //    payment-verify for Razorpay — so an abandoned prepaid checkout never
+    //    consumes stock or burns a coupon.
     const order = await Order.create({
       user: authUser.userId,
       items: orderItems,
@@ -111,48 +195,18 @@ export async function POST(request: NextRequest) {
       subtotal,
       shippingCost,
       tax,
-      discount: body.discount ?? 0,
+      discount,
+      couponCode: appliedCoupon,
       total,
       notes,
     });
 
-    
-    for (const item of orderItems) {
-      await Product.findByIdAndUpdate(item.product, { $inc: { stock: -item.quantity } });
+    if (paymentMethod === "cod") {
+      await commitOrderSideEffects(order, {
+        email: authUser.email,
+        name: authUser.name ?? "Customer",
+      });
     }
-
-    
-    await Cart.findOneAndUpdate(
-      { user: authUser.userId },
-      { $set: { items: [], discount: 0, couponCode: null } },
-    );
-
-    
-    sendOrderConfirmation(authUser.email, authUser.name ?? "Customer", {
-      orderNumber: order.orderNumber,
-      items: orderItems.map((i: { name: string; quantity: number; price: number }) => ({
-        name: i.name,
-        quantity: i.quantity,
-        price: i.price,
-      })),
-      subtotal,
-      shippingCost,
-      tax,
-      total: order.total,
-      shippingAddress,
-    }).catch((err) => {
-      console.error("[orders] order confirmation email failed", err instanceof Error ? err.message : err);
-    });
-
-    sendAdminNewOrderAlert({
-      orderNumber: order.orderNumber,
-      total: order.total,
-      customerName: authUser.name ?? authUser.email,
-      paymentMethod,
-      itemCount: orderItems.length,
-    }).catch((err) => {
-      console.error("[orders] admin new-order alert failed", err instanceof Error ? err.message : err);
-    });
 
     return successResponse(order, "Order placed successfully", 201);
   } catch (err) {

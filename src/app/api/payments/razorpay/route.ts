@@ -1,19 +1,32 @@
 import { NextRequest } from "next/server";
+import connectDB from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { ApiError } from "@/lib/api-error";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import { createRazorpayOrder } from "@/services/razorpay";
+import Order from "@/modules/orders/order.model";
 
 export async function POST(request: NextRequest) {
   try {
+    await connectDB();
     const authUser = await requireAuth(request);
-    const { amount, internalOrderId } = await request.json();
+    const { internalOrderId } = await request.json();
 
-    if (!amount || amount <= 0) throw ApiError.badRequest("Invalid amount");
+    if (!internalOrderId) throw ApiError.badRequest("internalOrderId is required");
 
-    const rzOrder = await createRazorpayOrder(amount, `rcpt_${internalOrderId ?? Date.now()}`, {
+    // Charge the server-computed order total — NEVER trust a client-sent amount,
+    // otherwise a tampered client could pay any amount for the order.
+    const order = await Order.findById(internalOrderId);
+    if (!order || order.user.toString() !== authUser.userId)
+      throw ApiError.notFound("Order not found");
+    if (order.paymentStatus === "paid") throw ApiError.badRequest("Order is already paid");
+
+    const amount = order.total;
+    if (!amount || amount <= 0) throw ApiError.badRequest("Invalid order amount");
+
+    const rzOrder = await createRazorpayOrder(amount, `rcpt_${internalOrderId}`, {
       userId: authUser.userId,
-      internalOrderId: internalOrderId ?? "",
+      internalOrderId,
     });
 
     return successResponse({
@@ -24,8 +37,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     // Razorpay SDK rejects with { statusCode, error: { description, code, ... } }.
-    // Log the raw shape server-side so we can see the real reason in Vercel/Netlify
-    // logs even if the client response is sanitised.
     console.error("[payments/razorpay] createOrder failed", err);
     const e = ApiError.from(err);
     return errorResponse(e.message, e.statusCode);

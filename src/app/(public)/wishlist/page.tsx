@@ -115,7 +115,22 @@ export default function WishlistPage() {
     setMovingToCart(null);
   };
 
-  const displayItems = serverItems.length > 0 ? serverItems : [];
+  // Prefer server items; fall back to the local store so freshly-added items
+  // (and anonymous/offline state) render immediately instead of a blank page.
+  const displayItems: WishlistProduct[] =
+    serverItems.length > 0
+      ? serverItems
+      : localItems.map((i) => ({
+          _id: i.productId,
+          name: i.name,
+          slug: i.slug,
+          images: i.image ? [i.image] : [],
+          price: i.price,
+          compareAtPrice: i.compareAtPrice,
+          stock: i.isInStock ? 1 : 0,
+          unit: i.unit,
+          isActive: true,
+        }));
   const isEmpty = !loading && displayItems.length === 0 && localItems.length === 0;
 
   if (loading) {

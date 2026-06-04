@@ -249,6 +249,7 @@ export interface IOrderItem {
   quantity: number;
   price: number;
   variant?: string;
+  sku?: string;
 }
 
 export interface IOrder extends Timestamps {
@@ -269,6 +270,7 @@ export interface IOrder extends Timestamps {
   tax: number;
   discount: number;
   total: number;
+  couponCode?: string;
   notes?: string;
   trackingNumber?: string;
   shipmozoOrderId?: string;

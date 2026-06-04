@@ -73,7 +73,7 @@ export async function pushOrderToShipmozo(orderId: string): Promise<PushOutcome>
 
   const productDetail = order.items.map((item) => ({
     name: item.name,
-    sku_number: item.product?.toString() ?? "SKU",
+    sku_number: item.sku || item.product?.toString() || "SKU",
     quantity: item.quantity,
     discount: "",
     hsn: "",
@@ -96,7 +96,7 @@ export async function pushOrderToShipmozo(orderId: string): Promise<PushOutcome>
     product_detail: productDetail,
     payment_type: "PREPAID" as const,
     cod_amount: "",
-    weight: 500,
+    weight: Math.max(200, order.items.reduce((sum, i) => sum + i.quantity, 0) * 200),
     length: 20,
     width: 15,
     height: 10,

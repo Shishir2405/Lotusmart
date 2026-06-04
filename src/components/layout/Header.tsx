@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -823,24 +824,21 @@ export function Header() {
       <div className="mx-auto w-full max-w-[1400px] px-6 md:px-8 lg:px-12">
         <div className="flex h-16 items-center justify-between gap-4">
           
-          <Link href="/" className="flex-shrink-0">
+          <Link href="/" className="flex-shrink-0" aria-label="LotusMart — home">
             <motion.span
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
-              className="inline-flex cursor-pointer items-center gap-0.5"
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              className="inline-flex h-11 w-11 cursor-pointer items-center justify-center overflow-hidden rounded-full ring-1 ring-[#EBE8D8]"
+              style={{ backgroundColor: "#FFF1F3" }}
             >
-              <span
-                className="text-[1.45rem] leading-none font-black tracking-tight"
-                style={{ color: "#2A2518" }}
-              >
-                Lotus
-              </span>
-              <span
-                className="text-[1.45rem] leading-none font-black tracking-tight"
-                style={{ color: "#E84672" }}
-              >
-                Mart
-              </span>
+              <Image
+                src="/logo.png"
+                alt="LotusMart"
+                width={44}
+                height={44}
+                priority
+                className="h-full w-full object-cover"
+              />
             </motion.span>
           </Link>
 
