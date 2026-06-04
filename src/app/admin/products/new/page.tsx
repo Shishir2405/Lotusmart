@@ -200,10 +200,13 @@ export default function NewProductPage() {
   };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
+    // Snapshot the files into a real array BEFORE clearing the input — reading
+    // a live FileList after resetting value yields an empty list in some
+    // browsers, which would drop the upload before it ever starts.
+    const files = Array.from(e.target.files ?? []);
     e.target.value = "";
-    if (!files?.length) return;
-    for (const file of Array.from(files)) {
+    if (!files.length) return;
+    for (const file of files) {
       const result = await upload(file);
       if (!result) continue;
       if (result.kind === "video") setVideos((p) => [...p, result.url]);
