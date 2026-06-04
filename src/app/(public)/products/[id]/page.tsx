@@ -2,6 +2,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { isValidObjectId } from "mongoose";
 import connectDB from "@/lib/db";
 import Product from "@/modules/products/product.model";
+import Category from "@/modules/products/category.model";
 import { ProductDetail } from "@/components/products/ProductDetail";
 import { getProductJsonLd, getBreadcrumbJsonLd, siteConfig } from "@/config/site";
 import type { Metadata } from "next";
@@ -17,7 +18,7 @@ async function getProductById(id: string) {
     if (!isValidObjectId(id)) return null;
     await connectDB();
     const product = await Product.findOne({ _id: id, isActive: true })
-      .populate("category", "name slug")
+      .populate({ path: "category", model: Category, select: "name slug" })
       .lean();
     return product ? JSON.parse(JSON.stringify(product)) : null;
   } catch (err) {
