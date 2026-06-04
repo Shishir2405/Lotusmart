@@ -250,6 +250,7 @@ export interface IOrderItem {
   price: number;
   variant?: string;
   sku?: string;
+  weight?: number;
 }
 
 export interface IOrder extends Timestamps {

@@ -31,6 +31,7 @@ const OrderItemSchema = new Schema<IOrderItem>(
     price: { type: Number, required: true, min: 0 },
     variant: { type: String },
     sku: { type: String },
+    weight: { type: Number, min: 0, default: 0 },
   },
   { _id: false },
 );

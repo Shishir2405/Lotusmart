@@ -8,6 +8,7 @@ import Cart from "@/modules/cart/cart.model";
 import Product from "@/modules/products/product.model";
 import Coupon from "@/modules/coupons/coupon.model";
 import { commitOrderSideEffects } from "@/modules/orders/order-fulfillment";
+import type { IProductVariant } from "@/types";
 
 interface RawItem {
   product: string;
@@ -38,6 +39,7 @@ interface OrderItemInput {
   price: number;
   variant?: string;
   sku?: string;
+  weight?: number;
 }
 
 // Coerce a variant (which the client sends as an object) to the string the
@@ -51,6 +53,31 @@ function normalizeVariant(v: unknown): string | undefined {
     if (o.value) return o.value;
   }
   return undefined;
+}
+
+// Authoritative unit price from the DB product (+ selected variant adjustment).
+// The client sends variant as { name, value }; no/unmatched variant => 0 adj.
+function resolveUnitPrice(
+  product: { price: number; variants?: IProductVariant[] },
+  rawVariant: unknown,
+): number {
+  let adjustment = 0;
+  if (rawVariant && typeof rawVariant === "object") {
+    const v = rawVariant as { name?: string; value?: string };
+    if (v.name && v.value && Array.isArray(product.variants)) {
+      const group = product.variants.find((g) => g.name === v.name);
+      const option = group?.options.find((o) => o.value === v.value);
+      if (option?.priceAdjustment) adjustment = option.priceAdjustment;
+    }
+  }
+  return product.price + adjustment;
+}
+
+// GST component of a tax-INCLUSIVE amount (store prices include GST). Only the
+// breakdown stored on the order; never added on top of what is charged.
+function gstFromInclusive(inclusive: number, rate?: number): number {
+  if (!rate || rate <= 0) return 0;
+  return (inclusive * rate) / (100 + rate);
 }
 
 // Re-validate a coupon and recompute its discount server-side (mirrors
@@ -126,7 +153,7 @@ export async function POST(request: NextRequest) {
     if (!rawItems || rawItems.length === 0) {
       const cart = await Cart.findOne({ user: authUser.userId }).populate(
         "items.product",
-        "name price stock isActive sku images",
+        "name price stock isActive sku images variants gstRate weight",
       );
       if (!cart || cart.items.length === 0) throw ApiError.badRequest("Cart is empty");
       rawItems = (cart.items as CartItemPopulated[])
@@ -143,34 +170,47 @@ export async function POST(request: NextRequest) {
     if (!rawItems || rawItems.length === 0)
       throw ApiError.badRequest("No valid items in order");
 
-    // 2. Validate + enrich each item authoritatively from the DB: stock check,
-    //    real SKU + image, and variant coerced to a string for the schema.
+    // 2. Validate + enrich each item authoritatively from the DB in ONE batched
+    //    query (no N+1). The unit price is computed server-side from the product
+    //    (+ selected variant adjustment) — the client-sent item.price is ignored.
+    //    GST is extracted from the inclusive price; real per-unit weight is
+    //    snapshotted for shipping.
+    const ids = [...new Set(rawItems.map((i) => String(i.product)))];
+    const products = await Product.find({ _id: { $in: ids } })
+      .select("name price variants gstRate stock sku images isActive weight")
+      .lean();
+    const productMap = new Map(products.map((p) => [String(p._id), p]));
+
     const orderItems: OrderItemInput[] = [];
+    let tax = 0;
     for (const item of rawItems) {
-      const product = await Product.findById(item.product)
-        .select("stock name sku images isActive")
-        .lean();
+      const product = productMap.get(String(item.product));
       if (!product || !product.isActive)
         throw ApiError.badRequest(`Product not found: ${item.name}`);
       if (product.stock < item.quantity)
         throw ApiError.badRequest(`Insufficient stock for "${product.name}"`);
+
+      const unitPrice = resolveUnitPrice(product, item.variant); // server-trusted
+      tax += gstFromInclusive(unitPrice * item.quantity, product.gstRate);
+
       orderItems.push({
         product: String(item.product),
         name: product.name,
         image: item.image || product.images?.[0] || "",
         quantity: item.quantity,
-        price: item.price,
+        price: unitPrice,
         variant: normalizeVariant(item.variant),
         sku: product.sku ?? undefined,
+        weight: typeof product.weight === "number" ? product.weight : 0,
       });
     }
+    tax = Math.round(tax * 100) / 100;
 
     // 3. Totals — recompute the coupon discount server-side; never trust the
-    //    client-sent discount.
+    //    client-sent discount. (tax is inclusive, so it is NOT added to total.)
     const subtotal = orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
     // Prepaid (Razorpay) ships free; COD has a flat ₹100 handling fee.
     const shippingCost = paymentMethod === "cod" ? 100 : 0;
-    const tax = 0;
     let discount = 0;
     let appliedCoupon: string | undefined;
     if (couponCode) {
