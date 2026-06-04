@@ -43,11 +43,11 @@ import { normalizeImageUrl } from "@/utils/helpers";
 
 
 interface SearchResult {
-  _id: string;
+  id: string;
   name: string;
   slug: string;
   price: number;
-  images: string[];
+  image: string | null;
 }
 
 
@@ -998,13 +998,13 @@ export function Header() {
                       >
                         {searchResults.map((r, i) => (
                           <motion.li
-                            key={r._id}
+                            key={r.id}
                             initial={{ opacity: 0, x: -8 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: i * 0.04 }}
                           >
                             <Link
-                              href={`/products/${r.slug}`}
+                              href={`/products/${r.id}`}
                               onClick={() => {
                                 setSearchOpen(false);
                                 setSearchQuery("");
@@ -1018,9 +1018,9 @@ export function Header() {
                                   className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-xl"
                                   style={{ backgroundColor: "#EBE8D8" }}
                                 >
-                                  {r.images?.[0] && (
+                                  {r.image && (
                                     <img
-                                      src={normalizeImageUrl(r.images[0])}
+                                      src={normalizeImageUrl(r.image)}
                                       alt={r.name}
                                       className="h-full w-full object-cover"
                                     />

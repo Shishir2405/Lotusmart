@@ -101,7 +101,7 @@ export default async function CategoryPage({ params }: PageProps) {
     url: categoryUrl,
     products: products.map((p) => ({
       name: p.name,
-      url: `${siteConfig.url}/products/${p.slug}`,
+      url: `${siteConfig.url}/products/${p._id}`,
       image: p.images?.[0],
       price: p.price,
     })),

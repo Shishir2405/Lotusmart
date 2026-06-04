@@ -1,4 +1,5 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
+import { isValidObjectId } from "mongoose";
 import connectDB from "@/lib/db";
 import Product from "@/modules/products/product.model";
 import { ProductDetail } from "@/components/products/ProductDetail";
@@ -6,37 +7,42 @@ import { getProductJsonLd, getBreadcrumbJsonLd, siteConfig } from "@/config/site
 import type { Metadata } from "next";
 
 interface Props {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ id: string }>;
 }
 
-async function getProduct(slug: string) {
+// Canonical lookup is by Mongo id. Legacy /products/<slug> links are 301-ed to
+// the id URL by the page component below.
+async function getProductById(id: string) {
+  try {
+    if (!isValidObjectId(id)) return null;
+    await connectDB();
+    const product = await Product.findOne({ _id: id, isActive: true })
+      .populate("category", "name slug")
+      .lean();
+    return product ? JSON.parse(JSON.stringify(product)) : null;
+  } catch (err) {
+    console.error("[ProductDetail] Failed to load product", id, err);
+    return null;
+  }
+}
+
+// Resolve an old slug URL to its product id so we can 301 to /products/<id>.
+async function resolveSlugToId(slug: string): Promise<string | null> {
   try {
     await connectDB();
     const normalized = decodeURIComponent(slug).trim().toLowerCase();
-
-    let product = await Product.findOne({ slug: normalized, isActive: true })
-      .populate("category", "name slug")
+    const product = await Product.findOne({ slug: normalized, isActive: true })
+      .select("_id")
       .lean();
-
-    if (!product) {
-      product = await Product.findOne({
-        slug: { $regex: `^${normalized.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, $options: "i" },
-        isActive: true,
-      })
-        .populate("category", "name slug")
-        .lean();
-    }
-
-    return product ? JSON.parse(JSON.stringify(product)) : null;
-  } catch (err) {
-    console.error("[ProductDetail] Failed to load product", slug, err);
+    return product ? String(product._id) : null;
+  } catch {
     return null;
   }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const product = await getProduct(slug);
+  const { id } = await params;
+  const product = await getProductById(id);
   if (!product) return { title: "Product Not Found" };
 
   const title = product.metaTitle || `${product.name} — Buy Online at LotusMart`;
@@ -45,7 +51,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     product.shortDescription ||
     product.description?.slice(0, 160) ||
     `Buy ${product.name} online at LotusMart. Premium quality, fast delivery across India.`;
-  const productUrl = `${siteConfig.url}/products/${product.slug}`;
+  const productUrl = `${siteConfig.url}/products/${product._id}`;
   const image = product.images?.[0];
 
   return {
@@ -81,11 +87,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductDetailPage({ params }: Props) {
-  const { slug } = await params;
-  const product = await getProduct(slug);
-  if (!product) notFound();
+  const { id } = await params;
+  const product = await getProductById(id);
 
-  const productUrl = `${siteConfig.url}/products/${product.slug}`;
+  if (!product) {
+    // An old /products/<slug> link → 301 to the canonical id URL when resolvable.
+    if (!isValidObjectId(id)) {
+      const resolvedId = await resolveSlugToId(id);
+      if (resolvedId) permanentRedirect(`/products/${resolvedId}`);
+    }
+    notFound();
+  }
+
+  const productUrl = `${siteConfig.url}/products/${product._id}`;
 
   const productJsonLd = getProductJsonLd({
     name: product.name,

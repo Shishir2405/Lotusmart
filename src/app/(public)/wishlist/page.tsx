@@ -230,7 +230,7 @@ export default function WishlistPage() {
                 className="bg-white rounded-2xl border border-neutral-100 overflow-hidden group"
               >
                 <Link
-                  href={`/products/${product.slug}`}
+                  href={`/products/${product._id}`}
                   className="block relative"
                 >
                   <div className="aspect-square bg-[#F7F6F0] relative overflow-hidden">
@@ -264,7 +264,7 @@ export default function WishlistPage() {
                 </Link>
 
                 <div className="p-3">
-                  <Link href={`/products/${product.slug}`}>
+                  <Link href={`/products/${product._id}`}>
                     <h3 className="text-sm font-medium text-neutral-800 line-clamp-2 leading-snug hover:text-[#E84672] transition-colors">
                       {product.name}
                     </h3>

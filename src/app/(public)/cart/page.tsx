@@ -59,7 +59,7 @@ export default function CartPage() {
                 className="bg-white rounded-2xl p-4 sm:p-5 flex gap-4 border border-neutral-100"
               >
                 
-                <Link href={`/products/${item.slug}`} className="shrink-0">
+                <Link href={`/products/${item.productId}`} className="shrink-0">
                   <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-[#F7F6F0] overflow-hidden">
                     {item.image ? (
                       <Image
@@ -77,7 +77,7 @@ export default function CartPage() {
 
                 
                 <div className="flex-1 min-w-0">
-                  <Link href={`/products/${item.slug}`}>
+                  <Link href={`/products/${item.productId}`}>
                     <h3 className="text-sm font-semibold text-neutral-800 hover:text-[#E84672] transition-colors line-clamp-2">
                       {item.name}
                     </h3>

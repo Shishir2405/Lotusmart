@@ -81,7 +81,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
       className={cn("group", className)}
     >
-      <Link href={`/products/${product.slug}`} className="block">
+      <Link href={`/products/${product._id}`} className="block">
         <div className="bg-white rounded-2xl overflow-hidden border border-neutral-100 hover:border-neutral-200 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-300">
           
           <div className="relative aspect-square overflow-hidden bg-[#F7F6F0]">
