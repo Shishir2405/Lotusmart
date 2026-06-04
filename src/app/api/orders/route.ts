@@ -8,6 +8,7 @@ import Cart from "@/modules/cart/cart.model";
 import Product from "@/modules/products/product.model";
 import Coupon from "@/modules/coupons/coupon.model";
 import { commitOrderSideEffects } from "@/modules/orders/order-fulfillment";
+import { pushOrderToShipmozo } from "@/services/shipmozo-push";
 import type { IProductVariant } from "@/types";
 
 interface RawItem {
@@ -246,6 +247,20 @@ export async function POST(request: NextRequest) {
         email: authUser.email,
         name: authUser.name ?? "Customer",
       });
+      // COD orders are pushed to Shipmozo at creation (prepaid pushes at verify).
+      // Awaited so it survives serverless freeze; errors swallowed so a Shipmozo
+      // failure can't fail an order the customer already placed.
+      try {
+        await pushOrderToShipmozo(order._id.toString());
+      } catch (err) {
+        console.error(
+          "[orders→shipmozo] COD push failed for",
+          order.orderNumber,
+          (err as { response?: { data?: unknown } })?.response?.data ??
+            (err as Error)?.message ??
+            err,
+        );
+      }
     }
 
     return successResponse(order, "Order placed successfully", 201);

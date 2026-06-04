@@ -22,12 +22,26 @@ function toSafeUser(user: IUserDocument): SafeUser {
 }
 
 
+// Super-admins always have full access. Identified by an explicit flag OR by
+// being one of the canonical admin emails, so the seeded admins can never be
+// locked out by the default-deny rule (no DB migration required).
+const SUPER_ADMIN_EMAILS = [
+  process.env.ADMIN_EMAIL?.trim().toLowerCase(),
+  "admin@lotusmart.in",
+  "admin@lotusmart.com",
+].filter(Boolean) as string[];
+
+export function isSuperAdminEmail(email: string): boolean {
+  return SUPER_ADMIN_EMAILS.includes(email.trim().toLowerCase());
+}
+
 function buildTokenPayload(user: IUserDocument, permissions?: string[]): ITokenPayload {
   return {
     userId: user._id.toString(),
     email: user.email,
     role: user.role,
     permissions: permissions as ITokenPayload["permissions"],
+    isSuperAdmin: user.isSuperAdmin === true || isSuperAdminEmail(user.email),
   };
 }
 
@@ -252,18 +266,16 @@ export async function login(email: string, password: string) {
       permissions = (populated.adminRole as any).permissions;
     }
     
-    const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-    if (user.email === adminEmail) {
-      permissions = undefined; 
+    if (user.isSuperAdmin === true || isSuperAdminEmail(user.email)) {
+      permissions = undefined; // super-admins are identified by flag/email, not permissions
     }
   }
 
-  
+  const isSuperAdmin = user.isSuperAdmin === true || isSuperAdminEmail(user.email);
   const token = await signToken(buildTokenPayload(user, permissions));
 
-  
   const safeUser = toSafeUser(user);
-  return { user: { ...safeUser, permissions }, token };
+  return { user: { ...safeUser, permissions, isSuperAdmin }, token };
 }
 
 

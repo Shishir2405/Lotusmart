@@ -57,6 +57,7 @@ const UserSchema = new Schema<IUserDocument>(
       default: "customer",
     },
     adminRole: { type: Schema.Types.ObjectId, ref: "AdminRole" },
+    isSuperAdmin: { type: Boolean, default: false },
     phone: { type: String, trim: true },
     avatar: { type: String },
     addresses: { type: [AddressSchema], default: [] },

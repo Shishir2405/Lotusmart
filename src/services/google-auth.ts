@@ -23,14 +23,21 @@ export interface GoogleIdTokenPayload {
 }
 
 export async function verifyGoogleIdToken(idToken: string): Promise<GoogleIdTokenPayload> {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  if (!clientId) {
-    throw new Error("GOOGLE_CLIENT_ID is not configured");
+  // Native iOS/Android and web mint ID tokens with DIFFERENT audiences (their
+  // own platform OAuth client), so accept all configured client IDs. This is
+  // why the mobile app's Google sign-in was failing with an `aud` mismatch.
+  const audiences = [
+    process.env.GOOGLE_CLIENT_ID, // web
+    process.env.GOOGLE_IOS_CLIENT_ID, // iOS native (create an iOS OAuth client)
+    process.env.GOOGLE_ANDROID_CLIENT_ID, // Android native
+  ].filter(Boolean) as string[];
+  if (audiences.length === 0) {
+    throw new Error("No Google client IDs are configured (set GOOGLE_CLIENT_ID)");
   }
 
   const { payload } = await jwtVerify(idToken, getJwks(), {
     issuer: GOOGLE_ISSUERS,
-    audience: clientId,
+    audience: audiences,
   });
 
   const email = payload.email as string | undefined;

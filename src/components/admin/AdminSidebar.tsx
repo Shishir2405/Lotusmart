@@ -134,7 +134,8 @@ export function AdminSidebar() {
 
   function hasPermission(permission: string): boolean {
     if (!user) return false;
-    if (!user.permissions) return true;
+    if ((user as { isSuperAdmin?: boolean }).isSuperAdmin) return true;
+    if (!user.permissions) return false; // default-deny: admins need a role
     return user.permissions.includes(permission);
   }
 

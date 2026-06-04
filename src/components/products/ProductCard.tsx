@@ -29,9 +29,10 @@ export interface ProductCardData {
 interface ProductCardProps {
   product: ProductCardData;
   className?: string;
+  priority?: boolean; // pass true only for above-the-fold cards (first row)
 }
 
-export function ProductCard({ product, className }: ProductCardProps) {
+export function ProductCard({ product, className, priority = false }: ProductCardProps) {
   const [imgError, setImgError] = useState(false);
   const { addItem, isInCart } = useCartStore();
   const { toggleItem, isInWishlist } = useWishlistStore();
@@ -93,6 +94,8 @@ export function ProductCard({ product, className }: ProductCardProps) {
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
                 onError={() => setImgError(true)}
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                priority={priority}
+                loading={priority ? undefined : "lazy"}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-neutral-300 text-sm font-bold">No Image</div>

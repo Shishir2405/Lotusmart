@@ -58,6 +58,7 @@ export interface IUser extends Timestamps {
   password?: string;
   role: UserRole;
   adminRole?: Ref<IAdminRole>;
+  isSuperAdmin?: boolean;
   phone?: string;
   avatar?: string;
   addresses: IAddress[];
@@ -374,6 +375,7 @@ export interface ITokenPayload {
   role: UserRole;
   name?: string;
   permissions?: AdminPermission[];
+  isSuperAdmin?: boolean;
 }
 
 

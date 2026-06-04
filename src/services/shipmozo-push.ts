@@ -5,6 +5,21 @@ export type PushOutcome =
   | { status: "pushed"; orderId: string; referenceId: string }
   | { status: "skipped"; reason: string };
 
+// Cache the default warehouse id across warm invocations — it changes rarely,
+// so fetching it on every push is a needless round-trip.
+let cachedWarehouseId: string | null = null;
+
+async function getDefaultWarehouseId(): Promise<string> {
+  if (cachedWarehouseId) return cachedWarehouseId;
+  const whRes = await getWarehouses();
+  if (whRes.result !== "1" || !whRes.data?.length) {
+    throw new Error(whRes.message || "No warehouses found — add one in Admin > Warehouses");
+  }
+  const warehouse = whRes.data.find((w) => w.default === "YES") ?? whRes.data[0];
+  cachedWarehouseId = String(warehouse.id);
+  return cachedWarehouseId;
+}
+
 /**
  * Pushes an Order to Shipmozo as a PREPAID draft. Idempotent — safe to call
  * twice; the second call returns { status: "skipped" }. Throws on validation
@@ -31,31 +46,20 @@ export async function pushOrderToShipmozo(orderId: string): Promise<PushOutcome>
     console.log("[shipmozo-push] skip: already pushed", order.shipmozoOrderId);
     return { status: "skipped", reason: "already pushed" };
   }
-  if (order.paymentMethod !== "razorpay" || order.paymentStatus !== "paid") {
-    console.log("[shipmozo-push] skip: not a paid prepaid order", {
+  // Eligible to push when EITHER prepaid+paid OR COD (collected on delivery;
+  // pushed at creation while still "pending").
+  const isPaidPrepaid = order.paymentMethod === "razorpay" && order.paymentStatus === "paid";
+  const isCod = order.paymentMethod === "cod";
+  if (!isPaidPrepaid && !isCod) {
+    console.log("[shipmozo-push] skip: not eligible (needs paid prepaid or COD)", {
       paymentMethod: order.paymentMethod,
       paymentStatus: order.paymentStatus,
     });
-    return { status: "skipped", reason: "not a paid prepaid order" };
+    return { status: "skipped", reason: "not an eligible order (needs paid prepaid or COD)" };
   }
 
-  console.log("[shipmozo-push] fetching warehouses…");
-  const whRes = await getWarehouses();
-  console.log("[shipmozo-push] warehouses response", {
-    result: whRes.result,
-    message: whRes.message,
-    count: whRes.data?.length ?? 0,
-  });
-  if (whRes.result !== "1" || !whRes.data?.length) {
-    throw new Error(whRes.message || "No warehouses found — add one in Admin > Warehouses");
-  }
-  const warehouse = whRes.data.find((w) => w.default === "YES") ?? whRes.data[0];
-  const warehouse_id = String(warehouse.id);
-  console.log("[shipmozo-push] selected warehouse", {
-    id: warehouse_id,
-    title: warehouse.address_title,
-    default: warehouse.default,
-  });
+  const warehouse_id = await getDefaultWarehouseId();
+  console.log("[shipmozo-push] using warehouse", warehouse_id);
 
   const user = order.user as { email?: string } | null;
   const addr = order.shippingAddress;
@@ -94,9 +98,17 @@ export async function pushOrderToShipmozo(orderId: string): Promise<PushOutcome>
     consignee_city: addr.city,
     consignee_state: addr.state,
     product_detail: productDetail,
-    payment_type: "PREPAID" as const,
-    cod_amount: "",
-    weight: Math.max(200, order.items.reduce((sum, i) => sum + i.quantity, 0) * 200),
+    payment_type: (order.paymentMethod === "cod" ? "COD" : "PREPAID") as "COD" | "PREPAID",
+    cod_amount: order.paymentMethod === "cod" ? String(order.total) : "",
+    // Real shipping weight: sum (per-unit weight × qty), captured from the
+    // product at order time; fall back to 200g/unit for legacy items.
+    weight: Math.max(
+      200,
+      order.items.reduce((sum, i) => {
+        const unit = typeof i.weight === "number" && i.weight > 0 ? i.weight : 200;
+        return sum + unit * i.quantity;
+      }, 0),
+    ),
     length: 20,
     width: 15,
     height: 10,

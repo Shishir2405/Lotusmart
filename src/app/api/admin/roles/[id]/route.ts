@@ -7,7 +7,8 @@ import AdminRole, { ADMIN_PERMISSIONS } from "@/modules/roles/admin-role.model";
 import type { ITokenPayload, AdminPermission } from "@/types";
 
 function hasPermission(user: ITokenPayload, permission: AdminPermission): boolean {
-  if (!user.permissions) return true; 
+  if (user.isSuperAdmin) return true;
+  if (!user.permissions) return false; // default-deny
   return user.permissions.includes(permission);
 }
 

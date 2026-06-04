@@ -6,7 +6,7 @@ import { ApiError } from "@/lib/api-error";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import { clearAuthCookie, requireAuth } from "@/lib/auth";
 import connectDB from "@/lib/db";
-import { deleteAccount, getProfile, updateProfile } from "@/modules/auth/auth.service";
+import { deleteAccount, getProfile, updateProfile, isSuperAdminEmail } from "@/modules/auth/auth.service";
 import User from "@/modules/users/user.model";
 import AdminRole from "@/modules/roles/admin-role.model";
 
@@ -18,19 +18,24 @@ export async function GET(request: NextRequest) {
     const user = await getProfile(authUser.userId);
 
     
+    const isSuperAdmin =
+      (user as { isSuperAdmin?: boolean }).isSuperAdmin === true ||
+      isSuperAdminEmail(authUser.email);
     let permissions: string[] | undefined;
     if (authUser.role === "admin") {
       const populated = await User.findById(authUser.userId).populate({ path: "adminRole", model: AdminRole });
       if (populated?.adminRole && typeof populated.adminRole === "object" && "permissions" in populated.adminRole) {
         permissions = (populated.adminRole as unknown as Record<string, unknown>).permissions as string[];
       }
-      const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-      if (authUser.email === adminEmail) {
-        permissions = undefined; 
+      if (isSuperAdmin) {
+        permissions = undefined;
       }
     }
 
-    return successResponse({ user: { ...user, permissions } }, "Profile retrieved successfully");
+    return successResponse(
+      { user: { ...user, permissions, isSuperAdmin } },
+      "Profile retrieved successfully",
+    );
   } catch (error) {
     const apiError = ApiError.from(error);
     return errorResponse(apiError.message, apiError.statusCode, apiError.errors);

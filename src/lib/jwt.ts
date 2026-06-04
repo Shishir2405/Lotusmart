@@ -48,6 +48,7 @@ export async function verifyToken(token: string): Promise<ITokenPayload> {
       email: payload.email as string,
       role: payload.role as ITokenPayload["role"],
       permissions: payload.permissions as ITokenPayload["permissions"],
+      isSuperAdmin: payload.isSuperAdmin as boolean | undefined,
     };
   } catch (error) {
     throw new Error(
@@ -71,6 +72,7 @@ export function decodeToken(token: string): ITokenPayload | null {
       email: payload.email,
       role: payload.role,
       permissions: payload.permissions,
+      isSuperAdmin: payload.isSuperAdmin,
     };
   } catch {
     return null;
