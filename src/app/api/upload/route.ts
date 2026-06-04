@@ -41,6 +41,18 @@ const TARGET_ALIASES: Record<string, UploadTarget> = {
   profiles: "profiles",
 };
 
+const EXT_TYPES: Record<string, string> = {
+  jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp",
+  gif: "image/gif", avif: "image/avif", heic: "image/heic", heif: "image/heif",
+  mp4: "video/mp4", m4v: "video/mp4", webm: "video/webm", mov: "video/quicktime",
+  ogg: "video/ogg", mkv: "video/x-matroska",
+};
+
+function inferTypeFromName(name: string): string {
+  const ext = name.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] ?? "";
+  return EXT_TYPES[ext] ?? "";
+}
+
 export async function POST(req: NextRequest) {
   try {
     await requireAuth(req);
@@ -59,20 +71,26 @@ export async function POST(req: NextRequest) {
       throw ApiError.badRequest(`Invalid target. Must be one of: ${VALID_TARGETS.join(", ")}`);
     }
 
+    const originalName =
+      (file as File).name ?? `upload.${file.type.split("/")[1] ?? "bin"}`;
+    // Browsers occasionally send an empty MIME type (notably HEIC/HEIF); fall
+    // back to the file extension so we don't reject an otherwise valid upload.
+    const fileType = file.type || inferTypeFromName(originalName);
+
     const kind: UploadKind =
-      rawKind === "video" || (!rawKind && file.type.startsWith("video/"))
+      rawKind === "video" || (!rawKind && fileType.startsWith("video/"))
         ? "video"
         : "image";
 
     if (kind === "image") {
-      if (!IMAGE_TYPES.includes(file.type)) {
+      if (!IMAGE_TYPES.includes(fileType)) {
         throw ApiError.badRequest("Invalid image type. Allowed: JPEG, PNG, WebP, GIF, AVIF, HEIC");
       }
       if (file.size > MAX_IMAGE_BYTES) {
         throw ApiError.badRequest("Image too large. Max 10 MB");
       }
     } else {
-      if (!VIDEO_TYPES.includes(file.type)) {
+      if (!VIDEO_TYPES.includes(fileType)) {
         throw ApiError.badRequest("Invalid video type. Allowed: MP4, WebM, MOV, OGG, MKV");
       }
       if (file.size > MAX_VIDEO_BYTES) {
@@ -80,10 +98,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const originalName =
-      (file as File).name ?? `upload.${file.type.split("/")[1] ?? (kind === "video" ? "mp4" : "jpg")}`;
-
-    const result = await uploadFile(target, file, originalName, file.type, kind);
+    const result = await uploadFile(target, file, originalName, fileType, kind);
 
     return successResponse(
       { url: result.url, key: result.key, kind },

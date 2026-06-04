@@ -57,7 +57,12 @@ export async function uploadFile(
                 ],
                 eager_async: false,
               }
-            : {}),
+            : {
+                // Transcode every image to WebP so formats the browser can't
+                // pre-process (e.g. HEIC/HEIF from iPhones) still end up as a
+                // web-friendly, displayable file.
+                format: "webp",
+              }),
         },
         (error, result) => {
           if (error || !result) return reject(error ?? new Error("Upload failed"));

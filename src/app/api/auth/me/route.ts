@@ -8,6 +8,7 @@ import { clearAuthCookie, requireAuth } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import { deleteAccount, getProfile, updateProfile } from "@/modules/auth/auth.service";
 import User from "@/modules/users/user.model";
+import AdminRole from "@/modules/roles/admin-role.model";
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,7 +20,7 @@ export async function GET(request: NextRequest) {
     
     let permissions: string[] | undefined;
     if (authUser.role === "admin") {
-      const populated = await User.findById(authUser.userId).populate("adminRole");
+      const populated = await User.findById(authUser.userId).populate({ path: "adminRole", model: AdminRole });
       if (populated?.adminRole && typeof populated.adminRole === "object" && "permissions" in populated.adminRole) {
         permissions = (populated.adminRole as unknown as Record<string, unknown>).permissions as string[];
       }

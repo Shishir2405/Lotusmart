@@ -42,12 +42,14 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       throw ApiError.forbidden("Cannot modify the super admin's role assignment.");
     }
 
-    if (body.adminRole === null || body.adminRole === undefined) {
-      
+    // The UI sends `roleId`; accept `adminRole` too for backward compatibility.
+    const roleId = body.roleId ?? body.adminRole;
+
+    if (!roleId) {
+      // null / undefined / "" → unassign the role
       user.adminRole = undefined;
     } else {
-      
-      const role = await AdminRole.findById(body.adminRole);
+      const role = await AdminRole.findById(roleId);
       if (!role) {
         throw ApiError.notFound("Admin role not found.");
       }

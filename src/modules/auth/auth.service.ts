@@ -6,6 +6,7 @@ import { ApiError } from "@/lib/api-error";
 import connectDB from "@/lib/db";
 import { signToken } from "@/lib/jwt";
 import User, { IUserDocument } from "@/modules/users/user.model";
+import AdminRole from "@/modules/roles/admin-role.model";
 import type { ITokenPayload, SafeUser } from "@/types";
 import type {
   RegisterInput,
@@ -246,7 +247,7 @@ export async function login(email: string, password: string) {
 
   let permissions: string[] | undefined;
   if (user.role === "admin") {
-    const populated = await User.findById(user._id).populate("adminRole");
+    const populated = await User.findById(user._id).populate({ path: "adminRole", model: AdminRole });
     if (populated?.adminRole && typeof populated.adminRole === "object" && "permissions" in populated.adminRole) {
       permissions = (populated.adminRole as any).permissions;
     }
