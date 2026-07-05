@@ -39,9 +39,47 @@ const RichTextEditor = dynamic(
 interface Category {
   _id: string;
   name: string;
-  parent?: string | null;
+  parent?: string | { _id: string } | null;
   children?: Category[];
 }
+
+// Categories are fetched flat (`?flat=true`); `parent` may be null (top-level),
+// an id string, or a populated object. Normalize it to a plain id.
+const parentIdOf = (c: Category): string | null => {
+  const p = c.parent;
+  if (!p) return null;
+  return typeof p === "object" ? (p as { _id: string })._id : p;
+};
+
+const topLevelCategories = (cats: Category[]): Category[] =>
+  cats.filter((c) => !parentIdOf(c));
+
+// Flatten the entire descendant subtree (children, grandchildren, …) of a root
+// category, depth-first, tagging each with its depth so deeper levels can be
+// indented in the <select>.
+const descendantOptions = (
+  rootId: string,
+  cats: Category[],
+): { cat: Category; depth: number }[] => {
+  if (!rootId) return [];
+  const byParent = new Map<string, Category[]>();
+  for (const c of cats) {
+    const pid = parentIdOf(c);
+    if (!pid) continue;
+    const arr = byParent.get(pid);
+    if (arr) arr.push(c);
+    else byParent.set(pid, [c]);
+  }
+  const out: { cat: Category; depth: number }[] = [];
+  const walk = (pid: string, depth: number) => {
+    for (const child of byParent.get(pid) ?? []) {
+      out.push({ cat: child, depth });
+      walk(child._id, depth + 1);
+    }
+  };
+  walk(rootId, 0);
+  return out;
+};
 
 interface BulkPriceRow {
   minQty: string;
@@ -162,14 +200,15 @@ export default function NewProductPage() {
   const { register, handleSubmit, control, watch, setValue, trigger, formState: { errors } } = useForm<ProductFormValues>({ defaultValues: DEFAULTS, mode: "onChange" });
   const w = watch();
 
-  useEffect(() => { axios.get<{ data: Category[] }>("/api/categories?includeSubcategories=true").then((r: { data: { data: Category[] } }) => setCategories(r.data.data)).catch(() => null); }, []);
+  useEffect(() => { axios.get<{ data: Category[] }>("/api/categories?flat=true").then((r: { data: { data: Category[] } }) => setCategories(r.data.data)).catch(() => null); }, []);
 
   const [subcategoryModalOpen, setSubcategoryModalOpen] = useState(false);
   const [newSubcategoryName, setNewSubcategoryName] = useState("");
   const [creatingSubcategory, setCreatingSubcategory] = useState(false);
 
+  const topCategories: Category[] = topLevelCategories(categories);
   const selectedCategory: Category | undefined = categories.find((c: Category) => c._id === w.category);
-  const subcategoryOptions: Category[] = selectedCategory?.children ?? [];
+  const subcategoryOptions = descendantOptions(w.category, categories);
 
   const handleCreateSubcategory = async () => {
     if (!w.category) { toast.error("Please select a Category first"); return; }
@@ -183,11 +222,7 @@ export default function NewProductPage() {
         isActive: true,
       });
       const created = res.data.data;
-      setCategories((prev: Category[]) => prev.map((c: Category) => (
-        c._id === w.category
-          ? { ...c, children: [...(c.children ?? []), created] }
-          : c
-      )));
+      setCategories((prev: Category[]) => [...prev, created]);
       setValue("subcategory", created._id);
       setNewSubcategoryName("");
       setSubcategoryModalOpen(false);
@@ -508,7 +543,13 @@ export default function NewProductPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div><label className={lbl}>Category</label>
-                <select {...register("category", { onChange: () => setValue("subcategory", "") })} className={sel}><option value="">No category</option>{categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}</select>
+                <select {...register("category", { onChange: () => setValue("subcategory", "") })} className={sel}>
+                  <option value="">No category</option>
+                  {topCategories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
+                  {w.category && !topCategories.some((c) => c._id === w.category) && (
+                    <option value={w.category}>{selectedCategory?.name ?? w.category}</option>
+                  )}
+                </select>
               </div>
               <div>
                 <div className="flex items-center justify-between mb-1.5">
@@ -536,9 +577,14 @@ export default function NewProductPage() {
                         ? "No subcategories — click New to add one"
                         : "No subcategory"}
                   </option>
-                  {subcategoryOptions.map((s) => (
-                    <option key={s._id} value={s._id}>{s.name}</option>
+                  {subcategoryOptions.map(({ cat, depth }) => (
+                    <option key={cat._id} value={cat._id}>{"— ".repeat(depth)}{cat.name}</option>
                   ))}
+                  {w.subcategory && !subcategoryOptions.some((o) => o.cat._id === w.subcategory) && (
+                    <option value={w.subcategory}>
+                      {categories.find((c) => c._id === w.subcategory)?.name ?? w.subcategory} (legacy)
+                    </option>
+                  )}
                 </select>
               </div>
             </div>

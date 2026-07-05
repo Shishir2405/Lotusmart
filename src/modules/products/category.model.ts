@@ -40,7 +40,10 @@ CategorySchema.virtual("children", {
 
 
 CategorySchema.pre("save", async function () {
-  if (this.isModified("name") || !this.slug) {
+  // Generate the slug ONCE, at creation. Renaming a category must NOT change
+  // its slug afterwards, or every bookmarked / indexed / nav-linked
+  // /categories/<slug> URL would suddenly 404.
+  if (!this.slug) {
     const base = slugify(this.name, { lower: true, strict: true });
 
     let candidate = base;

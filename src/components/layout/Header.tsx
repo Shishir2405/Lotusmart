@@ -59,7 +59,12 @@ interface NavCategory {
   color: string;
   colorLight: string;
   image?: string;
-  sub: { label: string; slug: string; badge: string | null }[];
+  sub: {
+    label: string;
+    slug: string;
+    badge: string | null;
+    children?: { label: string; slug: string }[];
+  }[];
   featured: {
     label: string;
     desc: string;
@@ -151,6 +156,10 @@ function buildNavCategoriesFromPopulated(apiCats: (APICategory & { children?: AP
         label: child.name,
         slug: child.slug,
         badge: null,
+        children: ((child as APICategory & { children?: APICategory[] }).children ?? [])
+          .filter((g) => g.isActive)
+          .sort((a, b) => a.sortOrder - b.sortOrder)
+          .map((g) => ({ label: g.name, slug: g.slug })),
       })),
       featured: {
         label: `${cat.name} Collection`,
@@ -192,6 +201,10 @@ function buildNavCategories(apiCats: APICategory[]): NavCategory[] {
         label: child.name,
         slug: child.slug,
         badge: null,
+        children: ((child as APICategory & { children?: APICategory[] }).children ?? [])
+          .filter((g) => g.isActive)
+          .sort((a, b) => a.sortOrder - b.sortOrder)
+          .map((g) => ({ label: g.name, slug: g.slug })),
       })),
       featured: {
         label: `${cat.name} Collection`,
@@ -368,8 +381,8 @@ function CategoryMegaMenu({
       }}
     >
       <div className="grid grid-cols-[1fr_220px]">
-        
-        <div className="p-5">
+
+        <div className="max-h-[76vh] overflow-y-auto p-5" style={{ scrollbarWidth: "thin" }}>
           
           <div
             className="mb-4 flex items-center gap-2.5 border-b pb-3.5"
@@ -401,21 +414,25 @@ function CategoryMegaMenu({
           </div>
 
           
-          <div className="grid grid-cols-2 gap-0.5">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
             {cat.sub.map((sub, i) => (
               <motion.div
                 key={sub.slug}
                 initial={{ opacity: 0, x: -6 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.035, duration: 0.2 }}
+                className="min-w-0"
               >
                 <Link href={`/categories/${sub.slug}`} onClick={onClose}>
                   <motion.span
-                    whileHover={{ backgroundColor: cat.colorLight, x: 3 }}
+                    whileHover={{ x: 2 }}
                     transition={{ duration: 0.13 }}
-                    className="flex cursor-pointer items-center justify-between rounded-xl px-3 py-2"
+                    className="flex cursor-pointer items-center justify-between rounded-lg px-2 py-1"
                   >
-                    <span className="text-[0.82rem] font-medium" style={{ color: "#44403c" }}>
+                    <span
+                      className="truncate text-[0.82rem] font-semibold"
+                      style={{ color: "#292524" }}
+                    >
                       {sub.label}
                     </span>
                     {sub.badge && (
@@ -428,6 +445,27 @@ function CategoryMegaMenu({
                     )}
                   </motion.span>
                 </Link>
+
+                {/* Third level — sub-sub-categories */}
+                {sub.children && sub.children.length > 0 && (
+                  <div
+                    className="mt-0.5 ml-2 flex flex-col border-l pl-2"
+                    style={{ borderColor: "#EBE8D8" }}
+                  >
+                    {sub.children.map((leaf) => (
+                      <Link key={leaf.slug} href={`/categories/${leaf.slug}`} onClick={onClose}>
+                        <motion.span
+                          whileHover={{ backgroundColor: cat.colorLight, x: 2 }}
+                          transition={{ duration: 0.12 }}
+                          className="block cursor-pointer truncate rounded-md px-2 py-[0.3rem] text-[0.75rem]"
+                          style={{ color: "#57534e" }}
+                        >
+                          {leaf.label}
+                        </motion.span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </motion.div>
             ))}
           </div>
@@ -1310,7 +1348,7 @@ export function Header() {
                                   className="flex cursor-pointer items-center justify-between rounded-xl px-4 py-2 pl-12"
                                 >
                                   <span
-                                    className="text-[0.79rem] font-medium"
+                                    className={`text-[0.79rem] ${sub.children && sub.children.length ? "font-semibold" : "font-medium"}`}
                                     style={{ color: "#57534e" }}
                                   >
                                     {sub.label}
@@ -1328,6 +1366,23 @@ export function Header() {
                                   )}
                                 </motion.span>
                               </Link>
+
+                              {/* Third level — sub-sub-categories */}
+                              {sub.children?.map((leaf) => (
+                                <Link
+                                  key={leaf.slug}
+                                  href={`/categories/${leaf.slug}`}
+                                  onClick={() => setMobileOpen(false)}
+                                >
+                                  <motion.span
+                                    whileHover={{ backgroundColor: cat.colorLight }}
+                                    className="flex cursor-pointer items-center rounded-xl px-4 py-1.5 pl-[4.75rem] text-[0.74rem]"
+                                    style={{ color: "#78716c" }}
+                                  >
+                                    {leaf.label}
+                                  </motion.span>
+                                </Link>
+                              ))}
                             </motion.div>
                           ))}
                         </motion.div>

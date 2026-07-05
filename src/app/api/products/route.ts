@@ -47,7 +47,29 @@ export async function GET(request: NextRequest) {
       if (!category) {
         throw ApiError.notFound(`Category "${categorySlug}" not found`);
       }
-      query.category = category._id;
+
+      // Expand the requested category to itself AND all of its descendants,
+      // so filtering a top-level category (e.g. "dry-fruits") also returns
+      // products stored under its child / grandchild categories. Mirrors the
+      // BFS descendant walk in /categories/[slug]/page.tsx.
+      const descendantIds = new Set<string>([category._id.toString()]);
+      let frontier: typeof category._id[] = [category._id];
+      while (frontier.length) {
+        const kids = await Category.find({ parent: { $in: frontier }, isActive: true })
+          .select("_id")
+          .lean();
+        const next: typeof frontier = [];
+        for (const k of kids) {
+          const s = k._id.toString();
+          if (!descendantIds.has(s)) {
+            descendantIds.add(s);
+            next.push(k._id);
+          }
+        }
+        frontier = next;
+      }
+
+      query.category = { $in: Array.from(descendantIds) };
     }
 
     

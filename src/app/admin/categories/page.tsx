@@ -15,6 +15,7 @@ import {
   RiFolderLine,
   RiFolderOpenLine,
   RiFolder2Line,
+  RiImageLine,
 } from "react-icons/ri";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -244,8 +245,10 @@ export default function AdminCategoriesPage() {
     try {
       const payload = {
         name: form.name.trim(),
-        description: form.description || undefined,
-        image: form.image || undefined,
+        // On EDIT send explicit "" so cleared fields actually persist (JSON drops
+        // `undefined`, which made "Remove image" / clear-description silently no-op).
+        description: editTarget ? (form.description ?? "") : form.description || undefined,
+        image: editTarget ? (form.image ?? "") : form.image || undefined,
         parent: form.parent || null,
         isActive: form.isActive,
         sortOrder: form.sortOrder,
@@ -320,6 +323,10 @@ export default function AdminCategoriesPage() {
 
   const handleDrop = async (e: React.DragEvent, targetId: string) => {
     e.preventDefault();
+    // Stop the drop from ALSO bubbling to the container's root-drop handler,
+    // which would fire a second, conflicting PATCH (parent:null) and leave the
+    // moved category at a nondeterministic level.
+    e.stopPropagation();
     setDropTargetId(null);
 
     const sourceId = e.dataTransfer.getData("text/plain");
@@ -396,6 +403,9 @@ export default function AdminCategoriesPage() {
 
   const handleDropOnRoot = async (e: React.DragEvent) => {
     e.preventDefault();
+    // Only act when the drop landed on the empty container itself, not when it
+    // bubbled up from a row (that case is handled by handleDrop).
+    if (e.target !== e.currentTarget) return;
     setDropTargetId(null);
 
     const sourceId = e.dataTransfer.getData("text/plain");
@@ -429,9 +439,26 @@ export default function AdminCategoriesPage() {
     // For the form: show categories that are at level 0 or level 1 (so result is at most level 2)
     const result: { id: string; name: string; level: number }[] = [];
     const flat = flattenTree(tree);
+
+    // Collect the edited node + its entire subtree — a category can never be
+    // parented under itself or one of its own descendants (that creates a cycle
+    // and makes the whole subtree vanish from the rendered tree).
+    const blocked = new Set<string>();
+    if (editTarget) {
+      const editNode = flat.find((n) => n.category._id === editTarget._id);
+      if (editNode) {
+        const collect = (n: TreeNode) => {
+          blocked.add(n.category._id);
+          n.children.forEach(collect);
+        };
+        collect(editNode);
+      } else {
+        blocked.add(editTarget._id);
+      }
+    }
+
     for (const node of flat) {
-      // Skip the category being edited + prevent self-reference
-      if (editTarget && node.category._id === editTarget._id) continue;
+      if (blocked.has(node.category._id)) continue;
       // Only allow up to level 1 as parent (so child will be at level 2 max)
       if (node.level <= 1) {
         result.push({ id: node.category._id, name: node.category.name, level: node.level });
@@ -442,12 +469,12 @@ export default function AdminCategoriesPage() {
 
   /* ---------- stats ---------- */
 
+  // Derive counts from the built tree's levels so they always agree with what
+  // is rendered (arithmetic subtraction could go negative with orphan nodes).
+  const flatNodes = useMemo(() => flattenTree(tree), [tree]);
   const rootCount = tree.length;
-  const subCount = categories.filter((c) => {
-    const pid = getParentId(c);
-    return pid && !categories.some((p) => p._id === pid && getParentId(p));
-  }).length;
-  const leafCount = categories.length - rootCount - subCount;
+  const subCount = flatNodes.filter((n) => n.level === 1).length;
+  const leafCount = flatNodes.filter((n) => n.level >= 2).length;
 
   /* ------------------------------------------------------------------ */
   /*  Render                                                             */
@@ -486,7 +513,9 @@ export default function AdminCategoriesPage() {
         className="bg-white rounded-2xl border border-neutral-200 overflow-hidden"
         onDragOver={(e) => {
           e.preventDefault();
-          setDropTargetId("__root__");
+          // Only highlight the root drop zone when hovering the empty container
+          // area, not while dragging over a row (rows manage their own target).
+          if (e.target === e.currentTarget) setDropTargetId("__root__");
         }}
         onDragLeave={() => setDropTargetId(null)}
         onDrop={handleDropOnRoot}
@@ -581,14 +610,18 @@ export default function AdminCategoriesPage() {
             </label>
             {form.image ? (
               <div className="flex items-center gap-3">
-                <div className="w-16 h-16 rounded-xl overflow-hidden border border-neutral-200 shrink-0">
-                  <Image
-                    src={normalizeImageUrl(form.image)}
-                    alt="Category"
-                    width={64}
-                    height={64}
-                    className="object-cover w-full h-full"
-                  />
+                <div className="w-16 h-16 rounded-xl overflow-hidden border border-neutral-200 shrink-0 flex items-center justify-center bg-neutral-50">
+                  {normalizeImageUrl(form.image) ? (
+                    <Image
+                      src={normalizeImageUrl(form.image)}
+                      alt="Category"
+                      width={64}
+                      height={64}
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <RiImageLine size={22} className="text-neutral-300" />
+                  )}
                 </div>
                 <button
                   type="button"
@@ -750,7 +783,7 @@ function TreeRow({
 
         {/* Icon / Image */}
         <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 flex items-center justify-center bg-white border border-neutral-100">
-          {cat.image ? (
+          {normalizeImageUrl(cat.image) ? (
             <Image src={normalizeImageUrl(cat.image)} alt={cat.name} width={32} height={32} className="object-cover w-full h-full" />
           ) : (
             <IconComp size={16} className={style.iconColor} />

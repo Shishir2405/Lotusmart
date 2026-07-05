@@ -15,9 +15,47 @@ import { useUpload } from "@/hooks/useUpload";
 interface Category {
   _id: string;
   name: string;
-  parent?: string | null;
+  parent?: string | { _id: string } | null;
   children?: Category[];
 }
+
+// Categories are fetched flat (`?flat=true`); `parent` may be null (top-level),
+// an id string, or a populated object. Normalize it to a plain id.
+const parentIdOf = (c: Category): string | null => {
+  const p = c.parent;
+  if (!p) return null;
+  return typeof p === "object" ? (p as { _id: string })._id : p;
+};
+
+const topLevelCategories = (cats: Category[]): Category[] =>
+  cats.filter((c) => !parentIdOf(c));
+
+// Flatten the entire descendant subtree (children, grandchildren, …) of a root
+// category, depth-first, tagging each with its depth so deeper levels can be
+// indented in the <select>.
+const descendantOptions = (
+  rootId: string,
+  cats: Category[],
+): { cat: Category; depth: number }[] => {
+  if (!rootId) return [];
+  const byParent = new Map<string, Category[]>();
+  for (const c of cats) {
+    const pid = parentIdOf(c);
+    if (!pid) continue;
+    const arr = byParent.get(pid);
+    if (arr) arr.push(c);
+    else byParent.set(pid, [c]);
+  }
+  const out: { cat: Category; depth: number }[] = [];
+  const walk = (pid: string, depth: number) => {
+    for (const child of byParent.get(pid) ?? []) {
+      out.push({ cat: child, depth });
+      walk(child._id, depth + 1);
+    }
+  };
+  walk(rootId, 0);
+  return out;
+};
 
 interface BulkPriceRow {
   minQty: string;
@@ -180,7 +218,7 @@ export default function EditProductPage() {
   useEffect(() => {
     Promise.all([
       axios.get<{ data: ProductData }>(`/api/products/${id}`),
-      axios.get<{ data: Category[] }>("/api/categories?includeSubcategories=true"),
+      axios.get<{ data: Category[] }>("/api/categories?flat=true"),
     ]).then(([pRes, cRes]: [{ data: { data: ProductData } }, { data: { data: Category[] } }]) => {
       const p = pRes.data.data;
       const catId = typeof p.category === "object" && p.category ? (p.category as { _id: string })._id : p.category ?? "";
@@ -332,11 +370,7 @@ export default function EditProductPage() {
         isActive: true,
       });
       const created = res.data.data;
-      setCategories((prev) => prev.map((c) => (
-        c._id === form.category
-          ? { ...c, children: [...(c.children ?? []), created] }
-          : c
-      )));
+      setCategories((prev) => [...prev, created]);
       setForm((f) => ({ ...f, subcategory: created._id }));
       setNewSubcategoryName("");
       setSubcategoryModalOpen(false);
@@ -563,8 +597,19 @@ export default function EditProductPage() {
                 onChange={(e) => setForm((f) => ({ ...f, category: e.target.value, subcategory: "" }))}
                 className={selectClass}
               >
-                <option value="">No category</option>
-                {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
+                {(() => {
+                  const topCats = topLevelCategories(categories);
+                  const storedName = categories.find((c) => c._id === form.category)?.name;
+                  return (
+                    <>
+                      <option value="">No category</option>
+                      {topCats.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
+                      {form.category && !topCats.some((c) => c._id === form.category) && (
+                        <option value={form.category}>{storedName ?? form.category}</option>
+                      )}
+                    </>
+                  );
+                })()}
               </select>
             </div>
             <div>
@@ -588,9 +633,8 @@ export default function EditProductPage() {
                 disabled={!form.category}
               >
                 {(() => {
-                  const selected = categories.find((c) => c._id === form.category);
-                  const options = selected?.children ?? [];
-                  const legacyStored = form.subcategory && !options.some((s) => s._id === form.subcategory);
+                  const options = descendantOptions(form.category, categories);
+                  const legacyStored = form.subcategory && !options.some((o) => o.cat._id === form.subcategory);
                   return (
                     <>
                       <option value="">
@@ -600,9 +644,13 @@ export default function EditProductPage() {
                             ? "No subcategories — click New to add one"
                             : "No subcategory"}
                       </option>
-                      {options.map((s) => <option key={s._id} value={s._id}>{s.name}</option>)}
+                      {options.map(({ cat, depth }) => (
+                        <option key={cat._id} value={cat._id}>{"— ".repeat(depth)}{cat.name}</option>
+                      ))}
                       {legacyStored && (
-                        <option value={form.subcategory}>{form.subcategory} (legacy)</option>
+                        <option value={form.subcategory}>
+                          {categories.find((c) => c._id === form.subcategory)?.name ?? form.subcategory} (legacy)
+                        </option>
                       )}
                     </>
                   );

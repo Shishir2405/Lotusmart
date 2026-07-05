@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import connectDB from "@/lib/db";
 import Category from "@/modules/products/category.model";
@@ -81,6 +82,13 @@ export default async function CategoryPage({ params }: PageProps) {
 
   const categoryIds = Array.from(descendantIds);
 
+  // Direct children of this category — rendered as a navigable sub-category row
+  // so shoppers can drill down (e.g. Dry Fruits -> Berries, Seeds, Dates...).
+  const childCategories = await Category.find({ parent: category._id, isActive: true })
+    .select("_id name slug image sortOrder")
+    .sort({ sortOrder: 1, name: 1 })
+    .lean();
+
   const products = await Product.find({
     isActive: true,
     $or: [
@@ -149,6 +157,40 @@ export default async function CategoryPage({ params }: PageProps) {
           )}
           <p className="text-sm text-neutral-400 mt-2">{products.length} product{products.length !== 1 ? "s" : ""}</p>
         </div>
+
+        {childCategories.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-xs font-bold uppercase tracking-[0.15em] text-neutral-500 mb-3">
+              Shop by subcategory
+            </h2>
+            <div className="flex flex-wrap gap-3">
+              {childCategories.map((child) => (
+                <Link
+                  key={child._id.toString()}
+                  href={`/categories/${child.slug}`}
+                  className="group flex items-center gap-3 rounded-2xl border border-[#FECDD3] bg-[#FFF7F8] pl-2 pr-4 py-2 transition-colors hover:border-[#E84672] hover:bg-[#FFF1F3]"
+                >
+                  <span className="relative h-11 w-11 flex-shrink-0 overflow-hidden rounded-xl bg-[#FFF1F3]">
+                    {child.image ? (
+                      <img
+                        src={normalizeImageUrl(child.image)}
+                        alt={child.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <span className="flex h-full w-full items-center justify-center text-[#E84672]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-sm font-semibold text-neutral-800 group-hover:text-[#E84672]">
+                    {child.name}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {products.length === 0 ? (
           <div className="text-center py-20">

@@ -6,6 +6,7 @@ import { createdResponse, errorResponse, successResponse } from "@/lib/api-respo
 import { requireAdmin } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import Category from "@/modules/products/category.model";
+import { getDepth, MAX_CATEGORY_DEPTH } from "@/modules/products/category.tree";
 
 export async function GET(request: NextRequest) {
   try {
@@ -39,6 +40,9 @@ export async function POST(request: NextRequest) {
     if (parent) {
       const parentDoc = await Category.findById(parent).lean();
       if (!parentDoc) throw ApiError.badRequest("Parent category not found");
+      if ((await getDepth(parent)) + 1 > MAX_CATEGORY_DEPTH) {
+        throw ApiError.badRequest("Maximum 3 category levels allowed");
+      }
     }
 
     const category = await Category.create({

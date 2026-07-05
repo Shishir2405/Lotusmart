@@ -23,15 +23,18 @@ const SORT_OPTIONS = [
   { value: "price_desc", label: "Price: High to Low" },
 ];
 
-const CATEGORIES = [
-  { slug: "all", label: "All" },
-  { slug: "whole-spices", label: "Whole Spices" },
-  { slug: "ground-spices", label: "Ground Spices" },
-  { slug: "dry-fruits", label: "Dry Fruits" },
-  { slug: "nuts-seeds", label: "Nuts & Seeds" },
-  { slug: "gift-boxes", label: "Gift Boxes" },
-  { slug: "organic", label: "Organic" },
-];
+interface ApiCategory {
+  _id: string;
+  name: string;
+  slug: string;
+}
+
+interface CategoryFilter {
+  slug: string;
+  name: string;
+}
+
+const ALL_CATEGORY: CategoryFilter = { slug: "all", name: "All" };
 
 interface ProductsResponse {
   data: ProductCardData[];
@@ -43,6 +46,7 @@ function ProductsContent() {
   const router = useRouter();
 
   const [products, setProducts] = useState<ProductCardData[]>([]);
+  const [categories, setCategories] = useState<CategoryFilter[]>([ALL_CATEGORY]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -82,6 +86,17 @@ function ProductsContent() {
 
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
+
+  useEffect(() => {
+    axios
+      .get<{ data: ApiCategory[] }>("/api/categories?includeSubcategories=true")
+      .then((r) => {
+        const cats = (r.data.data ?? []).map((c) => ({ slug: c.slug, name: c.name }));
+        setCategories([ALL_CATEGORY, ...cats]);
+      })
+      .catch(() => {});
+  }, []);
+
   
   useEffect(() => { setPage(1); }, [debouncedSearch, category, sortBy, minPrice, maxPrice, inStock]);
 
@@ -103,7 +118,9 @@ function ProductsContent() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900">
-            {category !== "all" ? CATEGORIES.find((c) => c.slug === category)?.label : "All Products"}
+            {category !== "all"
+              ? categories.find((c) => c.slug === category)?.name ?? "Products"
+              : "All Products"}
           </h1>
           {!loading && <p className="text-sm text-neutral-400 mt-0.5">{pagination.total} products</p>}
         </div>
@@ -151,7 +168,7 @@ function ProductsContent() {
             <div>
               <p className="text-sm font-semibold text-neutral-700 mb-3">Category</p>
               <div className="space-y-1.5">
-                {CATEGORIES.map((cat) => (
+                {categories.map((cat) => (
                   <button
                     key={cat.slug}
                     onClick={() => setCategory(cat.slug)}
@@ -161,7 +178,7 @@ function ProductsContent() {
                         : "text-neutral-600 hover:bg-[#F7F6F0]"
                     }`}
                   >
-                    {cat.label}
+                    {cat.name}
                   </button>
                 ))}
               </div>
