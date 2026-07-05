@@ -911,8 +911,9 @@ export function Header() {
             <AnimatePresence>
               {activeCatData && (
                 <div
+                  key={activeCatData.slug}
                   className="absolute top-full left-0 z-50 pt-2"
-                  style={{ width: "1px" }} 
+                  style={{ width: "1px" }}
                   onMouseEnter={() => handleCatHover(activeCatData.slug)}
                   onMouseLeave={() => handleCatHover(null)}
                 >
