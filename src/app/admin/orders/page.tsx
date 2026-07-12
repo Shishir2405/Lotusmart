@@ -94,7 +94,16 @@ export default function AdminOrdersPage() {
                       {order.items?.length ?? 0} item{order.items?.length !== 1 ? "s" : ""}
                     </td>
                     <td className="px-4 py-4 text-sm font-semibold text-neutral-800">{formatCurrency(order.total)}</td>
-                    <td className="px-4 py-4"><PaymentStatusBadge status={order.paymentStatus} /></td>
+                    <td className="px-4 py-4">
+                      <PaymentStatusBadge status={order.paymentStatus} />
+                      <span
+                        className={`mt-1 block text-[10px] font-semibold uppercase tracking-wide ${
+                          order.paymentMethod === "cod" ? "text-[#5C6B3C]" : "text-neutral-400"
+                        }`}
+                      >
+                        {order.paymentMethod === "cod" ? "COD" : "Prepaid"}
+                      </span>
+                    </td>
                     <td className="px-4 py-4"><OrderStatusBadge status={order.orderStatus} /></td>
                     <td className="px-4 py-4">
                       <select

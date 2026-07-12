@@ -111,9 +111,9 @@ export default function CheckoutPage() {
   const subtotal = getSubtotal();
 
   const [step, setStep] = useState<Step>("cart");
-  const [paymentMethod] = useState<"razorpay">("razorpay");
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
   // Prepaid (Razorpay) ships free; COD has a flat ₹100 handling fee.
-  const shippingCost = (paymentMethod as string) === "cod" ? 100 : 0;
+  const shippingCost = paymentMethod === "cod" ? 100 : 0;
   const total = subtotal + shippingCost - discount;
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [placedOrderId, setPlacedOrderId] = useState<string | null>(null);
@@ -1017,9 +1017,23 @@ export default function CheckoutPage() {
                   </div>
 
                   <div className="space-y-3">
-                    <div className="flex items-start gap-4 p-4 rounded-2xl border-2 border-[#E84672] bg-[#FFF1F3]">
-                      <div className="w-5 h-5 rounded-full border-2 border-[#E84672] flex items-center justify-center mt-0.5">
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#E84672]" />
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("razorpay")}
+                      className={`w-full text-left flex items-start gap-4 p-4 rounded-2xl border-2 transition-colors ${
+                        paymentMethod === "razorpay"
+                          ? "border-[#E84672] bg-[#FFF1F3]"
+                          : "border-neutral-200 bg-white hover:border-neutral-300"
+                      }`}
+                    >
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${
+                          paymentMethod === "razorpay" ? "border-[#E84672]" : "border-neutral-300"
+                        }`}
+                      >
+                        {paymentMethod === "razorpay" && (
+                          <div className="w-2.5 h-2.5 rounded-full bg-[#E84672]" />
+                        )}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
@@ -1030,7 +1044,33 @@ export default function CheckoutPage() {
                           Credit/Debit card, UPI, Net Banking, Wallets
                         </p>
                       </div>
-                    </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("cod")}
+                      className={`w-full text-left flex items-start gap-4 p-4 rounded-2xl border-2 transition-colors ${
+                        paymentMethod === "cod"
+                          ? "border-[#E84672] bg-[#FFF1F3]"
+                          : "border-neutral-200 bg-white hover:border-neutral-300"
+                      }`}
+                    >
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${
+                          paymentMethod === "cod" ? "border-[#E84672]" : "border-neutral-300"
+                        }`}
+                      >
+                        {paymentMethod === "cod" && (
+                          <div className="w-2.5 h-2.5 rounded-full bg-[#E84672]" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <span className="font-semibold text-neutral-800">Cash on Delivery</span>
+                        <p className="text-sm text-neutral-500 mt-0.5">
+                          Pay in cash when your order arrives (₹100 handling fee)
+                        </p>
+                      </div>
+                    </button>
                   </div>
 
                   <div className="flex items-center gap-2 mt-5 text-xs text-neutral-400">
@@ -1038,12 +1078,12 @@ export default function CheckoutPage() {
                     secure
                   </div>
 
-                  {razorpayStatus === "loading" && (
+                  {paymentMethod === "razorpay" && razorpayStatus === "loading" && (
                     <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-sm font-medium text-amber-700">
                       Loading secure payment provider…
                     </div>
                   )}
-                  {razorpayStatus === "error" && (
+                  {paymentMethod === "razorpay" && razorpayStatus === "error" && (
                     <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm font-medium text-red-600">
                       We couldn't load the payment provider. Disable any
                       ad/script blocker, check your connection, and refresh
@@ -1063,16 +1103,18 @@ export default function CheckoutPage() {
                     fullWidth
                     size="lg"
                     className="mt-6"
-                    disabled={razorpayStatus !== "ready"}
+                    disabled={paymentMethod === "razorpay" && razorpayStatus !== "ready"}
                     isLoading={isPlacingOrder}
-                    onClick={handlePayment}
+                    onClick={paymentMethod === "cod" ? () => placeOrder() : handlePayment}
                     rightIcon={<RiArrowRightLine />}
                   >
-{razorpayStatus === "ready"
-                      ? `Pay ${formatCurrency(total)}`
-                      : razorpayStatus === "loading"
-                        ? "Preparing payment…"
-                        : "Payment unavailable"}
+                    {paymentMethod === "cod"
+                      ? `Place Order · ${formatCurrency(total)}`
+                      : razorpayStatus === "ready"
+                        ? `Pay ${formatCurrency(total)}`
+                        : razorpayStatus === "loading"
+                          ? "Preparing payment…"
+                          : "Payment unavailable"}
                   </Button>
                 </div>
               </motion.div>

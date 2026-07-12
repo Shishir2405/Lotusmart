@@ -190,6 +190,20 @@ export default function AdminOrderDetailPage() {
     }
   };
 
+  const [markingPaid, setMarkingPaid] = useState(false);
+  const markCodPaid = async () => {
+    setMarkingPaid(true);
+    try {
+      await axios.patch(`/api/orders/${id}`, { paymentStatus: "paid" });
+      setOrder((prev) => (prev ? { ...prev, paymentStatus: "paid" } : prev));
+      toast.success("Marked as paid — cash collected");
+    } catch {
+      toast.error("Failed to mark as paid");
+    } finally {
+      setMarkingPaid(false);
+    }
+  };
+
   const updateStatus = async () => {
     if (!newStatus || newStatus === order?.orderStatus) return;
     setUpdatingStatus(true);
@@ -710,6 +724,15 @@ export default function AdminOrderDetailPage() {
                 <span>Status</span>
                 <PaymentStatusBadge status={order.paymentStatus} />
               </div>
+              {order.paymentMethod === "cod" && order.paymentStatus !== "paid" && (
+                <button
+                  onClick={markCodPaid}
+                  disabled={markingPaid}
+                  className="mt-1 w-full rounded-xl bg-[#5C6B3C] text-white text-xs font-semibold py-2.5 hover:bg-[#4b5730] disabled:opacity-60 transition-colors"
+                >
+                  {markingPaid ? "Marking…" : "Mark as Paid (Cash Collected)"}
+                </button>
+              )}
               {order.razorpayOrderId && (
                 <div className="pt-2 border-t border-[#EBE8D8]">
                   <p className="text-xs text-neutral-400">
