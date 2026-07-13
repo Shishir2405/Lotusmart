@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "in.lotusmart.app",
+      "sha256_cert_fingerprints": [
+        "D6:75:06:FB:1F:99:3C:DD:F9:8E:8F:C1:C4:61:62:66:DB:D7:22:37:0A:6D:F6:D1:C8:15:F6:AC:65:2A:CE:58",
+        "BC:C4:38:DD:7D:58:9B:FD:88:8D:FE:39:9C:E2:22:3A:62:25:1F:CD:9E:C8:B3:25:85:8D:1C:16:21:0D:59:72"
+      ]
+    }
+  }
+]
