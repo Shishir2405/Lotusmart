@@ -28,6 +28,7 @@ import {
   RiInboxArchiveLine,
   RiArrowGoBackLine,
   RiUploadCloud2Line,
+  RiPlayCircleLine,
 } from "react-icons/ri";
 import type { IconType } from "react-icons";
 import { useAuth } from "@/hooks/useAuth";
@@ -94,6 +95,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     label: "Content",
     items: [
       { href: "/admin/banners", label: "Banners", icon: RiImageLine, permission: "banners" },
+      { href: "/admin/reels", label: "Reels", icon: RiPlayCircleLine, permission: "banners" },
       { href: "/admin/blog", label: "Blog", icon: RiArticleLine, permission: "blog" },
       { href: "/admin/site-settings", label: "Site Content", icon: RiPagesLine, permission: "site_settings" },
     ],

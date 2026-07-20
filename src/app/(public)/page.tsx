@@ -4,6 +4,7 @@ import { CategoryGrid } from "@/components/products/CategoryGrid";
 import { FeaturedProducts } from "@/components/products/FeaturedProducts";
 import { WhyChooseUs } from "@/components/shared/WhyChooseUs";
 import { BannerStrip } from "@/components/shared/BannerStrip";
+import { WatchAndBuy } from "@/components/shared/WatchAndBuy";
 import { FAQSection } from "@/components/shared/FAQSection";
 import { ProductGridSkeleton } from "@/components/ui/Skeleton";
 import connectDB from "@/lib/db";
@@ -99,6 +100,8 @@ export default async function HomePage() {
       <Suspense fallback={<ProductGridSkeleton />}>
         <FeaturedProducts />
       </Suspense>
+
+      <WatchAndBuy />
 
       <BannerStrip
         settings={

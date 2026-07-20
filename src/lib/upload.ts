@@ -99,89 +99,19 @@ export async function compressImage(file: File): Promise<File> {
     // The browser can't decode every format in a <canvas> — most notably
     // HEIC/HEIF photos from iPhones — so compression throws. Fall back to the
     // original file; Cloudinary converts it to a web format server-side.
-    return withInferredType(file);
+    return withUploadType(file);
   }
 }
 
-// Guarantee the file carries a MIME type before upload (HEIC files often
-// arrive with an empty type, which the server would otherwise reject).
-function withInferredType(file: File): File {
+// Guarantee the file carries a MIME type before upload (HEIC images and some
+// video containers arrive with an empty type, which the server would reject).
+export function withUploadType(file: File): File {
   if (file.type) return file;
   const type = inferType(file) || "application/octet-stream";
   return new File([file], file.name, { type });
 }
 
-let ffmpegInstance: import("@ffmpeg/ffmpeg").FFmpeg | null = null;
-let ffmpegLoading: Promise<import("@ffmpeg/ffmpeg").FFmpeg> | null = null;
-
-async function getFFmpeg() {
-  if (ffmpegInstance) return ffmpegInstance;
-  if (ffmpegLoading) return ffmpegLoading;
-
-  ffmpegLoading = (async () => {
-    const [{ FFmpeg }, { toBlobURL }] = await Promise.all([
-      import("@ffmpeg/ffmpeg"),
-      import("@ffmpeg/util"),
-    ]);
-    const ffmpeg = new FFmpeg();
-    const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd";
-    await ffmpeg.load({
-      coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
-      wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
-    });
-    ffmpegInstance = ffmpeg;
-    return ffmpeg;
-  })();
-
-  return ffmpegLoading;
-}
-
-export async function compressVideo(
-  file: File,
-  onProgress?: (pct: number) => void,
-): Promise<File> {
-  const { fetchFile } = await import("@ffmpeg/util");
-  const ffmpeg = await getFFmpeg();
-
-  const progressHandler = ({ progress }: { progress: number }) => {
-    onProgress?.(Math.round(progress * 100));
-  };
-  ffmpeg.on("progress", progressHandler);
-
-  try {
-    const inputName = "input" + getExt(file.name);
-    const outputName = "output.mp4";
-    await ffmpeg.writeFile(inputName, await fetchFile(file));
-
-    const { videoBitrate, audioBitrate, maxWidth } = UPLOAD_CONFIG.video.compress;
-    await ffmpeg.exec([
-      "-i", inputName,
-      "-vf", `scale='min(${maxWidth},iw)':-2`,
-      "-c:v", "libx264",
-      "-preset", "veryfast",
-      "-b:v", videoBitrate,
-      "-c:a", "aac",
-      "-b:a", audioBitrate,
-      "-movflags", "+faststart",
-      outputName,
-    ]);
-
-    const data = (await ffmpeg.readFile(outputName)) as Uint8Array;
-    const blob = new Blob([data], { type: "video/mp4" });
-    const newName = file.name.replace(/\.[^.]+$/, "") + ".mp4";
-
-    try {
-      await ffmpeg.deleteFile(inputName);
-      await ffmpeg.deleteFile(outputName);
-    } catch {}
-
-    return new File([blob], newName, { type: "video/mp4" });
-  } finally {
-    ffmpeg.off("progress", progressHandler);
-  }
-}
-
-function getExt(name: string): string {
-  const m = name.match(/\.[^.]+$/);
-  return m ? m[0] : "";
-}
+// NOTE: Video is no longer transcoded in the browser. In-browser H.264
+// encoding via ffmpeg.wasm took minutes and pulled a ~30MB core over the
+// network; Cloudinary now compresses server-side (see services/cloudinary.ts),
+// so the client uploads the original file directly.

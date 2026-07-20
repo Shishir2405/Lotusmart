@@ -28,6 +28,7 @@ const staticLinks = {
     { label: "Contact Us", href: "/contact" },
     { label: "Track Order", href: "/orders" },
     { label: "All Products", href: "/products" },
+    { label: "Watch & Buy", href: "/reels" },
     { label: "Blog", href: "/blog" },
   ],
   Support: [
