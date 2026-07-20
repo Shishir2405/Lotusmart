@@ -248,7 +248,7 @@ export default function NotFound() {
         <span className="h-1 w-1 rounded-full" style={{ backgroundColor: "#E84672" }} />
         <span>Premium Grocery</span>
         <span className="h-1 w-1 rounded-full" style={{ backgroundColor: "#E84672" }} />
-        <span>Est. 2017</span>
+        <span>Est. 2000</span>
       </motion.div>
     </div>
   );

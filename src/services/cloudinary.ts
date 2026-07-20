@@ -52,10 +52,15 @@ export async function uploadFile(
           unique_filename: true,
           ...(kind === "video"
             ? {
+                // Generate an optimized H.264/MP4 derivative in the BACKGROUND
+                // (eager_async) so the upload response returns as soon as the
+                // original is stored, instead of blocking on a second transcode
+                // against the 60s function limit. We return the original
+                // secure_url, which is immediately playable.
                 eager: [
                   { quality: "auto", format: "mp4", video_codec: "h264" },
                 ],
-                eager_async: false,
+                eager_async: true,
               }
             : {
                 // Transcode every image to WebP so formats the browser can't
@@ -77,6 +82,33 @@ export async function uploadFile(
     key: result.public_id,
     url: result.secure_url,
   };
+}
+
+/**
+ * Derive a poster image (first frame) from an uploaded Cloudinary VIDEO url,
+ * for reels where the admin didn't upload a thumbnail. Cloudinary renders a
+ * still from a video by swapping the resource to an image format and pinning
+ * the start offset to 0 (the first frame):
+ *   .../video/upload/<rest>/name.mp4  ->  .../video/upload/so_0/<rest>/name.jpg
+ * Returns null if the url isn't a recognisable Cloudinary video delivery url,
+ * so callers can fall back to requiring an explicit thumbnail.
+ */
+export function videoPosterUrl(videoUrl: string): string | null {
+  if (typeof videoUrl !== "string") return null;
+  const marker = "/video/upload/";
+  const idx = videoUrl.indexOf(marker);
+  if (idx === -1) return null;
+
+  const prefix = videoUrl.slice(0, idx + marker.length);
+  let rest = videoUrl.slice(idx + marker.length);
+
+  // Swap the file extension (or a bare url with none) to .jpg.
+  rest = rest.includes(".")
+    ? rest.replace(/\.[^./?]+(\?.*)?$/, ".jpg")
+    : `${rest}.jpg`;
+
+  // so_0 = seek to the first frame of the video and render it as the still.
+  return `${prefix}so_0/${rest}`;
 }
 
 export async function deleteImage(publicId: string, kind: UploadKind = "image"): Promise<void> {

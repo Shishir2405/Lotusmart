@@ -5,9 +5,9 @@ import axios from "axios";
 import toast from "@/components/ui/toast";
 import {
   compressImage,
-  compressVideo,
   detectKind,
   validateFile,
+  withUploadType,
 } from "@/lib/upload";
 
 export type UploadTarget = "products" | "banners" | "categories" | "profiles" | "blog";
@@ -42,19 +42,25 @@ export function useUpload({ target, onSuccess, onError }: UseUploadOptions) {
       const kind = detectKind(file)!;
       setUploading(true);
       setProgress(0);
-      setStage("compressing");
 
       try {
-        const compressed =
-          kind === "image"
-            ? await compressImage(file)
-            : await compressVideo(file, (pct) => setProgress(pct));
+        // Images get a fast client-side compress. Videos are uploaded as-is:
+        // transcoding H.264 in the browser (ffmpeg.wasm) took minutes and a
+        // ~30MB core download — Cloudinary now compresses server-side instead,
+        // so we just hand off the original and let the upload progress show.
+        let prepared: File;
+        if (kind === "image") {
+          setStage("compressing");
+          prepared = await compressImage(file);
+        } else {
+          prepared = withUploadType(file);
+        }
 
         setStage("uploading");
         setProgress(null);
 
         const fd = new FormData();
-        fd.append("file", compressed);
+        fd.append("file", prepared);
         fd.append("target", target);
         fd.append("kind", kind);
 

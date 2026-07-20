@@ -72,10 +72,9 @@ const features = [
 ];
 
 const stats = [
-  { value: "50K+", label: "Orders Delivered", sub: "and counting" },
   { value: "4.9★", label: "Customer Rating", sub: "out of 5.0" },
   { value: "200+", label: "Products", sub: "across 6 categories" },
-  { value: "7 yr", label: "In Business", sub: "since 2017" },
+  { value: "26 yr", label: "In Business", sub: "since 2000" },
 ];
 
 const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -201,7 +200,7 @@ export function WhyChooseUs({ settings }: WhyChooseUsProps = {}) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.55, ease }}
-          className="grid grid-cols-2 lg:grid-cols-4 mb-14 rounded-2xl overflow-hidden"
+          className="grid grid-cols-3 mb-14 rounded-2xl overflow-hidden"
           style={{ border: "1px solid #EBE8D8" }}
         >
           {stats.map((s, i) => (
@@ -212,8 +211,8 @@ export function WhyChooseUs({ settings }: WhyChooseUsProps = {}) {
               viewport={{ once: true }}
               transition={{ delay: i * 0.07 }}
               whileHover={{ backgroundColor: "#FFF1F3" }}
-              className="flex flex-col justify-between px-5 py-5 bg-white transition-colors"
-              style={{ borderRight: i < 3 ? "1px solid #EBE8D8" : "none" }}
+              className="flex flex-col justify-between px-3 sm:px-5 py-5 bg-white transition-colors"
+              style={{ borderRight: i < stats.length - 1 ? "1px solid #EBE8D8" : "none" }}
             >
               <span className="text-[0.55rem] font-black tracking-[0.22em] uppercase mb-3" style={{ color: "#C8BF9A" }}>
                 {s.label}
