@@ -34,9 +34,20 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get("sortBy") ?? "newest";
     const search = searchParams.get("search");
     const featured = searchParams.get("featured");
+    const statusParam = searchParams.get("status");
+    const includeInactive = searchParams.get("includeInactive") === "true";
+    const isActiveParam = searchParams.get("isActive");
 
-    
-    const query: Record<string, any> = { isActive: true };
+    const query: Record<string, any> = {};
+
+    if (statusParam === "all" || includeInactive || isActiveParam === "all") {
+    } else if (statusParam === "inactive" || isActiveParam === "false") {
+      query.isActive = false;
+    } else if (statusParam === "active" || isActiveParam === "true") {
+      query.isActive = true;
+    } else {
+      query.isActive = true;
+    }
 
     
     if (categorySlug) {

@@ -91,6 +91,7 @@ export default function AdminInventoryPage() {
       const params = new URLSearchParams({
         page: String(page),
         limit: String(ITEMS_PER_PAGE),
+        status: "all",
         ...(debouncedSearch && { search: debouncedSearch }),
       });
       const res = await axios.get<{
