@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -16,6 +16,7 @@ import {
   RiArrowLeftLine,
   RiRefund2Line,
   RiLeafLine,
+  RiPlayCircleFill,
 } from "react-icons/ri";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cart.store";
@@ -23,7 +24,7 @@ import { useWishlistStore } from "@/store/wishlist.store";
 import apiClient from "@/lib/api-client";
 import { Button } from "@/components/ui/Button";
 import { ProductImageZoom } from "@/components/products/ProductImageZoom";
-import { formatCurrency, calculateDiscount, normalizeImageUrl } from "@/utils/helpers";
+import { formatCurrency, calculateDiscount, normalizeImageUrl, videoPosterUrl } from "@/utils/helpers";
 import toast from "@/components/ui/toast";
 
 interface ProductDetailProps {
@@ -54,7 +55,7 @@ interface ProductDetailProps {
 
 export function ProductDetail({ product }: ProductDetailProps) {
   const router = useRouter();
-  const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedMedia, setSelectedMedia] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
 
@@ -70,6 +71,17 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const inWishlist = mounted && isInWishlist(product._id);
   const discount = calculateDiscount(product.price, product.compareAtPrice);
   const isOutOfStock = product.stock === 0;
+
+  // Photos and videos share one gallery: thumbnails run images first, then
+  // videos, and the stage swaps between the zoomable image and a plain player.
+  const media = useMemo(
+    () => [
+      ...(product.images ?? []).map((url) => ({ type: "image" as const, url })),
+      ...(product.videos ?? []).map((url) => ({ type: "video" as const, url })),
+    ],
+    [product.images, product.videos],
+  );
+  const activeMedia = media[selectedMedia];
 
   const handleAddToCart = () => {
     if (isOutOfStock) return;
@@ -151,51 +163,84 @@ export function ProductDetail({ product }: ProductDetailProps) {
       <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
         {/* Images */}
         <div className="lg:sticky lg:top-24 lg:self-start">
-          {product.images?.[selectedImage] ? (
-            <ProductImageZoom
-              src={product.images[selectedImage]}
-              alt={product.name}
-              discount={discount}
-              imageKey={selectedImage}
-            />
-          ) : (
+          {!activeMedia ? (
             <div className="relative aspect-[4/5] sm:aspect-square rounded-2xl lg:rounded-3xl overflow-hidden bg-[#F7F6F0] flex items-center justify-center text-neutral-300 text-lg font-bold">
               No Image
             </div>
-          )}
-
-          {product.images?.length > 1 && (
-            <div className="flex gap-2.5 overflow-x-auto pb-1 mt-3 no-scrollbar">
-              {product.images.map((img, i) => (
-                <button
-                  key={i}
-                  onClick={() => setSelectedImage(i)}
-                  aria-label={`View image ${i + 1}`}
-                  className={`shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-all hover:-translate-y-0.5 ${
-                    i === selectedImage
-                      ? "border-[#E84672] ring-2 ring-[#FFC2D1] ring-offset-1"
-                      : "border-neutral-200 hover:border-neutral-300"
-                  }`}
-                >
-                  <Image src={normalizeImageUrl(img)} alt="" width={80} height={80} className="object-cover w-full h-full" />
-                </button>
-              ))}
+          ) : activeMedia.type === "video" ? (
+            // Videos deliberately skip ProductImageZoom — a hover magnifier over
+            // a playing video fights the controls and can't magnify frames anyway.
+            <div className="relative aspect-[4/5] sm:aspect-square rounded-2xl lg:rounded-3xl overflow-hidden bg-black shadow-sm ring-1 ring-neutral-100">
+              <video
+                key={activeMedia.url}
+                src={activeMedia.url}
+                poster={videoPosterUrl(activeMedia.url) ?? undefined}
+                controls
+                playsInline
+                preload="metadata"
+                className="w-full h-full object-contain"
+              />
+              {discount > 0 && (
+                <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-[#E84672] text-white text-sm font-bold z-20 shadow-md pointer-events-none">
+                  -{discount}%
+                </div>
+              )}
             </div>
+          ) : (
+            <ProductImageZoom
+              src={activeMedia.url}
+              alt={product.name}
+              discount={discount}
+              imageKey={selectedMedia}
+            />
           )}
 
-          {product.videos && product.videos.length > 0 && (
-            <div className="mt-5 space-y-3">
-              <h3 className="text-sm font-semibold text-neutral-700">Product Videos</h3>
-              {product.videos.map((src, i) => (
-                <video
-                  key={i}
-                  src={src}
-                  controls
-                  preload="metadata"
-                  playsInline
-                  className="w-full rounded-2xl bg-black"
-                />
-              ))}
+          {media.length > 1 && (
+            <div className="flex gap-2.5 overflow-x-auto pb-1 mt-3 no-scrollbar">
+              {media.map((item, i) => {
+                const poster = item.type === "video" ? videoPosterUrl(item.url) : null;
+                return (
+                  <button
+                    key={`${item.type}-${i}`}
+                    onClick={() => setSelectedMedia(i)}
+                    aria-label={
+                      item.type === "video" ? `Play video ${i + 1}` : `View image ${i + 1}`
+                    }
+                    className={`relative shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-all hover:-translate-y-0.5 ${
+                      i === selectedMedia
+                        ? "border-[#E84672] ring-2 ring-[#FFC2D1] ring-offset-1"
+                        : "border-neutral-200 hover:border-neutral-300"
+                    }`}
+                  >
+                    {item.type === "video" ? (
+                      <>
+                        {poster ? (
+                          <Image
+                            src={poster}
+                            alt=""
+                            width={80}
+                            height={80}
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-neutral-900" />
+                        )}
+                        <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-white">
+                          <RiPlayCircleFill size={22} />
+                        </span>
+                      </>
+                    ) : (
+                      <Image
+                        src={normalizeImageUrl(item.url)}
+                        alt=""
+                        width={80}
+                        height={80}
+                        className="object-cover w-full h-full"
+                      />
+                    )}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>

@@ -27,6 +27,71 @@ const FOLDER_MAP: Record<UploadTarget, string> = {
   blog: "lotusmart/blog",
 };
 
+export interface UploadSignature {
+  cloudName: string;
+  apiKey: string;
+  resourceType: UploadKind;
+  /** Every param that was signed — must be posted to Cloudinary verbatim. */
+  params: Record<string, string>;
+  signature: string;
+}
+
+/**
+ * Produce a short-lived signature so the BROWSER can upload straight to
+ * Cloudinary instead of streaming the file through our own API route.
+ *
+ * This exists because Vercel caps a serverless function's request body at
+ * 4.5 MB — a platform limit no config can raise — so any video worth posting
+ * as a reel died with a 413 before /api/upload ever ran. Going direct removes
+ * our server from the file path entirely, so only Cloudinary's own limits
+ * apply.
+ *
+ * The signed params mirror what uploadFile() sends server-side, so assets land
+ * in the same folders with the same derivatives either way.
+ */
+export function signUpload(
+  target: UploadTarget,
+  kind: UploadKind,
+  originalName: string,
+): UploadSignature {
+  ensureConfigured();
+  const { cloud_name, api_key, api_secret } = cloudinary.config();
+
+  if (!cloud_name || !api_key || !api_secret) {
+    throw new Error("Cloudinary is not configured");
+  }
+
+  const params: Record<string, string> = {
+    folder: FOLDER_MAP[target],
+    // unique_filename only applies when public_id is omitted, so we make the
+    // id unique ourselves — otherwise overwrite:false would silently hand back
+    // a previously uploaded asset with the same filename.
+    public_id: `${sanitizeName(originalName)}-${uniqueSuffix()}`,
+    timestamp: String(Math.round(Date.now() / 1000)),
+    overwrite: "false",
+    ...(kind === "video"
+      ? {
+          // Same background H.264/MP4 derivative uploadFile() requests, written
+          // in the REST API's string form: "<transformation>/<format>".
+          eager: "q_auto,vc_h264/mp4",
+          eager_async: "true",
+        }
+      : { format: "webp" }),
+  };
+
+  return {
+    cloudName: cloud_name,
+    apiKey: api_key,
+    resourceType: kind,
+    params,
+    signature: cloudinary.utils.api_sign_request(params, api_secret),
+  };
+}
+
+function uniqueSuffix(): string {
+  return Math.random().toString(36).slice(2, 10);
+}
+
 export async function uploadFile(
   target: UploadTarget,
   file: Buffer | Blob,
@@ -84,32 +149,9 @@ export async function uploadFile(
   };
 }
 
-/**
- * Derive a poster image (first frame) from an uploaded Cloudinary VIDEO url,
- * for reels where the admin didn't upload a thumbnail. Cloudinary renders a
- * still from a video by swapping the resource to an image format and pinning
- * the start offset to 0 (the first frame):
- *   .../video/upload/<rest>/name.mp4  ->  .../video/upload/so_0/<rest>/name.jpg
- * Returns null if the url isn't a recognisable Cloudinary video delivery url,
- * so callers can fall back to requiring an explicit thumbnail.
- */
-export function videoPosterUrl(videoUrl: string): string | null {
-  if (typeof videoUrl !== "string") return null;
-  const marker = "/video/upload/";
-  const idx = videoUrl.indexOf(marker);
-  if (idx === -1) return null;
-
-  const prefix = videoUrl.slice(0, idx + marker.length);
-  let rest = videoUrl.slice(idx + marker.length);
-
-  // Swap the file extension (or a bare url with none) to .jpg.
-  rest = rest.includes(".")
-    ? rest.replace(/\.[^./?]+(\?.*)?$/, ".jpg")
-    : `${rest}.jpg`;
-
-  // so_0 = seek to the first frame of the video and render it as the still.
-  return `${prefix}so_0/${rest}`;
-}
+// The poster helper is a pure string transform shared with client components,
+// so it lives in utils/helpers. Re-exported here for existing server callers.
+export { videoPosterUrl } from "@/utils/helpers";
 
 export async function deleteImage(publicId: string, kind: UploadKind = "image"): Promise<void> {
   ensureConfigured();

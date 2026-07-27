@@ -25,7 +25,7 @@ const VIDEO_TYPES = [
 ];
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
-const MAX_VIDEO_BYTES = 75 * 1024 * 1024;
+const MAX_VIDEO_BYTES = 150 * 1024 * 1024;
 
 const VALID_TARGETS: UploadTarget[] = ["products", "banners", "categories", "profiles", "blog"];
 
@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
         throw ApiError.badRequest("Invalid video type. Allowed: MP4, WebM, MOV, OGG, MKV");
       }
       if (file.size > MAX_VIDEO_BYTES) {
-        throw ApiError.badRequest("Video too large. Max 75 MB");
+        throw ApiError.badRequest("Video too large. Max 150 MB");
       }
     }
 

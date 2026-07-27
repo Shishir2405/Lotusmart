@@ -12,6 +12,12 @@ import Banner from "@/modules/auth/banner.model";
 import SiteConfig from "@/modules/settings/site-config.model";
 import type { Metadata } from "next";
 
+// The homepage reads banners, site config and featured products straight from
+// Mongo in server components. Without this it renders once at build time and
+// freezes — deactivating a product left it sitting in Featured until the next
+// deploy. Revalidating keeps the section in step with admin changes.
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "LotusMart — Premium Spices, Dry Fruits & Gift Boxes | Buy Online India",
   description:

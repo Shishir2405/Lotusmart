@@ -414,7 +414,7 @@ export default function AdminReelsPage() {
                       : "Click to upload a vertical video"}
                   </span>
                   <span className="text-xs text-neutral-300 mt-0.5">
-                    MP4 / WebM / MOV &middot; 9:16 &middot; max 75 MB
+                    MP4 / WebM / MOV &middot; 9:16 &middot; max 150 MB
                   </span>
                   <input
                     type="file"

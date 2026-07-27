@@ -11,8 +11,10 @@ export const UPLOAD_CONFIG = {
     },
   },
   video: {
-    maxBytes: 75 * 1024 * 1024,
-    maxLabel: "75 MB",
+    // Uploads go browser -> Cloudinary directly (see lib/cloudinary-upload.ts),
+    // so this is no longer bounded by Vercel's 4.5 MB serverless body limit.
+    maxBytes: 150 * 1024 * 1024,
+    maxLabel: "150 MB",
     accept: ["video/mp4", "video/webm", "video/quicktime", "video/ogg", "video/x-matroska"],
     compress: {
       videoBitrate: "1500k",
@@ -61,7 +63,9 @@ export interface ValidationError {
 export function validateFile(file: File): ValidationError | null {
   const kind = detectKind(file);
   if (!kind) {
-    return { message: `Unsupported file type: ${file.type || fileExt(file.name) || "unknown"}` };
+    return {
+      message: `Unsupported file type for '${file.name}'. Allowed photos: JPG, PNG, WebP, GIF, AVIF, HEIC. Allowed videos: MP4, WebM, MOV, OGG, MKV.`,
+    };
   }
 
   const cfg = UPLOAD_CONFIG[kind];
@@ -69,19 +73,32 @@ export function validateFile(file: File): ValidationError | null {
     return {
       message:
         kind === "image"
-          ? "Image must be JPEG, PNG, WebP, GIF, AVIF, or HEIC"
-          : "Video must be MP4, WebM, MOV, OGG, or MKV",
+          ? `Image format not supported for '${file.name}'. Allowed photo formats: JPEG, PNG, WebP, GIF, AVIF, HEIC.`
+          : `Video format not supported for '${file.name}'. Allowed video formats: MP4, WebM, MOV, OGG, MKV.`,
+    };
+  }
+
+  const label = kind === "image" ? "Photo" : "Video";
+
+  if (file.size === 0) {
+    return {
+      message: `${label} '${file.name}' is empty (0 KB). The file may be corrupted or still syncing from cloud storage — re-export it and try again.`,
     };
   }
 
   if (file.size > cfg.maxBytes) {
-    const mb = (file.size / 1024 / 1024).toFixed(1);
     return {
-      message: `${kind === "image" ? "Image" : "Video"} is ${mb} MB. Max allowed is ${cfg.maxLabel}.`,
+      message: `${label} '${file.name}' is ${formatSize(file.size)}, which is over the ${cfg.maxLabel} limit. Trim the clip or re-export it at a lower bitrate/resolution, then upload again.`,
     };
   }
 
   return null;
+}
+
+export function formatSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
 export async function compressImage(file: File): Promise<File> {

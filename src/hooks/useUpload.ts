@@ -9,6 +9,11 @@ import {
   validateFile,
   withUploadType,
 } from "@/lib/upload";
+import {
+  describeUploadError,
+  uploadDirectToCloudinary,
+  type SignedUpload,
+} from "@/lib/cloudinary-upload";
 
 export type UploadTarget = "products" | "banners" | "categories" | "profiles" | "blog";
 
@@ -57,28 +62,24 @@ export function useUpload({ target, onSuccess, onError }: UseUploadOptions) {
         }
 
         setStage("uploading");
-        setProgress(null);
+        setProgress(0);
 
-        const fd = new FormData();
-        fd.append("file", prepared);
-        fd.append("target", target);
-        fd.append("kind", kind);
-
-        const res = await axios.post<{ data: { url: string } }>("/api/upload", fd, {
-          onUploadProgress: (e) => {
-            if (e.total) setProgress(Math.round((e.loaded / e.total) * 100));
-          },
+        // The file goes browser -> Cloudinary directly; only the signature comes
+        // from us. Routing bytes through /api/upload capped uploads at Vercel's
+        // 4.5 MB serverless request body limit, which failed every real video.
+        const sig = await axios.post<{ data: SignedUpload }>("/api/upload/signature", {
+          target,
+          kind,
+          filename: prepared.name,
         });
 
-        const uploaded: UploadedFile = { url: res.data.data.url, kind };
+        const { url } = await uploadDirectToCloudinary(prepared, sig.data.data, setProgress);
+
+        const uploaded: UploadedFile = { url, kind };
         onSuccess?.(uploaded);
         return uploaded;
       } catch (e) {
-        const message = axios.isAxiosError(e)
-          ? (e.response?.data?.message ?? `${kind === "image" ? "Image" : "Video"} upload failed`)
-          : e instanceof Error
-            ? e.message
-            : `${kind === "image" ? "Image" : "Video"} upload failed`;
+        const message = describeUploadError(e, kind);
         toast.error(message);
         onError?.(message);
         return null;
