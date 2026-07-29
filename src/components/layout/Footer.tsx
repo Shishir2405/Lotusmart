@@ -126,11 +126,11 @@ export function Footer() {
   const socials = socialConfig
     .map(({ key, icon, label, hoverBg }) => ({
       icon,
-      href: contact?.socialLinks[key as keyof typeof contact.socialLinks] ?? "#",
+      href: contact?.socialLinks?.[key as keyof typeof contact.socialLinks],
       label,
       hoverBg,
     }))
-    .filter(({ href }) => href && href !== "#");
+    .filter(({ href }) => href && href.trim() !== "" && href !== "#");
 
   return (
     <footer style={{ backgroundColor: "#1c1914" }}>

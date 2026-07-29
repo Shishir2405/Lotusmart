@@ -247,9 +247,6 @@ export default function ContactPage() {
             <p className="text-[0.88rem] font-semibold text-neutral-700 mb-2">
               {contact?.businessHours ?? "—"}
             </p>
-            <p className="text-[0.8rem] font-medium" style={{ color: "#a8a29e" }}>
-              Closed on Sundays and public holidays
-            </p>
           </div>
 
           
@@ -265,9 +262,8 @@ export default function ContactPage() {
             </p>
             <div className="flex items-center gap-3">
               {socialIcons.map(({ key, icon: Icon, label, hoverColor }) => {
-                const href =
-                  contact?.socialLinks[key as keyof typeof contact.socialLinks];
-                if (!href) return null;
+                const href = contact?.socialLinks?.[key as keyof typeof contact.socialLinks];
+                if (!href || href.trim() === "" || href === "#") return null;
                 return (
                   <motion.a
                     key={key}
