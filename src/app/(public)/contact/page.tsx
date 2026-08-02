@@ -29,6 +29,7 @@ const socialIcons = [
   { key: "facebook", icon: RiFacebookCircleLine, label: "Facebook", hoverColor: "#1877F2" },
   { key: "twitter", icon: RiTwitterXLine, label: "Twitter / X", hoverColor: "#000000" },
   { key: "youtube", icon: RiYoutubeLine, label: "YouTube", hoverColor: "#FF0000" },
+  { key: "whatsapp", icon: RiWhatsappLine, label: "WhatsApp", hoverColor: "#25D366" },
 ];
 
 export default function ContactPage() {

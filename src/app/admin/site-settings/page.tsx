@@ -63,7 +63,7 @@ interface ContactConfig {
   address: string;
   businessHours: string;
   mapEmbedUrl: string;
-  social: {
+  socialLinks: {
     instagram: string;
     facebook: string;
     twitter: string;
@@ -128,7 +128,7 @@ const EMPTY_CONTACT: ContactConfig = {
   address: "",
   businessHours: "",
   mapEmbedUrl: "",
-  social: {
+  socialLinks: {
     instagram: "",
     facebook: "",
     twitter: "",
@@ -214,7 +214,7 @@ export default function AdminSiteSettingsPage() {
             const merged = {
               ...prev,
               ...val,
-              social: { ...prev.social, ...(val.social ?? {}) },
+              socialLinks: { ...prev.socialLinks, ...(val.socialLinks ?? (val as any).social ?? {}) },
             };
             setContactSnapshot(JSON.stringify(merged));
             return merged;
@@ -803,14 +803,14 @@ function ContactTab({
   saving: boolean;
   onSave: () => void;
 }) {
-  const updateField = (field: keyof Omit<ContactConfig, "social">, value: string) => {
+  const updateField = (field: keyof Omit<ContactConfig, "socialLinks">, value: string) => {
     setContact((c) => ({ ...c, [field]: value }));
   };
 
-  const updateSocial = (field: keyof ContactConfig["social"], value: string) => {
+  const updateSocial = (field: keyof ContactConfig["socialLinks"], value: string) => {
     setContact((c) => ({
       ...c,
-      social: { ...c.social, [field]: value },
+      socialLinks: { ...c.socialLinks, [field]: value },
     }));
   };
 
@@ -877,14 +877,14 @@ function ContactTab({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               label="Instagram"
-              value={contact.social.instagram}
+              value={contact.socialLinks.instagram}
               onChange={(e) => updateSocial("instagram", e.target.value)}
               placeholder="https://instagram.com/yourstore"
               leftIcon={<RiInstagramLine />}
             />
             <Input
               label="Facebook"
-              value={contact.social.facebook}
+              value={contact.socialLinks.facebook}
               onChange={(e) => updateSocial("facebook", e.target.value)}
               placeholder="https://facebook.com/yourstore"
               leftIcon={<RiFacebookLine />}
@@ -893,14 +893,14 @@ function ContactTab({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               label="Twitter / X"
-              value={contact.social.twitter}
+              value={contact.socialLinks.twitter}
               onChange={(e) => updateSocial("twitter", e.target.value)}
               placeholder="https://x.com/yourstore"
               leftIcon={<RiTwitterXLine />}
             />
             <Input
               label="YouTube"
-              value={contact.social.youtube}
+              value={contact.socialLinks.youtube}
               onChange={(e) => updateSocial("youtube", e.target.value)}
               placeholder="https://youtube.com/@yourstore"
               leftIcon={<RiYoutubeLine />}
@@ -909,7 +909,7 @@ function ContactTab({
           <div className="max-w-[calc(50%-0.5rem)]">
             <Input
               label="WhatsApp Link"
-              value={contact.social.whatsapp}
+              value={contact.socialLinks.whatsapp}
               onChange={(e) => updateSocial("whatsapp", e.target.value)}
               placeholder="https://wa.me/919876543210"
               leftIcon={<RiWhatsappLine />}

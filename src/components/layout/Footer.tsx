@@ -9,6 +9,7 @@ import {
   RiFacebookCircleLine,
   RiTwitterXLine,
   RiWhatsappLine,
+  RiYoutubeLine,
   RiMailLine,
   RiPhoneLine,
   RiMapPinLine,
@@ -44,6 +45,7 @@ const socialConfig = [
   { key: "instagram", icon: RiInstagramLine, label: "Instagram", hoverBg: "#E1306C" },
   { key: "facebook", icon: RiFacebookCircleLine, label: "Facebook", hoverBg: "#1877F2" },
   { key: "twitter", icon: RiTwitterXLine, label: "Twitter / X", hoverBg: "#000000" },
+  { key: "youtube", icon: RiYoutubeLine, label: "YouTube", hoverBg: "#FF0000" },
   { key: "whatsapp", icon: RiWhatsappLine, label: "WhatsApp", hoverBg: "#25D366" },
 ];
 
