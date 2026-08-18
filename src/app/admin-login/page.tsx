@@ -83,7 +83,14 @@ export default function AdminLoginPage() {
         isVerified: user.isVerified,
       });
       toast.success(`Welcome back, ${user.name?.split(" ")[0]}!`);
-      router.push("/admin/dashboard");
+      // On the admin subdomain (production) this page is served at
+      // "/login", where "/dashboard" resolves via middleware to
+      // "/admin/dashboard". Elsewhere (dev/preview) it's the plain path.
+      const dest =
+        typeof window !== "undefined" && window.location.hostname === "admin.lotusmart.in"
+          ? "/dashboard"
+          : "/admin/dashboard";
+      router.push(dest);
     } catch (err) {
       const msg = axios.isAxiosError(err)
         ? err.response?.data?.message ?? "Authentication failed"

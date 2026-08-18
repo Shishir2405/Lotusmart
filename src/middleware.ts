@@ -12,7 +12,12 @@ const ALLOWED_ORIGINS = [
   process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   "https://lotusmart.in",
   "https://www.lotusmart.in",
+  "https://admin.lotusmart.in",
 ].filter(Boolean);
+
+// Production domain split: admin lives on its own subdomain.
+const MAIN_HOSTS = ["lotusmart.in", "www.lotusmart.in"];
+const ADMIN_HOST = "admin.lotusmart.in";
 
 function getSecretKey(): Uint8Array {
   const secret = process.env.JWT_SECRET;
@@ -121,6 +126,9 @@ function matchesAny(pathname: string, patterns: RegExp[]): boolean {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const hostname = (request.headers.get("host") || "").split(":")[0];
+  const onAdminHost = hostname === ADMIN_HOST;
+  const onMainHost = MAIN_HOSTS.includes(hostname);
 
   // ---------- API route protection ----------
   if (pathname.startsWith("/api/")) {
@@ -140,27 +148,83 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
+  // ---------- Admin subdomain routing (production only) ----------
+
+  // On the main domain, bounce legacy /admin* and /admin-login links
+  // over to the admin subdomain.
+  if (onMainHost) {
+    if (adminLoginPattern.test(pathname)) {
+      const url = new URL(request.url);
+      url.hostname = ADMIN_HOST;
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
+    if (matchesAny(pathname, adminPatterns)) {
+      const url = new URL(request.url);
+      url.hostname = ADMIN_HOST;
+      url.pathname = pathname.replace(/^\/admin/, "") || "/dashboard";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // On the admin subdomain, alias the two clean entry points ("/" and
+  // "/login") to the underlying /admin/dashboard and /admin-login pages.
+  // Deep links keep using /admin/* (e.g. admin.lotusmart.in/admin/orders),
+  // which already works unchanged.
+  let canonicalPathname = pathname;
+  let needsRewrite = false;
+  if (onAdminHost) {
+    if (pathname === "/login") {
+      canonicalPathname = "/admin-login";
+      needsRewrite = true;
+    } else if (pathname === "/") {
+      canonicalPathname = "/admin/dashboard";
+      needsRewrite = true;
+    }
+  }
+
+  function toAdminUrl(path: string): URL {
+    const url = new URL(request.url);
+    if (onAdminHost) {
+      url.hostname = ADMIN_HOST;
+      url.pathname = path.replace(/^\/admin/, "") || "/dashboard";
+    } else {
+      url.pathname = path;
+    }
+    return url;
+  }
+
   // ---------- Page route protection ----------
   const user = await verifyAuth(request);
 
 
-  if (adminLoginPattern.test(pathname)) {
+  if (adminLoginPattern.test(canonicalPathname)) {
 
     if (user && user.role === "admin") {
-      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+      return NextResponse.redirect(toAdminUrl("/admin/dashboard"));
+    }
+    if (needsRewrite) {
+      return NextResponse.rewrite(new URL(canonicalPathname, request.url));
     }
     return NextResponse.next();
   }
 
 
-  if (matchesAny(pathname, adminPatterns)) {
+  if (matchesAny(canonicalPathname, adminPatterns)) {
     if (!user) {
-      const loginUrl = new URL("/admin-login", request.url);
+      const loginUrl = onAdminHost
+        ? new URL("/login", request.url)
+        : new URL("/admin-login", request.url);
       loginUrl.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(loginUrl);
     }
     if (user.role !== "admin") {
-      return NextResponse.redirect(new URL("/", request.url));
+      const homeUrl = new URL("/", request.url);
+      if (onAdminHost) homeUrl.hostname = MAIN_HOSTS[0];
+      return NextResponse.redirect(homeUrl);
+    }
+    if (needsRewrite) {
+      return NextResponse.rewrite(new URL(canonicalPathname, request.url));
     }
     return NextResponse.next();
   }
@@ -199,5 +263,8 @@ export const config = {
     "/admin-login",
     "/login",
     "/register",
+    // Admin subdomain clean entry points ("/" -> dashboard, handled only
+    // when the request host is admin.lotusmart.in)
+    "/",
   ],
 };
