@@ -51,6 +51,8 @@ interface ProductData {
   manufacturer?: string;
   isActive: boolean;
   isFeatured: boolean;
+  showOnWebsite?: boolean;
+  showOnApp?: boolean;
   tags: string[];
   images: string[];
   videos?: string[];
@@ -220,6 +222,16 @@ export default function AdminProductDetailsPage() {
             {product.isFeatured && (
               <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 flex items-center gap-1">
                 <RiStarFill size={12} /> Featured
+              </span>
+            )}
+            {product.showOnWebsite === false && (
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-neutral-100 text-neutral-500">
+                Off Website
+              </span>
+            )}
+            {product.showOnApp === false && (
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-neutral-100 text-neutral-500">
+                Off App
               </span>
             )}
           </div>

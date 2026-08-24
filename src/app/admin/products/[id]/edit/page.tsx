@@ -90,6 +90,8 @@ interface ProductData {
   manufacturer?: string;
   isActive: boolean;
   isFeatured: boolean;
+  showOnWebsite?: boolean;
+  showOnApp?: boolean;
   tags: string[];
   images: string[];
   videos?: string[];
@@ -198,6 +200,8 @@ const EMPTY_FORM = {
   
   isActive: true,
   isFeatured: false,
+  showOnWebsite: true,
+  showOnApp: true,
 };
 
 export default function EditProductPage() {
@@ -285,6 +289,8 @@ export default function EditProductPage() {
         videoUrl: p.videoUrl ?? "",
         isActive: p.isActive,
         isFeatured: p.isFeatured,
+        showOnWebsite: p.showOnWebsite ?? true,
+        showOnApp: p.showOnApp ?? true,
       });
 
       setImages(p.images ?? []);
@@ -462,6 +468,8 @@ export default function EditProductPage() {
         videoUrl: form.videoUrl || undefined,
         isActive: form.isActive,
         isFeatured: form.isFeatured,
+        showOnWebsite: form.showOnWebsite,
+        showOnApp: form.showOnApp,
       };
 
       await axios.patch(`/api/products/${id}`, payload);
@@ -840,6 +848,18 @@ export default function EditProductPage() {
             <input type="checkbox" checked={form.isFeatured} onChange={(e) => setForm((f) => ({ ...f, isFeatured: e.target.checked }))} className="rounded accent-[#E84672]" />
             <span className="text-sm text-neutral-700">Featured (shown on homepage)</span>
           </label>
+          <div className="pt-2 mt-1 border-t border-neutral-100">
+            <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-2">Sell on</p>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" checked={form.showOnWebsite} onChange={(e) => setForm((f) => ({ ...f, showOnWebsite: e.target.checked }))} className="rounded accent-[#E84672]" />
+              <span className="text-sm text-neutral-700">Website (lotusmart.in — India-wide)</span>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer mt-2">
+              <input type="checkbox" checked={form.showOnApp} onChange={(e) => setForm((f) => ({ ...f, showOnApp: e.target.checked }))} className="rounded accent-[#E84672]" />
+              <span className="text-sm text-neutral-700">App (Indore-only grocery delivery)</span>
+            </label>
+            <p className="text-xs text-neutral-400 mt-2">Uncheck one to keep this product off that channel entirely — e.g. a grocery item that should only sell through the app.</p>
+          </div>
         </div>
 
         <div className="flex gap-3">

@@ -7,7 +7,12 @@ import { FeaturedProductsClient } from "./FeaturedProductsClient";
 async function getFeaturedProducts() {
   try {
     await connectDB();
-    const products = await Product.find({ isActive: true, isFeatured: true })
+    const products = await Product.find({
+      isActive: true,
+      isFeatured: true,
+      // Grocery-only products (app, Indore) never surface on the website.
+      showOnWebsite: { $ne: false },
+    })
       .populate("category", "name slug")
       .sort({ "ratings.count": -1 })
       .limit(8)

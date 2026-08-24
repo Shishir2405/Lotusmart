@@ -147,6 +147,7 @@ interface ProductFormValues {
   returnPolicy: string; warranty: string;
   metaTitle: string; metaDescription: string; videoUrl: string;
   isActive: boolean; isFeatured: boolean;
+  showOnWebsite: boolean; showOnApp: boolean;
 }
 
 const DEFAULTS: ProductFormValues = {
@@ -171,6 +172,7 @@ const DEFAULTS: ProductFormValues = {
   returnPolicy: "", warranty: "",
   metaTitle: "", metaDescription: "", videoUrl: "",
   isActive: true, isFeatured: false,
+  showOnWebsite: true, showOnApp: true,
 };
 
 export default function NewProductPage() {
@@ -343,7 +345,8 @@ export default function NewProductPage() {
         certifications: data.certifications.length > 0 ? data.certifications : undefined,
         fssaiLicense: data.fssaiLicenseNumber || undefined,
         isOrganic: data.isOrganic, isVegan: data.isVegan, isGlutenFree: data.isGlutenFree,
-        isActive: data.isActive, isFeatured: data.isFeatured, images, videos,
+        isActive: data.isActive, isFeatured: data.isFeatured,
+        showOnWebsite: data.showOnWebsite, showOnApp: data.showOnApp, images, videos,
         bulkPricing: bulkPricing.filter((r) => r.minQty && r.price).map((r) => ({ minQty: Number(r.minQty), maxQty: r.maxQty ? Number(r.maxQty) : undefined, price: Number(r.price), unit: r.unit })),
         nutritionInfo: {
           servingSize: data.servingSize || undefined,
@@ -755,6 +758,12 @@ export default function NewProductPage() {
             <h2 className="font-semibold text-neutral-800">Visibility</h2>
             <label className="flex items-center gap-3 cursor-pointer"><input type="checkbox" {...register("isActive")} className="rounded accent-[#E84672]" /><span className="text-sm text-neutral-700">Active (visible to customers)</span></label>
             <label className="flex items-center gap-3 cursor-pointer"><input type="checkbox" {...register("isFeatured")} className="rounded accent-[#E84672]" /><span className="text-sm text-neutral-700">Featured (shown on homepage)</span></label>
+            <div className="pt-2 mt-1 border-t border-neutral-100">
+              <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-2">Sell on</p>
+              <label className="flex items-center gap-3 cursor-pointer"><input type="checkbox" {...register("showOnWebsite")} className="rounded accent-[#E84672]" /><span className="text-sm text-neutral-700">Website (lotusmart.in — India-wide)</span></label>
+              <label className="flex items-center gap-3 cursor-pointer mt-2"><input type="checkbox" {...register("showOnApp")} className="rounded accent-[#E84672]" /><span className="text-sm text-neutral-700">App (Indore-only grocery delivery)</span></label>
+              <p className="text-xs text-neutral-400 mt-2">Uncheck one to keep this product off that channel entirely — e.g. a grocery item that should only sell through the app.</p>
+            </div>
           </div>
         </>)}
 

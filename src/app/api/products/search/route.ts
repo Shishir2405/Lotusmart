@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 
 import { ApiError } from "@/lib/api-error";
 import { errorResponse, successResponse } from "@/lib/api-response";
+import { channelProductFilter } from "@/lib/channel";
 import connectDB from "@/lib/db";
 import Product from "@/modules/products/product.model";
 import Category from "@/modules/products/category.model";
@@ -53,7 +54,11 @@ export async function GET(request: NextRequest) {
     }));
 
     const products = await Product.find(
-      { isActive: true, ...(and.length ? { $and: and } : {}) },
+      {
+        isActive: true,
+        ...(and.length ? { $and: and } : {}),
+        ...(await channelProductFilter(request)),
+      },
       {
         name: 1,
         slug: 1,

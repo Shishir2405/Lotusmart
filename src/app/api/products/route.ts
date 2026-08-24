@@ -10,6 +10,7 @@ import {
   paginatedResponse,
 } from "@/lib/api-response";
 import { requireAdmin } from "@/lib/auth";
+import { channelProductFilter } from "@/lib/channel";
 import connectDB from "@/lib/db";
 import Category from "@/modules/products/category.model";
 import Product from "@/modules/products/product.model";
@@ -95,12 +96,17 @@ export async function GET(request: NextRequest) {
       query.$text = { $search: search };
     }
 
-    
+
     if (featured === "true") {
       query.isFeatured = true;
     }
 
-    
+    // Grocery (app, Indore-only) vs premium dry-fruit (website, India-wide):
+    // scope results to whatever channel this request came from. No-op for an
+    // authenticated admin, who needs to see the full catalog either way.
+    Object.assign(query, await channelProductFilter(request));
+
+
     let sort: Record<string, any> = { createdAt: -1 };
     if (search) {
       sort = { score: { $meta: "textScore" } };
@@ -157,9 +163,11 @@ export async function POST(request: NextRequest) {
       lowStockThreshold,
       isActive,
       isFeatured,
+      showOnWebsite,
+      showOnApp,
       tags,
       variants,
-      
+
       brand,
       manufacturer,
       countryOfOrigin,
@@ -233,9 +241,11 @@ export async function POST(request: NextRequest) {
       lowStockThreshold: lowStockThreshold ?? 5,
       isActive: isActive ?? true,
       isFeatured: isFeatured ?? false,
+      showOnWebsite: showOnWebsite ?? true,
+      showOnApp: showOnApp ?? true,
       tags: tags ?? [],
       variants: variants ?? [],
-      
+
       brand,
       manufacturer,
       countryOfOrigin,

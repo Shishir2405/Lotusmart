@@ -24,7 +24,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     await connectDB();
 
     const [products, categories, blogs] = await Promise.all([
-      Product.find({ isActive: true }).select("slug updatedAt").lean(),
+      Product.find({ isActive: true, showOnWebsite: { $ne: false } })
+        .select("slug updatedAt")
+        .lean(),
       Category.find({ isActive: true }).select("slug updatedAt").lean(),
       Blog.find({ status: "published", isActive: true }).select("slug updatedAt").lean(),
     ]);

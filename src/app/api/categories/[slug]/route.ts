@@ -4,13 +4,14 @@ import { NextRequest } from "next/server";
 
 import { ApiError } from "@/lib/api-error";
 import { errorResponse, successResponse } from "@/lib/api-response";
+import { channelProductFilter } from "@/lib/channel";
 import connectDB from "@/lib/db";
 import Category from "@/modules/products/category.model";
 import Product from "@/modules/products/product.model";
 
 type RouteParams = { params: Promise<{ slug: string }> };
 
-export async function GET(_request: NextRequest, { params }: RouteParams) {
+export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     await connectDB();
     const { slug } = await params;
@@ -31,6 +32,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     const productCount = await Product.countDocuments({
       category: category._id,
       isActive: true,
+      ...(await channelProductFilter(request)),
     });
 
     return successResponse(

@@ -160,6 +160,12 @@ export interface IProduct extends Timestamps {
   lowStockThreshold: number;
   isActive: boolean;
   isFeatured: boolean;
+  // Channel visibility: the app sells the full catalog (grocery, Indore-only
+  // delivery) while the website is India-wide, premium dry-fruit only. Both
+  // default true so every existing product keeps showing everywhere until an
+  // admin deliberately scopes a new (e.g. grocery) product to one channel.
+  showOnWebsite: boolean;
+  showOnApp: boolean;
   tags: string[];
   variants: IProductVariant[];
   ratings: {

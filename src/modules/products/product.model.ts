@@ -112,6 +112,12 @@ const ProductSchema = new Schema<IProductDocument>(
     lowStockThreshold: { type: Number, default: 5, min: 0 },
     isActive: { type: Boolean, default: true },
     isFeatured: { type: Boolean, default: false },
+    // Channel visibility (see IProduct in @/types for the business context).
+    // Filtered with $ne: false, not $eq: true, everywhere it's queried — that
+    // way products from before this field existed (undefined in the DB) keep
+    // showing on both channels exactly as they do today.
+    showOnWebsite: { type: Boolean, default: true },
+    showOnApp: { type: Boolean, default: true },
     tags: { type: [String], default: [] },
     variants: { type: [VariantSchema], default: [] },
     ratings: {

@@ -91,6 +91,7 @@ export default async function CategoryPage({ params }: PageProps) {
 
   const products = await Product.find({
     isActive: true,
+    showOnWebsite: { $ne: false },
     $or: [
       { category: { $in: categoryIds } },
       { subcategory: { $in: categoryIds } },

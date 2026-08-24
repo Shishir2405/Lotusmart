@@ -30,6 +30,8 @@ interface Product {
   stock: number;
   isActive: boolean;
   isFeatured: boolean;
+  showOnWebsite?: boolean;
+  showOnApp?: boolean;
   category?: { name: string };
   createdAt: string;
 }
@@ -277,15 +279,29 @@ export default function AdminProductsPage() {
                     </span>
                   </td>
                   <td className="px-4 py-4">
-                    <button
-                      type="button"
-                      onClick={() => toggleActive(product._id, product.isActive)}
-                      title="Click to toggle status"
-                    >
-                      <Badge variant={product.isActive ? "success" : "neutral"} dot>
-                        {product.isActive ? "Active" : "Inactive"}
-                      </Badge>
-                    </button>
+                    <div className="flex flex-col items-start gap-1">
+                      <button
+                        type="button"
+                        onClick={() => toggleActive(product._id, product.isActive)}
+                        title="Click to toggle status"
+                      >
+                        <Badge variant={product.isActive ? "success" : "neutral"} dot>
+                          {product.isActive ? "Active" : "Inactive"}
+                        </Badge>
+                      </button>
+                      {(product.showOnWebsite === false || product.showOnApp === false) && (
+                        <span
+                          className="text-[10px] font-semibold text-neutral-400"
+                          title="Sell-on channel is restricted for this product"
+                        >
+                          {product.showOnWebsite === false && product.showOnApp === false
+                            ? "Off Website & App"
+                            : product.showOnWebsite === false
+                            ? "Off Website"
+                            : "Off App"}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">

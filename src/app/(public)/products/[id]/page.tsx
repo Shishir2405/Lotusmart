@@ -17,7 +17,11 @@ async function getProductById(id: string) {
   try {
     if (!isValidObjectId(id)) return null;
     await connectDB();
-    const product = await Product.findOne({ _id: id, isActive: true })
+    const product = await Product.findOne({
+      _id: id,
+      isActive: true,
+      showOnWebsite: { $ne: false },
+    })
       .populate({ path: "category", model: Category, select: "name slug" })
       .lean();
     return product ? JSON.parse(JSON.stringify(product)) : null;
@@ -32,7 +36,11 @@ async function resolveSlugToId(slug: string): Promise<string | null> {
   try {
     await connectDB();
     const normalized = decodeURIComponent(slug).trim().toLowerCase();
-    const product = await Product.findOne({ slug: normalized, isActive: true })
+    const product = await Product.findOne({
+      slug: normalized,
+      isActive: true,
+      showOnWebsite: { $ne: false },
+    })
       .select("_id")
       .lean();
     return product ? String(product._id) : null;

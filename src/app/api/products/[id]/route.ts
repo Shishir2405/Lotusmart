@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { ApiError } from "@/lib/api-error";
 import { errorResponse, successResponse } from "@/lib/api-response";
 import { requireAdmin } from "@/lib/auth";
+import { channelProductFilter } from "@/lib/channel";
 import connectDB from "@/lib/db";
 import Product from "@/modules/products/product.model";
 
@@ -19,16 +20,21 @@ function revalidateProductSurfaces(slug?: string) {
 type RouteParams = { params: Promise<{ id: string }> };
 
 
-export async function GET(_request: NextRequest, { params }: RouteParams) {
+export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     await connectDB();
     const { id } = await params;
+    // Same route the mobile app's product detail screen and the admin
+    // product-edit page both call — scope to whichever channel is asking.
+    // No-op for an authenticated admin, who needs the product either way.
+    const channelFilter = await channelProductFilter(request);
 
-    
     const isObjectId = mongoose.isValidObjectId(id);
     const product = isObjectId
-      ? await Product.findById(id).populate("category", "name slug").lean()
-      : await Product.findOne({ slug: id, isActive: true })
+      ? await Product.findOne({ _id: id, ...channelFilter })
+          .populate("category", "name slug")
+          .lean()
+      : await Product.findOne({ slug: id, isActive: true, ...channelFilter })
           .populate("category", "name slug")
           .lean();
 
