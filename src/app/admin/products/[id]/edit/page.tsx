@@ -490,7 +490,7 @@ export default function EditProductPage() {
 
   if (loading) {
     return (
-      <div className="p-8 max-w-3xl space-y-4">
+      <div className="p-8 space-y-4">
         <Skeleton className="h-6 w-32" />
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-48 w-full" rounded="xl" />
@@ -500,7 +500,7 @@ export default function EditProductPage() {
   }
 
   return (
-    <div className="p-8 max-w-3xl">
+    <div className="p-8">
       <Link href="/admin/products" className="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-800 transition-colors mb-6">
         <RiArrowLeftLine size={15} />
         Back to Products

@@ -38,6 +38,9 @@ export async function GET(request: NextRequest) {
     const statusParam = searchParams.get("status");
     const includeInactive = searchParams.get("includeInactive") === "true";
     const isActiveParam = searchParams.get("isActive");
+    // Admin-only explicit channel filter ("website" | "app"), distinct from
+    // channelProductFilter below which auto-scopes storefront/app requests.
+    const channelParam = searchParams.get("channel");
 
     const query: Record<string, any> = {};
 
@@ -105,6 +108,15 @@ export async function GET(request: NextRequest) {
     // scope results to whatever channel this request came from. No-op for an
     // authenticated admin, who needs to see the full catalog either way.
     Object.assign(query, await channelProductFilter(request));
+
+    // Admin products table: explicit "Website" / "App" filter, so an admin
+    // can audit exactly what a channel would see. Uses the same $ne: false
+    // semantics as the storefront filter above (undefined = still visible).
+    if (channelParam === "website") {
+      query.showOnWebsite = { $ne: false };
+    } else if (channelParam === "app") {
+      query.showOnApp = { $ne: false };
+    }
 
 
     let sort: Record<string, any> = { createdAt: -1 };

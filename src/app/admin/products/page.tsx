@@ -37,6 +37,7 @@ interface Product {
 }
 
 type StatusFilter = "all" | "active" | "inactive";
+type ChannelFilter = "all" | "website" | "app";
 
 const LIMIT = 20;
 
@@ -45,6 +46,7 @@ export default function AdminProductsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<StatusFilter>("all");
+  const [channel, setChannel] = useState<ChannelFilter>("all");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const debouncedSearch = useDebounce(search, 400);
@@ -56,6 +58,7 @@ export default function AdminProductsPage() {
         page: String(page),
         limit: String(LIMIT),
         status,
+        ...(channel !== "all" && { channel }),
         ...(debouncedSearch && { search: debouncedSearch }),
       });
       const res = await axios.get<{
@@ -73,10 +76,15 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     fetchProducts();
-  }, [page, status, debouncedSearch]);
+  }, [page, status, channel, debouncedSearch]);
 
   const handleStatusChange = (newStatus: StatusFilter) => {
     setStatus(newStatus);
+    setPage(1);
+  };
+
+  const handleChannelChange = (newChannel: ChannelFilter) => {
+    setChannel(newChannel);
     setPage(1);
   };
 
@@ -123,8 +131,8 @@ export default function AdminProductsPage() {
         </Link>
       </div>
 
-      <div className="bg-white rounded-2xl border border-neutral-100 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-2 bg-[#F7F6F0] rounded-xl px-3 py-2 w-full md:max-w-xs">
+      <div className="bg-white rounded-2xl border border-neutral-100 p-4 flex flex-col md:flex-row md:items-center md:flex-wrap gap-4">
+        <div className="flex items-center gap-2 bg-[#F7F6F0] rounded-xl px-3 py-2 w-full md:max-w-xs md:mr-auto">
           <RiSearchLine className="text-neutral-400" size={16} />
           <input
             placeholder="Search products..."
@@ -167,6 +175,40 @@ export default function AdminProductsPage() {
             }`}
           >
             Inactive
+          </button>
+        </div>
+
+        <div className="flex items-center gap-1.5 bg-neutral-100/70 p-1 rounded-xl">
+          <RiFilter3Line className="text-neutral-400 ml-1.5" size={14} />
+          <button
+            onClick={() => handleChannelChange("all")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              channel === "all"
+                ? "bg-white text-neutral-900 shadow-sm"
+                : "text-neutral-500 hover:text-neutral-800"
+            }`}
+          >
+            All Channels
+          </button>
+          <button
+            onClick={() => handleChannelChange("website")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              channel === "website"
+                ? "bg-[#E84672] text-white shadow-sm"
+                : "text-neutral-500 hover:text-neutral-800"
+            }`}
+          >
+            Website
+          </button>
+          <button
+            onClick={() => handleChannelChange("app")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              channel === "app"
+                ? "bg-[#E84672] text-white shadow-sm"
+                : "text-neutral-500 hover:text-neutral-800"
+            }`}
+          >
+            App
           </button>
         </div>
       </div>
