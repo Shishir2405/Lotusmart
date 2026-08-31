@@ -213,7 +213,7 @@ export function WatchAndBuy() {
         const res = await fetch(`/api/reels?page=1&limit=${PAGE_SIZE}`, {
           signal: controller.signal,
           // Required by the API middleware for client-side requests, else 403.
-          headers: { "X-Requested-With": "LotusApp" },
+          headers: { "X-Requested-With": "LotusWeb" },
         });
         if (!res.ok) return;
         const json: ReelsResponse = await res.json();
@@ -379,7 +379,7 @@ export function ReelsGallery() {
     try {
       const res = await fetch(`/api/reels?page=${nextPage}&limit=${PAGE_SIZE}`, {
         // Required by the API middleware for client-side requests, else 403.
-        headers: { "X-Requested-With": "LotusApp" },
+        headers: { "X-Requested-With": "LotusWeb" },
       });
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
       const json: ReelsResponse = await res.json();

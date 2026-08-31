@@ -220,7 +220,7 @@ export function ReelPlayerModal({
         // X-Requested-With is required by the API middleware, else 403.
         headers: {
           "Content-Type": "application/json",
-          "X-Requested-With": "LotusApp",
+          "X-Requested-With": "LotusWeb",
         },
         body: JSON.stringify({ liked: willLike }),
       });

@@ -88,8 +88,12 @@ function protectApiRoute(request: NextRequest): NextResponse | null {
   // Allow: server components need this for internal API calls.
   if (!effectiveOrigin) return null;
 
-  // Client-side XHR/fetch — require the custom header
-  if (requestedWith !== "LotusApp") {
+  // Client-side XHR/fetch — require one of our own clients' custom headers.
+  // "LotusApp" = the mobile app, "LotusWeb" = this website's own browser
+  // client (see src/lib/channel.ts, which relies on that distinction to
+  // scope product visibility by channel — don't collapse these back into
+  // one value).
+  if (requestedWith !== "LotusApp" && requestedWith !== "LotusWeb") {
     return blockApiRequest("Forbidden");
   }
 

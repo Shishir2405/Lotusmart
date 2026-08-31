@@ -7,8 +7,10 @@ import "@/lib/axios-globals";
 const apiClient = axios.create();
 
 apiClient.interceptors.request.use((config) => {
-  // Custom header required by API middleware — prevents direct URL access
-  config.headers["X-Requested-With"] = "LotusApp";
+  // Custom header required by API middleware — prevents direct URL access.
+  // Must be "LotusWeb" (see axios-globals.ts) so /lib/channel.ts doesn't
+  // mistake website requests for the mobile app's.
+  config.headers["X-Requested-With"] = "LotusWeb";
 
   if (typeof window !== "undefined") {
     const deviceId = getDeviceId();

@@ -89,7 +89,7 @@ export function RecentPurchaseToast() {
       try {
         const res = await fetch("/api/orders/recent", {
           // Required by the API middleware for client-side requests, else 403.
-          headers: { "X-Requested-With": "LotusApp" },
+          headers: { "X-Requested-With": "LotusWeb" },
         });
         if (!res.ok) return;
         const json: unknown = await res.json();
